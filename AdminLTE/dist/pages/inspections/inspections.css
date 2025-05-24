@@ -10,7 +10,7 @@ body {
 .element {
   width: 100%;
 }
-.perform_inspection_modal{  
+.perform_inspection_modal{
       z-index: 10000;
       position: absolute;
       top: 0;
@@ -56,7 +56,7 @@ body {
   }
 
                         /* SELECT, INPUT, TEXT_AREA */
- 
+
 /* notification popup */
 
 /* Form styles */
@@ -358,7 +358,7 @@ tr td:first-child {
 }
 
 
-   
+
 
     /* Submit button */
     .submit-btn {
@@ -497,7 +497,7 @@ tr td:first-child {
   display: flex;
   justify-content: space-between;
 }
- 
+
 
 /* Scheduled section */
 .inspection-details-container{
@@ -525,3 +525,4 @@ line-height: 22px;
 border-bottom-right-radius: 5px;
 border-bottom-left-radius: 5px;
 }
+' '
