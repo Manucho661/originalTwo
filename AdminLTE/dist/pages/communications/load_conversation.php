@@ -2,20 +2,19 @@
 include '../db/connect.php';
 header('Content-Type: application/json');
 
-// Input
 $threadId = isset($_GET['thread_id']) ? (int)$_GET['thread_id'] : null;
 if (!$threadId) {
     echo json_encode(['error' => 'Missing thread_id']);
     exit;
 }
 
-// Fetch thread title
+// Get thread title
 $stmtTitle = $pdo->prepare("SELECT title FROM communication WHERE thread_id = :thread_id");
 $stmtTitle->execute(['thread_id' => $threadId]);
 $titleRow = $stmtTitle->fetch(PDO::FETCH_ASSOC);
 $title = $titleRow ? $titleRow['title'] : 'Not Found';
 
-// Fetch messages and attachments
+// Get messages
 $stmt = $pdo->prepare("
     SELECT
         m.message_id,
@@ -41,7 +40,6 @@ foreach ($messages as $msg) {
     $content = nl2br(htmlspecialchars($msg['content']));
     $timestamp = date('H:i', strtotime($msg['timestamp']));
 
-    // Merge file paths from message_files and messages.file_path
     $file_paths = [];
     $file_ids = [];
 
@@ -57,12 +55,6 @@ foreach ($messages as $msg) {
 
     $messagesHtml .= "<div class='message $class'>";
     $messagesHtml .= "<div class='bubble'>$content</div>";
-
-
-    // $tickIcon = $isViewed 
-    // ? "<i class='fas fa-check-double viewed-tick' title='Viewed'></i>" 
-    // : "<i class='fas fa-check-double unviewed-tick' title='Not viewed yet'></i>";
-
 
     if (!empty($file_paths)) {
         $messagesHtml .= "<div class='attachments mt-2'>";
@@ -85,84 +77,64 @@ foreach ($messages as $msg) {
                 $mimeType = mime_content_type($full_path);
 
                 if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'])) {
-
-
-                     $messagesHtml .= "
-                     <div class='attachment-image whatsapp-style'> 
-                         <div class='image-container'>
-                             <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
-                                 <i class='fas fa-download'></i>
-                             </a>
-                           
-                             <img src='data:$mimeType;base64,$base64' alt='$basename' class='media-image'>
-                        
-                             </div>
-                         <div class='file-name'>$basename</div>
-                        
-                 </div>";
-                    
-
+                    $messagesHtml .= "
+                    <div class='attachment-image whatsapp-style'>
+                        <div class='image-container'>
+                            <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
+                                <i class='fas fa-download'></i>
+                            </a>
+                            <img src='data:$mimeType;base64,$base64' alt='$basename' class='media-image'>
+                        </div>
+                        <div class='file-name'>$basename</div>
+                    </div>";
                 } elseif ($ext === 'pdf') {
-            //       $messagesHtml .= "<div class='attachment-file whatsapp-style-file'>
-            //       <div class='file-container'>
-            //           <embed src='data:$mimeType;base64,$base64' type='$mimeType' class='file-preview' />
-            //           <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
-            //               <i class='fas fa-download'></i>
-            //           </a>
-            //       </div>
-            //       <a href='data:$mimeType;base64,$base64' download='$basename' class='file-download-link'>
-            //           <i class='fas fa-file-pdf file-icon'></i>
-            //           <span class='file-name'>$basename</span>
-            //       </a>
-            //   </div>";
-
-            $messagesHtml .= "<div class='attachment-file whatsapp-style-file' data-filename='$basename'>
-    <div class='file-container'>
-        <embed src='data:$mimeType;base64,$base64' type='$mimeType' class='file-preview' />
-        <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
-            <i class='fas fa-download'></i>
-        </a>
-        <button class='delete-icon' title='Delete' onclick='deleteAttachment(this, \"$basename\")'>
-            <i class='fas fa-trash-alt'></i>
-        </button>
-    </div>
-    <a href='data:$mimeType;base64,$base64' download='$basename' class='file-download-link'>
-        <i class='fas fa-file-pdf file-icon'></i>
-        <span class='file-name'>$basename</span>
-    </a>
-</div>";
-                }
-                 else {
-                    // $messagesHtml .= "<div class='attachment-file mb-2'>
-                    //     <a href='data:$mimeType;base64,$base64' download='$basename' class='btn btn-sm btn-outline-secondary'>
-                    //         <i class='fas fa-download'></i> $basename
-                    //     </a>
-                    // </div>";
-                    $viewed = $message['viewed']; // true/false or 1/0
-                    $tickIcon = $viewed
-                        ? "<i class='fas fa-check-double text-primary ms-2'></i>"  // blue tick (viewed)
-                        : "<i class='fas fa-check text-muted ms-2'></i>";           // grey tick (not viewed)
-
+                    $messagesHtml .= "<div class='attachment-file whatsapp-style-file' data-filename='$basename'>
+                        <div class='file-container'>
+                            <embed src='data:$mimeType;base64,$base64' type='$mimeType' class='file-preview' />
+                            <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
+                                <i class='fas fa-download'></i>
+                            </a>
+                            <button class='delete-icon' title='Delete' onclick='deleteAttachment(this, \"$basename\")'>
+                                <i class='fas fa-trash-alt'></i>
+                            </button>
+                        </div>
+                        <a href='data:$mimeType;base64,$base64' download='$basename' class='file-download-link'>
+                            <i class='fas fa-file-pdf file-icon'></i>
+                            <span class='file-name'>$basename</span>
+                        </a>
+                    </div>";
+                } else {
                     $messagesHtml .= "<div class='attachment-file mb-2'>
                         <a href='data:$mimeType;base64,$base64' download='$basename' class='btn btn-sm btn-outline-secondary'>
                             <i class='fas fa-download'></i> $basename
                         </a>
-                        $tickIcon
                     </div>";
 
                 }
-            }
-            else {
+            } else {
                 $messagesHtml .= "<div class='attachment-error text-danger mb-2'>
                     <i class='fas fa-exclamation-triangle'></i> File not found: $basename
                 </div>";
             }
         }
-        $messagesHtml .= "</div>"; // end attachments
+        $messagesHtml .= "</div>"; // attachments
     }
 
-    $messagesHtml .= "<div class='timestamp small text-muted'>$timestamp</div>";
-    $messagesHtml .= "</div>"; // end message
+    // Timestamp + tick logic
+    $messagesHtml .= "<div class='timestamp small text-muted d-flex align-items-center'>$timestamp";
+
+    if ($msg['sender'] === 'landlord') {
+        if ($msg['viewed']) {
+            // Seen → double blue ticks
+            $messagesHtml .= "<i class='fas fa-check-double text-primary ms-2' title='Seen'></i>";
+        } else {
+            // Sent but not seen → single grey tick
+            $messagesHtml .= "<i class='fas fa-check text-muted ms-2' title='Sent, not seen'></i>";
+        }
+    }
+
+    $messagesHtml .= "</div>"; // timestamp
+    $messagesHtml .= "</div>"; // message
 }
 
 echo json_encode([
