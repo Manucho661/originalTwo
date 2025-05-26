@@ -937,7 +937,6 @@ display: flex;
                         <!-- Add this HTML where you want the previews to appear -->
                         <div id="filePreviews" class="file-previews-container mb-3"></div>
 
-
                               <!-- Attachment input -->
                               <input type="file" name="file[]"  id="fileInput"  class="form-control" style="display: none; ">
                                 <button class="btn attach-button" onclick="document.getElementById('fileInput').click();">
