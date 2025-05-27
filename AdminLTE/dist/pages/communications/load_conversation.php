@@ -117,22 +117,25 @@ foreach ($messages as $msg) {
     }
 
     // Timestamp + tick logic
-    $messagesHtml .= "<div class='timestamp small text-muted d-flex align-items-center'>$timestamp";
+   // Your existing loop for messages
+// ...
+$messagesHtml .= "<div class='timestamp small text-muted d-flex align-items-center message-footer'>"; // Added 'message-meta' class
+$messagesHtml .= "$timestamp";
 
-    if ($msg['sender'] === 'landlord') {
-        if ($msg['viewed']) {
-            // Seen → double blue ticks
-            $messagesHtml .= "<i class='fas fa-check-double text-primary ms-2' title='Seen'></i>";
-        } else {
-            // Sent but not seen → single grey tick
-            $messagesHtml .= "<i class='fas fa-check text-muted ms-2' title='Sent, not seen'></i>";
-        }
+if ($msg['sender'] === 'landlord') {
+    if ($msg['viewed']) {
+        // Seen → double blue ticks
+        $messagesHtml .= "<i class='fas fa-check-double text-primary ms-2' title='Seen'></i>";
+    } else {
+        // Sent but not seen → single grey tick
+        $messagesHtml .= "<i class='fas fa-check text-muted ms-2' title='Sent, not seen'></i>";
     }
-
-    $messagesHtml .= "</div>"; // timestamp
-    $messagesHtml .= "</div>"; // message
 }
 
+$messagesHtml .= "</div>"; // timestamp
+$messagesHtml .= "</div>"; // message container
+// ...
+}
 echo json_encode([
     'title' => $title,
     'messages' => $messagesHtml

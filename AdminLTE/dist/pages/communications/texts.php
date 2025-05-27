@@ -383,10 +383,10 @@ display: flex;
     margin-top: 4px;
     color: grey;
 }
-.timestamp{
+/* .timestamp{
   margin-left: 25rem;
   font-size:12px;
-}
+} */
 .file-previews-container {
   display: none; /* Hidden by default */
   flex-wrap: wrap;
@@ -485,6 +485,52 @@ display: flex;
 #filesPreviewList div:hover {
     background: #e9e9e9;
     cursor: pointer;
+}
+/* Base styles (apply to all screen sizes) */
+/* Base styles for the message footer (applies to all screen sizes) */
+.message-footer {
+    /* Ensures the timestamp and ticks stay on one line if possible */
+    white-space: nowrap;
+    /* Vertically align items in the flex container */
+    align-items: center;
+    /* Add some padding or margin if they are too close to the message content */
+    padding-top: 5px;
+}
+
+/* Adjustments specifically for small screens (e.g., mobile phones) */
+@media (max-width: 576px) { /* This breakpoint targets screens up to 576px wide (typical mobile portrait) */
+    .message-footer {
+        /* Reduce font size to save space */
+        font-size: 0.7rem !important; /* Slightly smaller than default 'small' */
+
+        /* Ensure it doesn't get squished if its parent is a flex container */
+        flex-shrink: 0;
+        flex-grow: 0;
+
+        /* If needed, position it absolutely within the message bubble */
+        /* This can be useful if space is extremely tight and you want it in a fixed corner.
+           Requires the message bubble (parent) to have `position: relative;`. */
+        /*
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: rgba(255, 255, 255, 0.7); // Semi-transparent background
+        padding: 2px 5px;
+        border-radius: 3px;
+        */
+    }
+
+    /* Reduce margin between the time and the tick icon for tighter spacing */
+    .message-footer .ms-2 {
+        margin-left: 0.3rem !important; /* Reduce the default Bootstrap margin-left */
+    }
+}
+
+/* Optional: Even smaller screens, if you need to fine-tune further */
+@media (max-width: 375px) { /* Example for very small phone screens */
+    .message-footer {
+        font-size: 0.65rem !important;
+    }
 }
 </style>
 </head>
