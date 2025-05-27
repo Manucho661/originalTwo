@@ -1,26 +1,41 @@
 <?php
 header('Content-Type: application/json');
 
-// Include your database connection file (e.g., db_connect.php)
-// Make sure this file contains the necessary database connection logic
-require_once '../db/connect.php'; // Adjust the path as needed
+// Include DB connection
+require_once '../db/connect.php'; // Make sure this file has your PDO or MySQLi connection
 
-$response = ['previous_reading' => null];
+// Get unit and meter type from query string
+$unitNumber = $_GET['unit_number'] ?? '';
+$meterType = $_GET['meter_type'] ?? '';
 
-if (isset($_GET['unit_number']) && isset($_GET['meter_type'])) {
-    $unitNumber = $_GET['unit_number'];
-    $meterType = $_GET['meter_type'];
+// Sanitize inputs
+$unitNumber = trim($unitNumber);
+$meterType = trim($meterType);
 
-    // Prepare a statement to fetch the latest reading for the selected unit and meter type
-    // Assuming your meter readings table is named 'meter_readings' and has columns like 'unit_number', 'meter_type', 'current_reading', 'reading_date'
-    $stmt = $pdo->prepare("SELECT current_reading FROM meter_readings WHERE unit_number = :unit_number AND meter_type = :meter_type ORDER BY reading_date DESC, id DESC LIMIT 1");
-    $stmt->execute(['unit_number' => $unitNumber, 'meter_type' => $meterType]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($result) {
-        $response['previous_reading'] = $result['current_reading'];
-    }
+// Validate inputs
+if (empty($unitNumber) || empty($meterType)) {
+    echo json_encode(['found' => false]);
+    exit;
 }
 
-echo json_encode($response);
+// Query to fetch the latest previous reading
+$query = "SELECT current_reading
+          FROM meter_readings
+          WHERE unit_number = ? AND meter_type = ?
+          ORDER BY reading_date DESC, id DESC
+          LIMIT 1";
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ss", $unitNumber, $meterType);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    echo json_encode([
+        'found' => true,
+        'previous_reading' => $row['current_reading']
+    ]);
+} else {
+    echo json_encode(['found' => false]);
+}
 ?>

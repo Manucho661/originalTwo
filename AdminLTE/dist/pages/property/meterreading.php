@@ -1116,81 +1116,47 @@ setInterval(() => {
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const unitsSelect = document.getElementById('units');
-        const meterTypeSelect = document.getElementById('meter_type');
-        const previousReadingInput = document.getElementById('previous_reading');
+document.getElementById('units').addEventListener('change', fetchPreviousReading);
+document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
+document.getElementById('current_reading').addEventListener('input', updateConsumption);
 
-        // Function to fetch and set the previous reading
-        function fetchAndSetPreviousReading() {
-            const unitNumber = unitsSelect.value;
-            const meterType = meterTypeSelect.value;
+function fetchPreviousReading() {
+    const unit = document.getElementById('units').value;
+    const meterType = document.getElementById('meter_type').value;
 
-            if (unitNumber && meterType) {
-                // Make an AJAX request to your PHP script
-                fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unitNumber)}&meter_type=${encodeURIComponent(meterType)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.previous_reading !== null) {
-                            previousReadingInput.value = data.previous_reading;
-                            // Disable the input if a previous reading is found
-                            previousReadingInput.setAttribute('readonly', true);
-                            previousReadingInput.style.backgroundColor = '#e9ecef'; // Optional: style to indicate it's disabled
-                        } else {
-                            // Enable input if no previous reading (new unit)
-                            previousReadingInput.value = ''; // Clear for new units
-                            previousReadingInput.removeAttribute('readonly');
-                            previousReadingInput.style.backgroundColor = ''; // Reset style
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching previous reading:', error);
-                        previousReadingInput.value = '';
-                        previousReadingInput.removeAttribute('readonly');
-                        previousReadingInput.style.backgroundColor = '';
-                    });
+    if (!unit || !meterType) return;
+
+    fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unit)}&meter_type=${encodeURIComponent(meterType)}`)
+        .then(response => response.json())
+        .then(data => {
+            const prevInput = document.getElementById('previous_reading');
+            const note = document.getElementById('prev_reading_note');
+
+            if (data.found) {
+                prevInput.value = data.previous_reading;
+                prevInput.readOnly = true;
+                note.style.display = 'none';
             } else {
-                // Clear and enable if unit or meter type isn't selected (though they are required)
-                previousReadingInput.value = '';
-                previousReadingInput.removeAttribute('readonly');
-                previousReadingInput.style.backgroundColor = '';
+                prevInput.value = '';
+                prevInput.readOnly = false;
+                note.style.display = 'block';
             }
-        }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+        });
+}
 
-        // Event listeners for changes
-        unitsSelect.addEventListener('change', fetchAndSetPreviousReading);
-        meterTypeSelect.addEventListener('change', fetchAndSetPreviousReading);
+function updateConsumption() {
+    const prev = parseFloat(document.getElementById('previous_reading').value) || 0;
+    const curr = parseFloat(document.getElementById('current_reading').value) || 0;
+    const diff = curr - prev;
 
-        // Call on initial load to set for the default selected unit/meter type
-        fetchAndSetPreviousReading();
-
-        // Optional: Calculate consumption units
-        const currentReadingInput = document.getElementById('current_reading');
-        const consumptionPreview = document.getElementById('consumption_preview');
-
-        function calculateConsumption() {
-            const previous = parseFloat(previousReadingInput.value);
-            const current = parseFloat(currentReadingInput.value);
-
-            if (!isNaN(previous) && !isNaN(current) && current >= previous) {
-                const consumption = current - previous;
-                consumptionPreview.textContent = `Consumption: ${consumption.toFixed(2)}`;
-            } else if (current < previous) {
-                consumptionPreview.textContent = 'Current reading cannot be less than previous reading.';
-            } else {
-                consumptionPreview.textContent = 'Calculated automatically';
-            }
-        }
-
-        previousReadingInput.addEventListener('input', calculateConsumption);
-        currentReadingInput.addEventListener('input', calculateConsumption);
-    });
-
-    // Your existing meterpopupclosePopup function should remain
-    function meterreadingclosePopup() {
-        document.getElementById("meterPopup").style.display = "none";
-    }
+    document.getElementById('consumption_preview').textContent =
+        diff >= 0 ? `${diff} units` : 'Invalid (current < previous)';
+}
 </script>
+
 
     <!--end::OverlayScrollbars Configure-->
     <!-- OPTIONAL SCRIPTS -->
