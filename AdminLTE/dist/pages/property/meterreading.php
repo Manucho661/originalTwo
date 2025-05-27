@@ -653,7 +653,9 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <input type="date" id="dateInput" name="reading_date" class="form-control" required />
               </div>
               <div class="form-group">
+
               <select id="units" name="unit_number" required>
+              <option value="">-- Select Unit --</option>
             <?php foreach ($units as $unit): ?>
                 <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
                     <?php echo htmlspecialchars($unit['unit_number']); ?>
@@ -664,15 +666,20 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="form-group">
         <label for="meter_type">Meter Type:</label>
         <select id="meter_type" name="meter_type" required>
-            <option>Water</option>
-            <option>Electrical</option>
+        <option value="">-- Select Meter Type --</option>
+            <option value="Water">Water</option>
+            <option value="Electrical">Electrical</option>
         </select>
     </div>
 
     <div class="form-group">
-        <label for="previous_reading">Previous Reading:</label>
-        <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
-    </div>
+    <label for="previous_reading">Previous Reading:</label>
+    <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
+    <small id="prev_reading_note" style="color: gray; display: none;">
+        This is the first reading for this unit.
+    </small>
+</div>
+
 
     <div class="form-group">
         <label for="current_reading">Current Reading:</label>
@@ -775,7 +782,11 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- end -->
 
 
+
+
+
     <!-- begin -->
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const steps = document.querySelectorAll(".form-step");
@@ -1104,7 +1115,82 @@ setInterval(() => {
   });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const unitsSelect = document.getElementById('units');
+        const meterTypeSelect = document.getElementById('meter_type');
+        const previousReadingInput = document.getElementById('previous_reading');
 
+        // Function to fetch and set the previous reading
+        function fetchAndSetPreviousReading() {
+            const unitNumber = unitsSelect.value;
+            const meterType = meterTypeSelect.value;
+
+            if (unitNumber && meterType) {
+                // Make an AJAX request to your PHP script
+                fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unitNumber)}&meter_type=${encodeURIComponent(meterType)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.previous_reading !== null) {
+                            previousReadingInput.value = data.previous_reading;
+                            // Disable the input if a previous reading is found
+                            previousReadingInput.setAttribute('readonly', true);
+                            previousReadingInput.style.backgroundColor = '#e9ecef'; // Optional: style to indicate it's disabled
+                        } else {
+                            // Enable input if no previous reading (new unit)
+                            previousReadingInput.value = ''; // Clear for new units
+                            previousReadingInput.removeAttribute('readonly');
+                            previousReadingInput.style.backgroundColor = ''; // Reset style
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching previous reading:', error);
+                        previousReadingInput.value = '';
+                        previousReadingInput.removeAttribute('readonly');
+                        previousReadingInput.style.backgroundColor = '';
+                    });
+            } else {
+                // Clear and enable if unit or meter type isn't selected (though they are required)
+                previousReadingInput.value = '';
+                previousReadingInput.removeAttribute('readonly');
+                previousReadingInput.style.backgroundColor = '';
+            }
+        }
+
+        // Event listeners for changes
+        unitsSelect.addEventListener('change', fetchAndSetPreviousReading);
+        meterTypeSelect.addEventListener('change', fetchAndSetPreviousReading);
+
+        // Call on initial load to set for the default selected unit/meter type
+        fetchAndSetPreviousReading();
+
+        // Optional: Calculate consumption units
+        const currentReadingInput = document.getElementById('current_reading');
+        const consumptionPreview = document.getElementById('consumption_preview');
+
+        function calculateConsumption() {
+            const previous = parseFloat(previousReadingInput.value);
+            const current = parseFloat(currentReadingInput.value);
+
+            if (!isNaN(previous) && !isNaN(current) && current >= previous) {
+                const consumption = current - previous;
+                consumptionPreview.textContent = `Consumption: ${consumption.toFixed(2)}`;
+            } else if (current < previous) {
+                consumptionPreview.textContent = 'Current reading cannot be less than previous reading.';
+            } else {
+                consumptionPreview.textContent = 'Calculated automatically';
+            }
+        }
+
+        previousReadingInput.addEventListener('input', calculateConsumption);
+        currentReadingInput.addEventListener('input', calculateConsumption);
+    });
+
+    // Your existing meterpopupclosePopup function should remain
+    function meterreadingclosePopup() {
+        document.getElementById("meterPopup").style.display = "none";
+    }
+</script>
 
     <!--end::OverlayScrollbars Configure-->
     <!-- OPTIONAL SCRIPTS -->
