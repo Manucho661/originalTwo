@@ -1524,7 +1524,7 @@ function loadConversation(threadId) {
         })
         .then(data => {
             if (data.messages) {
-                 alert(data.messages);
+                //  alert(data.messages);
                 const messagesDiv = document.getElementById('messages');
                 messagesDiv.innerHTML = data.messages;
                 messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to bottom
@@ -1675,6 +1675,23 @@ function getMessage(messageId) {
         });
 }
 </script>
+
+<script>
+let pressTimer;
+
+document.querySelectorAll('.message.outgoing').forEach(msg => {
+    msg.addEventListener('mousedown', e => {
+        pressTimer = setTimeout(() => {
+            const menu = msg.querySelector('.attachment-menu');
+            if (menu) menu.style.display = 'block';
+        }, 600); // long press threshold (600ms)
+    });
+
+    msg.addEventListener('mouseup', () => clearTimeout(pressTimer));
+    msg.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+});
+</script>
+
 
 
 <script>

@@ -84,6 +84,7 @@ foreach ($messages as $msg) {
                         </div>
                         <div class='file-name'>$basename</div>
                     </div>";
+
                 } elseif ($ext === 'pdf') {
                     $messagesHtml .= "<div class='attachment-file whatsapp-style-file' data-filename='$basename'>
                         <div class='file-container'>
