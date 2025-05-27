@@ -1,6 +1,32 @@
 <?php
 include '../db/connect.php'; // Make sure $pdo is available
 
+// Get filtered data for the table
+$year = $_GET['year'] ?? date('Y');
+$month = $_GET['month'] ?? date('m');
+$building_id = $_GET['building_id'] ?? null;
+
+$query = "SELECT * FROM building_rental_summary WHERE year = :year AND month = :month";
+$params = [':year' => $year, ':month' => $month];
+
+if ($building_id) {
+    $query .= " AND building_id = :building_id";
+    $params[':building_id'] = $building_id;
+}
+
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$buildingData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get summary data
+$summaryQuery = "SELECT * FROM monthly_rental_rollup WHERE year = :year AND month = :month";
+$summaryStmt = $pdo->prepare($summaryQuery);
+$summaryStmt->execute([':year' => $year, ':month' => $month]);
+$summaryData = $summaryStmt->fetch(PDO::FETCH_ASSOC);
+
+
+
+
 // Fetch available years from the database
 $yearsQuery = $pdo->query("SELECT DISTINCT year FROM rental_summary ORDER BY year DESC");
 $availableYears = $yearsQuery->fetchAll(PDO::FETCH_COLUMN);
@@ -544,35 +570,38 @@ select:hover {
 
 
                           <div class="select-option-container mt-3">
-                          <select name="year" class="custom-select" onchange="this.form.submit()">
-                          <option value="">-Year-</option>
-                          <?php
-                          $years = [2025, 2024, 2023, 2022, 2021];
-                          foreach ($years as $y) {
-                            $selected = ($_GET['year'] ?? '') == $y ? 'selected' : '';
-                            echo "<option value=\"$y\" $selected>$y</option>";
-                          }
-                          ?>
-                        </select>
-                              </div>
+    <select name="year" class="custom-select" onchange="this.form.submit()">
+        <option value="">-Year-</option>
+        <?php
+        // Generate years from current year going backwards
+        $currentYear = date('Y');
+        $years = range($currentYear, $currentYear - 5); // Shows current year and previous 5 years
 
-                              <div class="select-option-container mt-3">
-            <select name="month" class="custom-select" onchange="this.form.submit()">
-              <option value="">-Month-</option>
-              <?php
-              $months = [
-                1 => 'JAN', 2 => 'FEB', 3 => 'MAR', 4 => 'APR',
-                5 => 'MAY', 6 => 'JUN', 7 => 'JUL', 8 => 'AUG',
-                9 => 'SEP', 10 => 'OCT', 11 => 'NOV', 12 => 'DEC'
-              ];
-              foreach ($months as $num => $name) {
-                $selected = ($_GET['month'] ?? '') == $num ? 'selected' : '';
-                echo "<option value=\"$num\" $selected>$name</option>";
-              }
-              ?>
-            </select>
-                            </div>
-                            </div>
+        foreach ($years as $y) {
+            $selected = (isset($_GET['year']) && $_GET['year'] == $y) ? 'selected' : '';
+            echo "<option value=\"$y\" $selected>$y</option>";
+        }
+        ?>
+    </select>
+</div>
+
+                           <div class="select-option-container mt-3">
+                            <select name="month" class="custom-select" onchange="this.form.submit()">
+                              <option value="">-Month-</option>
+                              <?php
+                              $months = [
+                                1 => 'JAN', 2 => 'FEB', 3 => 'MAR', 4 => 'APR',
+                                5 => 'MAY', 6 => 'JUN', 7 => 'JUL', 8 => 'AUG',
+                                9 => 'SEP', 10 => 'OCT', 11 => 'NOV', 12 => 'DEC'
+                              ];
+                              foreach ($months as $num => $name) {
+                                $selected = ($_GET['month'] ?? '') == $num ? 'selected' : '';
+                                echo "<option value=\"$num\" $selected>$name</option>";
+                              }
+                              ?>
+                            </select>
+                                            </div>
+                                            </div>
 
                             <div class="pdf-excel">
                               <!-- <button class="pdf" ><i class="fas fa-file-pdf" style="color: red;"></i></button> -->
@@ -601,6 +630,27 @@ select:hover {
                               </thead>
                               <tbody>
                               <tbody>
+                              <tr >
+                                  <th >Manucho</th>
+                                      <td class="rent paid">KSH&nbsp;80,000</td>
+
+                                      <td >
+                                        <div class="rent penalit">KSH&nbsp;2000</div>
+                                      </td>
+
+                                      <td class="rent collected">KSH&nbsp; 3,000</td>
+                                      <td class="rent overpayment">KSH&nbsp; 500</td>
+
+                                    <td>
+                                      <button class="btn view"> <a class="view-link" href="building-rent.php">View</a> </button>
+                                    </td>
+                                </tr>
+
+
+
+
+
+
                               <?php foreach ($buildingData as $building): ?>
                               <tr>
                                 <th><?= htmlspecialchars($building['building_name']) ?></th>
