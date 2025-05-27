@@ -653,7 +653,9 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <input type="date" id="dateInput" name="reading_date" class="form-control" required />
               </div>
               <div class="form-group">
+
               <select id="units" name="unit_number" required>
+              <option value="">-- Select Unit --</option>
             <?php foreach ($units as $unit): ?>
                 <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
                     <?php echo htmlspecialchars($unit['unit_number']); ?>
@@ -664,15 +666,20 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="form-group">
         <label for="meter_type">Meter Type:</label>
         <select id="meter_type" name="meter_type" required>
-            <option>Water</option>
-            <option>Electrical</option>
+        <option value="">-- Select Meter Type --</option>
+            <option value="Water">Water</option>
+            <option value="Electrical">Electrical</option>
         </select>
     </div>
 
     <div class="form-group">
-        <label for="previous_reading">Previous Reading:</label>
-        <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
-    </div>
+    <label for="previous_reading">Previous Reading:</label>
+    <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
+    <small id="prev_reading_note" style="color: gray; display: none;">
+        This is the first reading for this unit.
+    </small>
+</div>
+
 
     <div class="form-group">
         <label for="current_reading">Current Reading:</label>
@@ -775,7 +782,11 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- end -->
 
 
+
+
+
     <!-- begin -->
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const steps = document.querySelectorAll(".form-step");
@@ -1104,6 +1115,47 @@ setInterval(() => {
   });
 </script>
 
+<script>
+document.getElementById('units').addEventListener('change', fetchPreviousReading);
+document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
+document.getElementById('current_reading').addEventListener('input', updateConsumption);
+
+function fetchPreviousReading() {
+    const unit = document.getElementById('units').value;
+    const meterType = document.getElementById('meter_type').value;
+
+    if (!unit || !meterType) return;
+
+    fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unit)}&meter_type=${encodeURIComponent(meterType)}`)
+        .then(response => response.json())
+        .then(data => {
+            const prevInput = document.getElementById('previous_reading');
+            const note = document.getElementById('prev_reading_note');
+
+            if (data.found) {
+                prevInput.value = data.previous_reading;
+                prevInput.readOnly = true;
+                note.style.display = 'none';
+            } else {
+                prevInput.value = '';
+                prevInput.readOnly = false;
+                note.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+        });
+}
+
+function updateConsumption() {
+    const prev = parseFloat(document.getElementById('previous_reading').value) || 0;
+    const curr = parseFloat(document.getElementById('current_reading').value) || 0;
+    const diff = curr - prev;
+
+    document.getElementById('consumption_preview').textContent =
+        diff >= 0 ? `${diff} units` : 'Invalid (current < previous)';
+}
+</script>
 
 
     <!--end::OverlayScrollbars Configure-->
