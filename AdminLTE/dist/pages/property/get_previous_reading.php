@@ -1,41 +1,26 @@
 <?php
 header('Content-Type: application/json');
+require '../db/connect.php'; // Update to your actual DB connection file
 
-// Include DB connection
-require_once '../db/connect.php'; // Make sure this file has your PDO or MySQLi connection
+$unit_number = $_GET['unit_number'] ?? '';
+$meter_type = $_GET['meter_type'] ?? '';
 
-// Get unit and meter type from query string
-$unitNumber = $_GET['unit_number'] ?? '';
-$meterType = $_GET['meter_type'] ?? '';
+$response = ['previous_reading' => null];
 
-// Sanitize inputs
-$unitNumber = trim($unitNumber);
-$meterType = trim($meterType);
+if ($unit_number && $meter_type) {
+    $stmt = $pdo->prepare("
+        SELECT current_reading
+        FROM meter_readings
+        WHERE unit_number = ? AND meter_type = ?
+        ORDER BY reading_date DESC
+        LIMIT 1
+    ");
+    $stmt->execute([$unit_number, $meter_type]);
+    $lastReading = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Validate inputs
-if (empty($unitNumber) || empty($meterType)) {
-    echo json_encode(['found' => false]);
-    exit;
+    if ($lastReading) {
+        $response['previous_reading'] = $lastReading['current_reading'];
+    }
 }
 
-// Query to fetch the latest previous reading
-$query = "SELECT current_reading
-          FROM meter_readings
-          WHERE unit_number = ? AND meter_type = ?
-          ORDER BY reading_date DESC, id DESC
-          LIMIT 1";
-
-$stmt = $conn->prepare($query);
-$stmt->bind_param("ss", $unitNumber, $meterType);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($row = $result->fetch_assoc()) {
-    echo json_encode([
-        'found' => true,
-        'previous_reading' => $row['current_reading']
-    ]);
-} else {
-    echo json_encode(['found' => false]);
-}
-?>
+echo json_encode($response);

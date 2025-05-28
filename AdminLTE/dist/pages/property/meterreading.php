@@ -1116,46 +1116,34 @@ setInterval(() => {
 </script>
 
 <script>
-document.getElementById('units').addEventListener('change', fetchPreviousReading);
-document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
-document.getElementById('current_reading').addEventListener('input', updateConsumption);
-
 function fetchPreviousReading() {
-    const unit = document.getElementById('units').value;
+    const unitNumber = document.getElementById('units').value;
     const meterType = document.getElementById('meter_type').value;
 
-    if (!unit || !meterType) return;
+    if (unitNumber && meterType) {
+        fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unitNumber)}&meter_type=${encodeURIComponent(meterType)}`)
+            .then(response => response.json())
+            .then(data => {
+                const prevReadingInput = document.getElementById('previous_reading');
+                const note = document.getElementById('prev_reading_note');
 
-    fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unit)}&meter_type=${encodeURIComponent(meterType)}`)
-        .then(response => response.json())
-        .then(data => {
-            const prevInput = document.getElementById('previous_reading');
-            const note = document.getElementById('prev_reading_note');
-
-            if (data.found) {
-                prevInput.value = data.previous_reading;
-                prevInput.readOnly = true;
-                note.style.display = 'none';
-            } else {
-                prevInput.value = '';
-                prevInput.readOnly = false;
-                note.style.display = 'block';
-            }
-        })
-        .catch(err => {
-            console.error("Fetch error:", err);
-        });
+                if (data.previous_reading !== null) {
+                    prevReadingInput.value = data.previous_reading;
+                    note.style.display = 'none';
+                } else {
+                    prevReadingInput.value = '';
+                    note.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error fetching previous reading:', error));
+    }
 }
 
-function updateConsumption() {
-    const prev = parseFloat(document.getElementById('previous_reading').value) || 0;
-    const curr = parseFloat(document.getElementById('current_reading').value) || 0;
-    const diff = curr - prev;
-
-    document.getElementById('consumption_preview').textContent =
-        diff >= 0 ? `${diff} units` : 'Invalid (current < previous)';
-}
+document.getElementById('units').addEventListener('change', fetchPreviousReading);
+document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
 </script>
+
+
 
 
     <!--end::OverlayScrollbars Configure-->
