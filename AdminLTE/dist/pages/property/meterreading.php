@@ -641,62 +641,58 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 <!-- End shift popup -->
 
-
-      <!-- meterreading popup -->
-      <div class="meterpopup-overlay" id="meterPopup">
-        <div class="meterpopup-content wide-form">
-            <button id="close-btns" class="text-secondary" onclick="meterreadingclosePopup()">×</button>
-            <h2 class="assign-title">Add A Meter Reading</h2>
-            <form class="wide-form" id="meterForm" method="POST" action="">
-              <div class="form-group">
-             <b><label for="dateInput" class="filter-label">Reading Date</label></b>
-              <input type="date" id="dateInput" name="reading_date" class="form-control" required />
-              </div>
-              <div class="form-group">
-
-              <select id="units" name="unit_number" required>
-              <option value="">-- Select Unit --</option>
-            <?php foreach ($units as $unit): ?>
-                <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
-                    <?php echo htmlspecialchars($unit['unit_number']); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+<!-- meterreading popup -->
+<div class="meterpopup-overlay" id="meterPopup">
+    <div class="meterpopup-content wide-form">
+        <button id="close-btns" class="text-secondary" onclick="meterreadingclosePopup()">×</button>
+        <h2 class="assign-title">Add A Meter Reading</h2>
+        <form class="wide-form" id="meterForm" method="POST" action="">
+            <div class="form-group">
+                <b><label for="dateInput" class="filter-label">Reading Date</label></b>
+                <input type="date" id="dateInput" name="reading_date" class="form-control" required />
             </div>
             <div class="form-group">
-        <label for="meter_type">Meter Type:</label>
-        <select id="meter_type" name="meter_type" required>
-        <option value="">-- Select Meter Type --</option>
-            <option value="Water">Water</option>
-            <option value="Electrical">Electrical</option>
-        </select>
-    </div>
+                <select id="units" name="unit_number" required>
+                    <option value="">-- Select Unit --</option>
+                    <?php foreach ($units as $unit): ?>
+                        <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
+                            <?php echo htmlspecialchars($unit['unit_number']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="meter_type">Meter Type:</label>
+                <select id="meter_type" name="meter_type" required>
+                    <option value="">-- Select Meter Type --</option>
+                    <option value="Water">Water</option>
+                    <option value="Electrical">Electrical</option>
+                </select>
+            </div>
 
-    <div class="form-group">
-    <label for="previous_reading">Previous Reading:</label>
-    <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
-    <small id="prev_reading_note" style="color: gray; display: none;">
-        This is the first reading for this unit.
-    </small>
+            <div class="form-group">
+                <label for="previous_reading">Previous Reading:</label>
+                <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
+                <small id="prev_reading_note" style="color: gray; display: none;">
+                    This is the first reading for this unit.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="current_reading">Current Reading:</label>
+                <input type="number" id="current_reading" name="current_reading" placeholder="Current Reading" required>
+            </div>
+
+            <div class="form-group">
+                <label>Consumption Units:</label>
+                <p id="consumption_preview"><i>Calculated automatically</i></p>
+            </div>
+
+            <button type="submit" name="submit" class="submit-btn">Create Meter Reading</button>
+        </form>
+    </div>
 </div>
-
-
-    <div class="form-group">
-        <label for="current_reading">Current Reading:</label>
-        <input type="number" id="current_reading" name="current_reading" placeholder="Current Reading" required>
-    </div>
-
-    <div class="form-group">
-    <label>Consumption Units:</label>
-    <p id="consumption_preview"><i>Calculated automatically</i></p>
-    </div>
-
-     <button type="submit" name="submit" class="submit-btn">Create Meter Reading</button>
-            </form>
-        </div>
-    </div>
-    <!-- end -->
-
+<!-- end -->
 <!-- popup -->
 <!-- Create Meter Reading Button -->
 <!-- <button type="button" class="submit-btn" onclick="showChargeForm()">Create Meter Reading</button> -->
@@ -1116,45 +1112,55 @@ setInterval(() => {
 </script>
 
 <script>
-document.getElementById('units').addEventListener('change', fetchPreviousReading);
-document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
-document.getElementById('current_reading').addEventListener('input', updateConsumption);
+document.addEventListener('DOMContentLoaded', function() {
+    const unitSelect = document.getElementById('units');
+    const meterTypeSelect = document.getElementById('meter_type');
+    const previousReadingInput = document.getElementById('previous_reading');
+    const prevReadingNote = document.getElementById('prev_reading_note');
 
-function fetchPreviousReading() {
-    const unit = document.getElementById('units').value;
-    const meterType = document.getElementById('meter_type').value;
+    // Function to fetch the last reading for a unit and meter type
+    function fetchLastReading(unitNumber, meterType) {
+        if (!unitNumber || !meterType) return;
 
-    if (!unit || !meterType) return;
+        // Make an AJAX request to fetch the last reading
+        fetch(`get_last_reading.php?unit_number=${unitNumber}&meter_type=${meterType}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.last_reading !== null) {
+                    previousReadingInput.value = data.last_reading;
+                    prevReadingNote.style.display = 'none';
+                } else {
+                    // No previous reading found
+                    previousReadingInput.value = '';
+                    prevReadingNote.style.display = 'inline';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching last reading:', error);
+            });
+    }
 
-    fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unit)}&meter_type=${encodeURIComponent(meterType)}`)
-        .then(response => response.json())
-        .then(data => {
-            const prevInput = document.getElementById('previous_reading');
-            const note = document.getElementById('prev_reading_note');
+    // Event listeners for when unit or meter type changes
+    unitSelect.addEventListener('change', function() {
+        if (meterTypeSelect.value) {
+            fetchLastReading(this.value, meterTypeSelect.value);
+        }
+    });
 
-            if (data.found) {
-                prevInput.value = data.previous_reading;
-                prevInput.readOnly = true;
-                note.style.display = 'none';
-            } else {
-                prevInput.value = '';
-                prevInput.readOnly = false;
-                note.style.display = 'block';
-            }
-        })
-        .catch(err => {
-            console.error("Fetch error:", err);
-        });
-}
+    meterTypeSelect.addEventListener('change', function() {
+        if (unitSelect.value) {
+            fetchLastReading(unitSelect.value, this.value);
+        }
+    });
 
-function updateConsumption() {
-    const prev = parseFloat(document.getElementById('previous_reading').value) || 0;
-    const curr = parseFloat(document.getElementById('current_reading').value) || 0;
-    const diff = curr - prev;
-
-    document.getElementById('consumption_preview').textContent =
-        diff >= 0 ? `${diff} units` : 'Invalid (current < previous)';
-}
+    // Calculate consumption when current reading changes
+    document.getElementById('current_reading').addEventListener('input', function() {
+        const prev = parseFloat(previousReadingInput.value) || 0;
+        const current = parseFloat(this.value) || 0;
+        const consumption = current - prev;
+        document.getElementById('consumption_preview').textContent = consumption;
+    });
+});
 </script>
 
 
