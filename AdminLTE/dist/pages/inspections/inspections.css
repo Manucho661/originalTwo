@@ -459,3 +459,59 @@ border-bottom-left-radius: 5px;
 }
 
 /* Modals */
+.modal-title {
+      font-weight: bold;
+      color: #0d6efd;
+    }
+
+    /* Status Labels */
+    .status-good {
+      color: #198754;
+      font-weight: bold;
+      background-color: #d1e7dd;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .status-bad {
+      color: #dc3545;
+      font-weight: bold;
+      background-color: #f8d7da;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* Image Styling */
+    .repair-photo {
+      height: 80px;
+      width: auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      object-fit: cover;
+      margin: 4px;
+    }
+
+    /* Table Styling */
+    .inspection-table th,
+    .inspection-table td {
+      vertical-align: middle;
+    }
+
+    .inspection-table tr {
+      transition: background 0.2s;
+    }
+
+    .inspection-table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .modal-footer {
+      background-color: #f8f9fa;
+    }
+
+    /* Responsive Enhancements */
+    @media (max-width: 768px) {
+      .repair-photo {
+        height: 60px;
+      }
+    }

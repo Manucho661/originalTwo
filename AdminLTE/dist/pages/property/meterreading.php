@@ -1112,56 +1112,34 @@ setInterval(() => {
 </script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const unitSelect = document.getElementById('units');
-    const meterTypeSelect = document.getElementById('meter_type');
-    const previousReadingInput = document.getElementById('previous_reading');
-    const prevReadingNote = document.getElementById('prev_reading_note');
+function fetchPreviousReading() {
+    const unitNumber = document.getElementById('units').value;
+    const meterType = document.getElementById('meter_type').value;
 
-    // Function to fetch the last reading for a unit and meter type
-    function fetchLastReading(unitNumber, meterType) {
-        if (!unitNumber || !meterType) return;
-
-        // Make an AJAX request to fetch the last reading
-        fetch(`get_last_reading.php?unit_number=${unitNumber}&meter_type=${meterType}`)
+    if (unitNumber && meterType) {
+        fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unitNumber)}&meter_type=${encodeURIComponent(meterType)}`)
             .then(response => response.json())
             .then(data => {
-                if (data.success && data.last_reading !== null) {
-                    previousReadingInput.value = data.last_reading;
-                    prevReadingNote.style.display = 'none';
+                const prevReadingInput = document.getElementById('previous_reading');
+                const note = document.getElementById('prev_reading_note');
+
+                if (data.previous_reading !== null) {
+                    prevReadingInput.value = data.previous_reading;
+                    note.style.display = 'none';
                 } else {
-                    // No previous reading found
-                    previousReadingInput.value = '';
-                    prevReadingNote.style.display = 'inline';
+                    prevReadingInput.value = '';
+                    note.style.display = 'block';
                 }
             })
-            .catch(error => {
-                console.error('Error fetching last reading:', error);
-            });
+            .catch(error => console.error('Error fetching previous reading:', error));
     }
+}
 
-    // Event listeners for when unit or meter type changes
-    unitSelect.addEventListener('change', function() {
-        if (meterTypeSelect.value) {
-            fetchLastReading(this.value, meterTypeSelect.value);
-        }
-    });
-
-    meterTypeSelect.addEventListener('change', function() {
-        if (unitSelect.value) {
-            fetchLastReading(unitSelect.value, this.value);
-        }
-    });
-
-    // Calculate consumption when current reading changes
-    document.getElementById('current_reading').addEventListener('input', function() {
-        const prev = parseFloat(previousReadingInput.value) || 0;
-        const current = parseFloat(this.value) || 0;
-        const consumption = current - prev;
-        document.getElementById('consumption_preview').textContent = consumption;
-    });
-});
+document.getElementById('units').addEventListener('change', fetchPreviousReading);
+document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
 </script>
+
+
 
 
     <!--end::OverlayScrollbars Configure-->

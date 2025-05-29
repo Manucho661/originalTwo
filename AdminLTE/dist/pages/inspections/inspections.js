@@ -185,9 +185,11 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
         <button class="btn btn-sm view-btn"
           style="background-color: #193042; margin-left:10px; color:#fff;"
           title="View"
-          data-id="${inspection.id}">
+          data-id="${inspection.id}"
+          data-status="${status}">
           <i class="fas fa-eye"></i>
         </button>
+
         <!-- Edit Button -->
         <button class="btn btn-sm" style="background-color: #1e6f5c; margin-left: 2px; margin-right: 2px; color: #fff;" title="Edit">
           <i class="fas fa-edit"></i>
@@ -228,8 +230,9 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
     const statusSpan = tempDiv.querySelector('td span');
     const statusText = statusSpan?.textContent?.trim().toLowerCase();
 
-    if (statusText === 'completed') {
-      yourViewFunction(inspectionId);
+    const status = viewBtn.getAttribute('data-status');
+    if (status === 'completed') {
+      viewDetails(inspectionId);
     } else {
       alert('You can only view details for completed inspections.');
     }
@@ -240,6 +243,10 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
   });
 }
 
+function viewDetails() {
+  const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
+  modal.show();
+}
 
 
 

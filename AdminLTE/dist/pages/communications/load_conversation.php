@@ -21,8 +21,7 @@ $stmt = $pdo->prepare("
         m.sender,
         m.content,
         m.timestamp,
-        m.viewed,
-        m.file_path AS single_file_path,
+        m.file_path AS single_file_path,  -- NEW: directly stored file
         GROUP_CONCAT(mf.file_path SEPARATOR '|||') AS file_paths,
         GROUP_CONCAT(mf.file_id SEPARATOR '|||') AS file_ids
     FROM messages m
@@ -50,7 +49,7 @@ foreach ($messages as $msg) {
     }
 
     if (!empty($msg['single_file_path'])) {
-        $file_paths[] = $msg['single_file_path'];
+        $file_paths[] = $msg['single_file_path']; // Add direct file_path
         $file_ids[] = null;
     }
 
@@ -62,8 +61,12 @@ foreach ($messages as $msg) {
         foreach ($file_paths as $index => $file_path) {
             if (empty($file_path)) continue;
 
+            // Make absolute path for server-side access
+            // $full_path = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($file_path, '/');
             $base_upload_dir = '/originalTwo/AdminLTE/dist/pages/communications/uploads/';
             $full_path = $_SERVER['DOCUMENT_ROOT'] . $base_upload_dir . basename($file_path);
+            error_log("FULL PATH: " . $full_path);
+
             $basename = basename($file_path);
             $ext = strtolower(pathinfo($basename, PATHINFO_EXTENSION));
             $file_id = $file_ids[$index] ?? '';
@@ -107,6 +110,7 @@ foreach ($messages as $msg) {
                             <i class='fas fa-download'></i> $basename
                         </a>
                     </div>";
+
                 }
             } else {
                 $messagesHtml .= "<div class='attachment-error text-danger mb-2'>
