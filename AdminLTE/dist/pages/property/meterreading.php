@@ -640,7 +640,6 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </div>
 </div>
 <!-- End shift popup -->
-
 <!-- meterreading popup -->
 <div class="meterpopup-overlay" id="meterPopup">
     <div class="meterpopup-content wide-form">
@@ -652,7 +651,7 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <input type="date" id="dateInput" name="reading_date" class="form-control" required />
             </div>
             <div class="form-group">
-                <select id="units" name="unit_number" required>
+                <select id="units" name="unit_number" required onchange="checkPreviousReading()">
                     <option value="">-- Select Unit --</option>
                     <?php foreach ($units as $unit): ?>
                         <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
@@ -1111,37 +1110,6 @@ setInterval(() => {
   });
 </script>
 
-<script>
-function fetchPreviousReading() {
-    const unitNumber = document.getElementById('units').value;
-    const meterType = document.getElementById('meter_type').value;
-
-    if (unitNumber && meterType) {
-        fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unitNumber)}&meter_type=${encodeURIComponent(meterType)}`)
-            .then(response => response.json())
-            .then(data => {
-                const prevReadingInput = document.getElementById('previous_reading');
-                const note = document.getElementById('prev_reading_note');
-
-                if (data.previous_reading !== null) {
-                    prevReadingInput.value = data.previous_reading;
-                    note.style.display = 'none';
-                } else {
-                    prevReadingInput.value = '';
-                    note.style.display = 'block';
-                }
-            })
-            .catch(error => console.error('Error fetching previous reading:', error));
-    }
-}
-
-document.getElementById('units').addEventListener('change', fetchPreviousReading);
-document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
-</script>
-
-
-
-
     <!--end::OverlayScrollbars Configure-->
     <!-- OPTIONAL SCRIPTS -->
     <!-- apexcharts -->
@@ -1302,6 +1270,60 @@ document.getElementById('meter_type').addEventListener('change', fetchPreviousRe
       // - END PIE CHART -
       //-----------------
     </script>
+ <script>
+  function checkPreviousReading() {
+    const unitNumber = document.getElementById('units').value;
+    const previousReadingInput = document.getElementById('previous_reading');
+    const prevReadingNote = document.getElementById('prev_reading_note');
+
+    // Reset state
+    previousReadingInput.value = '';
+    previousReadingInput.readOnly = false;
+    prevReadingNote.style.display = 'none';
+
+    if (!unitNumber) return;
+
+    // Show loading state
+    previousReadingInput.placeholder = "Loading...";
+
+    fetch(`get_previous_reading.php?unit=${encodeURIComponent(unitNumber)}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            // Reset loading state
+            previousReadingInput.placeholder = "Previous Reading";
+
+            if (!data.success) {
+                console.error('Server error:', data.error || 'Unknown error');
+                return;
+            }
+
+            if (data.previous_reading !== null) {
+                // Existing reading found
+                previousReadingInput.value = data.previous_reading;
+                previousReadingInput.readOnly = true;
+                prevReadingNote.style.display = 'none';
+                console.log(`Found previous reading: ${data.previous_reading}`);
+            } else {
+                // No previous reading found
+                previousReadingInput.readOnly = false;
+                prevReadingNote.style.display = 'inline';
+                console.log('No previous reading found for this unit');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            previousReadingInput.placeholder = "Previous Reading";
+            previousReadingInput.readOnly = false;
+            alert('Error checking previous readings. Please try again.');
+        });
+}
+
+// Add event listener
+document.getElementById('units').addEventListener('change', checkPreviousReading);
+ </script>
     <!--end::Script-->
   </body>
   <!--end::Body-->

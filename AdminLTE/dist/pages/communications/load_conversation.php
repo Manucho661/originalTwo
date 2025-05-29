@@ -22,6 +22,7 @@ $stmt = $pdo->prepare("
         m.sender,
         m.content,
         m.timestamp,
+        m.viewed,
         m.file_path AS single_file_path,  -- NEW: directly stored file
         GROUP_CONCAT(mf.file_path SEPARATOR '|||') AS file_paths,
         GROUP_CONCAT(mf.file_id SEPARATOR '|||') AS file_ids
@@ -55,22 +56,30 @@ foreach ($messages as $msg) {
         $file_ids[] = null;
     }
 
-    $messagesHtml .= "<div class='message $class'>";
+    $messagesHtml .= "<div class='message $class' data-message-id='{$msg['message_id']}'>";
+
+    // Add three dots menu only for "outgoing" messages (optional condition)
+    $messagesHtml .= "
+    <div class='message-options'>
+        <button class='options-btn' onclick='toggleOptionsMenu(this)'>⋮</button>
+        <div class='options-menu' style='display: none;'>
+            <button onclick='editMessage(this, {$msg['message_id']})'>
+                <i class='fas fa-edit'></i> Edit
+            </button>
+            <button onclick='deleteMessage({$msg['message_id']})'>
+                <i class='fas fa-trash-alt'></i> Delete
+            </button>
+        </div>
+    </div>
+";
+
     $messagesHtml .= "<div class='bubble'>$content</div>";
-
-
-    // $tickIcon = $isViewed
-    // ? "<i class='fas fa-check-double viewed-tick' title='Viewed'></i>"
-    // : "<i class='fas fa-check-double unviewed-tick' title='Not viewed yet'></i>";
-
 
     if (!empty($file_paths)) {
         $messagesHtml .= "<div class='attachments mt-2'>";
         foreach ($file_paths as $index => $file_path) {
             if (empty($file_path)) continue;
 
-            // Make absolute path for server-side access
-            // $full_path = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($file_path, '/');
             $base_upload_dir = '/originalTwo/AdminLTE/dist/pages/communications/uploads/';
             $full_path = $_SERVER['DOCUMENT_ROOT'] . $base_upload_dir . basename($file_path);
             error_log("FULL PATH: " . $full_path);
@@ -85,74 +94,40 @@ foreach ($messages as $msg) {
                 $mimeType = mime_content_type($full_path);
 
                 if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'])) {
-
-
-                     $messagesHtml .= "
-                     <div class='attachment-image whatsapp-style'>
-                         <div class='image-container'>
-                             <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
-                                 <i class='fas fa-download'></i>
-                             </a>
-
-                             <img src='data:$mimeType;base64,$base64' alt='$basename' class='media-image'>
-
-                             </div>
-                         <div class='file-name'>$basename</div>
-
-                 </div>";
-
-
+                    $messagesHtml .= "
+                    <div class='attachment-image whatsapp-style'>
+                        <div class='image-container'>
+                            <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
+                                <i class='fas fa-download'></i>
+                            </a>
+                            <img src='data:$mimeType;base64,$base64' alt='$basename' class='media-image'>
+                        </div>
+                        <div class='file-name'>$basename</div>
+                    </div>";
                 } elseif ($ext === 'pdf') {
-            //       $messagesHtml .= "<div class='attachment-file whatsapp-style-file'>
-            //       <div class='file-container'>
-            //           <embed src='data:$mimeType;base64,$base64' type='$mimeType' class='file-preview' />
-            //           <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
-            //               <i class='fas fa-download'></i>
-            //           </a>
-            //       </div>
-            //       <a href='data:$mimeType;base64,$base64' download='$basename' class='file-download-link'>
-            //           <i class='fas fa-file-pdf file-icon'></i>
-            //           <span class='file-name'>$basename</span>
-            //       </a>
-            //   </div>";
-
-            $messagesHtml .= "<div class='attachment-file whatsapp-style-file' data-filename='$basename'>
-    <div class='file-container'>
-        <embed src='data:$mimeType;base64,$base64' type='$mimeType' class='file-preview' />
-        <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
-            <i class='fas fa-download'></i>
-        </a>
-        <button class='delete-icon' title='Delete' onclick='deleteAttachment(this, \"$basename\")'>
-            <i class='fas fa-trash-alt'></i>
-        </button>
-    </div>
-    <a href='data:$mimeType;base64,$base64' download='$basename' class='file-download-link'>
-        <i class='fas fa-file-pdf file-icon'></i>
-        <span class='file-name'>$basename</span>
-    </a>
-</div>";
-                }
-                 else {
-                    // $messagesHtml .= "<div class='attachment-file mb-2'>
-                    //     <a href='data:$mimeType;base64,$base64' download='$basename' class='btn btn-sm btn-outline-secondary'>
-                    //         <i class='fas fa-download'></i> $basename
-                    //     </a>
-                    // </div>";
-                    $viewed = $message['viewed']; // true/false or 1/0
-                    $tickIcon = $viewed
-                        ? "<i class='fas fa-check-double text-primary ms-2'></i>"  // blue tick (viewed)
-                        : "<i class='fas fa-check text-muted ms-2'></i>";           // grey tick (not viewed)
-
+                    $messagesHtml .= "<div class='attachment-file whatsapp-style-file' data-filename='$basename'>
+                        <div class='file-container'>
+                            <embed src='data:$mimeType;base64,$base64' type='$mimeType' class='file-preview' />
+                            <a href='data:$mimeType;base64,$base64' download='$basename' class='download-icon' title='Download'>
+                                <i class='fas fa-download'></i>
+                            </a>
+                            <button class='delete-icon' title='Delete' onclick='deleteAttachment(this, \"$basename\")'>
+                                <i class='fas fa-trash-alt'></i>
+                            </button>
+                        </div>
+                        <a href='data:$mimeType;base64,$base64' download='$basename' class='file-download-link'>
+                            <i class='fas fa-file-pdf file-icon'></i>
+                            <span class='file-name'>$basename</span>
+                        </a>
+                    </div>";
+                } else {
                     $messagesHtml .= "<div class='attachment-file mb-2'>
                         <a href='data:$mimeType;base64,$base64' download='$basename' class='btn btn-sm btn-outline-secondary'>
                             <i class='fas fa-download'></i> $basename
                         </a>
-                        $tickIcon
                     </div>";
-
                 }
-            }
-            else {
+            } else {
                 $messagesHtml .= "<div class='attachment-error text-danger mb-2'>
                     <i class='fas fa-exclamation-triangle'></i> File not found: $basename
                 </div>";
@@ -161,7 +136,21 @@ foreach ($messages as $msg) {
         $messagesHtml .= "</div>"; // end attachments
     }
 
-    $messagesHtml .= "<div class='timestamp small text-muted'>$timestamp</div>";
+    // Timestamp + tick logic (only for landlord sender)
+    $messagesHtml .= "<div class='timestamp small text-muted d-flex align-items-center'>$timestamp";
+
+    if ($msg['sender'] === 'landlord') {
+        if ($msg['viewed']) {
+            // Seen → double blue ticks
+            $messagesHtml .= "<i class='fas fa-check-double text-primary ms-2' title='Seen'></i>";
+        } else {
+            // Sent but not seen → single grey tick
+            $messagesHtml .= "<i class='fas fa-check text-muted ms-2' title='Sent, not seen'></i>";
+        }
+    }
+
+    $messagesHtml .= "</div>"; // timestamp
+
     $messagesHtml .= "</div>"; // end message
 }
 
