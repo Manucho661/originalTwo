@@ -96,8 +96,12 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
     <style>
       .app-wrapper{
          background-color: rgba(128,128,128, 0.1);
+        
       }
-      
+      .modal-backdrop.show {
+        opacity: 0.4 !important; /* Adjust the value as needed */
+      }
+
     </style>
   </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
@@ -249,12 +253,12 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
       <main class="app-main">
                       <!--MAIN MODALS -->
         <!-- add new inspection modal-->
-        <div class="modal fade" id="shiftTenantModal" tabindex="-1" aria-labelledby="shiftTenantModalLabel" aria-hidden="true">
+        <div class="modal fade" id="newSchedule" tabindex="-1" aria-labelledby="newScheduleLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content shadow">
               <form id="form_new_inspection" onsubmit="submitInspectionForm(event)">
-                <div class="modal-header" style="background-color:#00192D; color:#FFC107;">
-                  <h5 class="modal-title" id="shiftTenantModalLabel">Schedule Inspection</h5>
+                <div class="modal-header" style="background-color:#00192D;">
+                  <h5 class="modal-title" id="newScheduleLabel" style="color:#FFA000 !important">Schedule Inspection</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
@@ -312,7 +316,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
               </div>
 
               <div class="col-sm-4 d-flex justify-content-end">
-                <button type="button" class="btn newSchedule" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
+                <button type="button" class="btn newSchedule" data-bs-toggle="modal" data-bs-target="#newSchedule">
                   New Schedule
                 </button>
             </div>
@@ -764,7 +768,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
       <!-- Inspection(inspected) Modal -->
       <div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-          <div class="modal-content rounded-4 shadow-lg">
+          <div class="modal-content rounded-3 shadow-lg">
             <div class="modal-header">
               <h5 class="modal-title" id="inspectionModalLabel">🏠 Inspection Details - <strong>Unit A12</strong></h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -780,7 +784,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                     <th>Photos</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody  id="inspectionModalTableBody">
                   <tr>
                     <td>Floor</td>
                     <td><span class="status-bad">Needs Repair</span></td>
@@ -1013,6 +1017,11 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
   ></script>
 
         <!--end::Script-->
+  <!-- date display only future date -->
+   <script>
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("inspectionDate").setAttribute("min", today);
+   </script>
   </body>
   <!--end::Body-->
 </html>

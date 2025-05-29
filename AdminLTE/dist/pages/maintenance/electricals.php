@@ -394,9 +394,9 @@
                   <thead class="mb-2">
                     <tr>
                         <th>REQUEST Date</th>
-                        
+                        <th>Request ID</th>
                         <th>PROPERTY + UNIT</th>
-                        <th>CATEGORY</th>
+                        <th>CATEGORY + DESCRIPTION </th>
                         <th>PROVIDER</th>
                         <th>PRIORITY</th>             
                         <th>STATUS</th>
@@ -637,7 +637,7 @@
     <!-- Begin script for datatable -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            let table = $('#maintenanc').DataTable({
+            let table = $('#maintanance').DataTable({
                 lengthChange: false, // Removes "Show [X] entries"
                 dom: 't<"bottom"p>', // Removes default search bar & keeps only table + pagination
             });

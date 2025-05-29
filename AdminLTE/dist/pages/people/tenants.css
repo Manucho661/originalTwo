@@ -241,6 +241,7 @@ main.fade-out {
   }
   td .email{
     color: #0072C6;
+    
   }
   td .email:hover{
     text-decoration: underline;

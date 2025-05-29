@@ -48,7 +48,34 @@ function populateRequestsTable(requests) {
             <i class="fas fa-check-circle"></i> Completed
           </span>
         </td>`;
-    } else if (status === 'incomplete') {
+        
+    }
+    
+    else if (status === 'pending') {
+      statusHTML = `
+        <td>
+          <span class="status completed" >
+            <i class="fas fa-check-circle"></i> Pending
+          </span>
+        </td>`;
+    }
+    else if (status === 'cancelled') {
+      statusHTML = `
+        <td>
+          <span class="status cancelled" >
+            <i class="fas fa-check-circle"></i> Cancelled
+          </span>
+        </td>`;
+    }
+    else if (status === 'in_progress') {
+      statusHTML = `
+        <td>
+          <span class="status completed" >
+           <i class="fas fa-spinner fa-spin"></i> In Progress
+          </span>
+        </td>`;
+    }
+    else if (status === 'incomplete') {
       statusHTML = `
         <td>
           <span class="status incomplete">
@@ -69,23 +96,39 @@ function populateRequestsTable(requests) {
       <td>${requests.request_date || ''}</td>
       <td>${requests.id || ''}</td>
       <td>
-        <div>${requests.category }</div>
+      <div>${requests.residence}</div>
+      <div style="color: green;">${requests.unit}</div>
       </td>
+      
       <td>
-        <div style="color: green;">${requests.description }</div>
+      <div>${requests.category }</div>
+        <div style="color:green; border:none; width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">${requests.description }</div>
 
       </td>
-      <td>${requests.provider_id|| ''}</td>
+      <td>
+      <div>${requests.provider_name|| ''} </div>
+      <div class="email" style="width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; ">📧 </i> ${requests.provider_email|| ''} </div>
+      </td>
+      <td>${requests.priority|| ''} </td>
       ${statusHTML}
-      <td class="d-flex gap-15px">   
-        <button class="btn inspect_btn"
+      <td>
+      <div class="${requests.payment_status}"> ${requests.payment_status}</div>
+       </td>
+      <td style="vertical-align: middle;">
+  <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+    <div class="d-flex gap-15px" style="align-items: center;">
+      
+      <div>
+        <button class="btn btn-sm"
           data-building-name="${requests.building_name}"
           data-unit="${requests.unit || ''}"
           data-inspection-id="${requests.id}"
+          style="background-color: #00192D; color:#FFC107">
+          Pay
+        </button>
+      </div>
 
-         style="background-color: #00192D; color:#FFC107">
-         Inspect</button>
-
+      <div>
         <button class="btn btn-sm view-btn"
           style="background-color: #193042; margin-left:10px; color:#fff;"
           title="View"
@@ -93,18 +136,20 @@ function populateRequestsTable(requests) {
           data-status="${status}">
           <i class="fas fa-eye"></i>
         </button>
+      </div>
 
-        <!-- Edit Button -->
-        <button class="btn btn-sm" style="background-color: #1e6f5c; margin-left: 2px; margin-right: 2px; color: #fff;" title="Edit">
-          <i class="fas fa-edit"></i>
-        </button>
-
-        <!-- Delete Button -->
-        <button class="btn btn-sm" style="background-color: #b02a37; margin-left: 2px; margin-right: 2px; color: #fff;" title="Delete">
+      <div>
+        <button class="btn btn-sm"
+          style="background-color: #b02a37; margin-left: 2px; margin-right: 2px; color: #fff;"
+          title="Delete">
           <i class="fas fa-trash"></i>
         </button>
+      </div>
 
-      </td>
+    </div>
+      </div>
+    </td>
+
     `;
 
    // Add the event listener here AFTER the row is in memory

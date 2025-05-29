@@ -355,7 +355,13 @@ tr td:first-child {
     background-color: #2c3e50;
     color: white;
   }
-
+td .email{
+    color: #0072C6;
+  }
+  td .email:hover{
+    text-decoration: underline;
+    cursor: pointer;
+  }
 
 .inspection-table{
   width: 100%;
@@ -394,45 +400,36 @@ tr td:first-child {
     font-size: 14px;
   }
   .status.completed {
-    background-color: #2e7d32; /* Light green */
-
-    color: white;
-
+    color: #2e7d32; /* Light green */
   }
-
+ .status.cancelled {
+    color: #d32f2f; /* Light green */
+  }
   .status.incomplete {
-    background-color: #d32f2f; /* Light red */
-    color: white; /* Darker red */
+    color: #d32f2f; /* Light red */
 
   }
   .status i {
     margin-right: 5px;
   }
 
-  .payment {
-    display: inline-flex;
-    align-items: center;
-    font-weight: bold;
-     padding: 6px 12px;
-    border-radius: 4px; /* Rounded edges */
-    font-size: 14px;
-     width: 100%;
-  }
-
-  /* Pending Payment (Orange) */
-  .payment.pending {
-    background-color: #d39e00; /* Light yellow/orange */
-    color: white; /* Dark orange */
+  td .Pending{
+    color: white;
+    background-color: #F87171;
+    padding:2px 5px;
+    border-radius: 5px; 
+    text-align: center;
 
   }
-
-  /* Paid Payment (Green) */
-  .payment.paid {
-    background-color: #2e7d32; /* Light green */
-    color: white; /* Dark green */
-
+  td .Paid{
+    color: white;
+    background-color: #4CAF50 !important;
+     padding:2px 5px; 
+    text-align: center;
+  border-radius: 5px; 
 
   }
+  
 
   /* Icon styling */
   .payment i {
@@ -460,11 +457,7 @@ tr td:first-child {
     gap: 5px; /* Space between icon and text */
   }
 
-  /* Color Coding */
-  .total { background-color: #f8f9fa; color: #333; } /* Neutral */
-  .completed { background-color: #28a745; color: white; } /* Green */
-  .in-progress { background-color: #007bff; color: white; } /* Blue */
-  .incomplete { background-color: #dc3545; color: white; } /* Red */
+  
 
 
   .dt-buttons {
