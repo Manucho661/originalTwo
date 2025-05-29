@@ -49,7 +49,12 @@ try {
 ?>
 
 
+<style>
+.modal-backdrop.show {
+        opacity: 0.3 !important; /* Adjust the value as needed */
+      }
 
+</style>
 
 <!doctype html>
 <html lang="en">

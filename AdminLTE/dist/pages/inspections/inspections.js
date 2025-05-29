@@ -76,7 +76,7 @@
 
   // fetch scheduled schedules.
   function fetchScheduledInspections(){
-     fetch('actions/fetch_records.php')
+     fetch('actions/fetch_records.php?table=inspections')
       .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -223,7 +223,7 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
     });
 
    const viewBtn = tempDiv.querySelector('.view-btn');
-  viewBtn.addEventListener('click', () => {
+   viewBtn.addEventListener('click', () => {
     const inspectionId = viewBtn.getAttribute('data-id');
 
     // Get the status text from the row
@@ -243,12 +243,46 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
   });
 }
 
-function viewDetails() {
+function viewDetails(inspectionId) {
+  
+fetch(`actions/fetch_records.php?table=inspection_items&inspection_id=${inspectionId}`)
+      .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Inspections:", data.data);
+                // you can now use data.data to display in your UI
+                populateItemsTable(data.data);
+            } else {
+                console.error("Backend error:", data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Network or parsing error:", error);
+        });
   const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
   modal.show();
 }
 
+// populateItemsTable
+ 
+  function populateItemsTable(inspection_items) {
+  const tableBody = document.getElementById("inspectionModalTableBody");
+  tableBody.innerHTML = ""; // Clear existing rows
 
+  inspection_items.forEach(item => {
+    const row = document.createElement("tr");
+
+    // Example columns: item name, status, comments
+    row.innerHTML = `
+      <td>${item.category || '—'}</td>
+      <td>${item.status || '—'}</td>
+      <td>${item.description || '—'}</td>
+      <td>${item.photos || '—'}</td>
+    `;
+
+    tableBody.appendChild(row);
+  });
+}
 
   // Initialize everything after DOM loads
   document.addEventListener("DOMContentLoaded", () => {

@@ -227,11 +227,6 @@
             <!--begin::User Menu Dropdown-->
             <li class="nav-item dropdown user-menu">
               <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                <img
-                  src="17.jpg"
-                  class="user-image rounded-circle shadow"
-                  alt="User Image"
-                />
                 <span class="d-none d-md-inline">  <b>JENGO PAY</b>  </span>
               </a>
               <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
@@ -355,7 +350,7 @@
                     <div class="summary-card_icon"> <i class="fas fa-clipboard-check"></i></div>
                   <div>
                     <div class="summary-card_label">Scheduled</div>
-                    <div class="summary-card_value" >&nbsp; <?= $inspectionsCount ?> </div>
+                    <div class="summary-card_value" > </div>
                   </div>
                 </div>
               </div>
@@ -395,13 +390,13 @@
 
               <div class="col-md-12">
                 <h6 class="mb-0 contact_section_header summary mb-2"></i> Requests</h6>
-                <table id="maintanance" class=" display summary-table">
+                <table id="maintanance" class=" display summary-table" >
                   <thead class="mb-2">
                     <tr>
                         <th>REQUEST Date</th>
-                        
+                        <th>Request ID</th>
                         <th>PROPERTY + UNIT</th>
-                        <th>CATEGORY</th>
+                        <th>CATEGORY + DESCRIPTION </th>
                         <th>PROVIDER</th>
                         <th>PRIORITY</th>             
                         <th>STATUS</th>
@@ -409,29 +404,8 @@
                         <th>ACTIONS</th>
                     </tr>
                   </thead>
-                  <tbody id="scheduledInspectionsTableBody">
-                    <tr>
-                              <td>11-10-2025</td>
-                              
-                              <td>
-                                <div>${request.building_name }</div>
-                                <div style="color: green;">${request.unit_name }</div>
-                              </td>
-                              <td>
-                                Broken Handle
-                              </td>
-                              <!-- <td><button onclick="toggleOverlay()">Paid</button></td> -->
-                              <td>Kitu Moto</td>
-                              <td>low</td>
-                              <td><button class="status completed"><i class="fa fa-check-circle"></i> COMPLETED </button>  </td>
-                              <td>Pending</td>
-                              <td>
-                                <button  onclick="openassignPopup()"  class="btn btn-sm" style="background-color: #193042; color:#fff;" data-toggle="modal" data-target="#assignPlumberModal" title="Assign this Task to a Plumbing Service Providersingle_units.php"><i class="fa fa-wrench"></i>
-                                </button>
-                                <button onclick="openplummbingdetailsPopup()" class="btn btn-sm" style="background-color: #0C5662; color:#fff;" data-toggle="modal" data-target="#plumbingIssueModal" title="Get Full Report about this Repair Work"><i class="fa fa-file"></i></button>
-
-                              </td>
-                            </tr>
+                  <tbody id="maintenanceRequestsTableBody">
+                    
                   </tbody>
                 </table> 
               </div>
@@ -596,63 +570,17 @@
          <!-- Submit Button -->
          <button type="submit" class="bossy"> MAKE PAYMENT</button>
       </div>
-
-
-
-      <!-- Payment Details Section
-      <div class="form-section">
-        <h3>Payment Details</h3>
-        <label for="amount">Payment Amount (KSH)</label>
-        <input type="number" id="amount" name="amount" placeholder="Enter the amount to pay" min="1" required>
-
-        <label for="paymentMethod">Payment Method</label>
-        <select id="paymentMethod" name="paymentMethod" required>
-          <option value="mpesa_transfer" class="bossy">MPESA</option>
-        </select>
-      </div> -->
-
           </form>
         </div>
       </div>
     </div>
   </div>
-
 <!-- End view announcement -->
-<!-- end overlay card. -->
-
-    <!--begin::Script-->
-    <!--begin::Third Party Plugin(OverlayScrollbars)-->
-
-
-
 <!-- Overlay scripts -->
- <!-- View announcements script -->
+<!-- main js file -->
+<script src="maintenance.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
- <script>
-  const   more_announcement = document.getElementById('more_announcement_btn');
-  const   view_announcement = document.getElementById('view_announcement');
-  const   close_overlay = document.getElementById("close-overlay-btn");
-
-  more_announcement.addEventListener('click', ()=>{
-
-     view_announcement.style.display= "flex";
-     document.querySelector('.app-wrapper').style.opacity = '0.3'; // Reduce opacity of main content
-     const now = new Date();
-            const formattedTime = now.toLocaleString(); // Format the date and time
-            timestamp.textContent = `Sent on: ${formattedTime}`;
-
-
-  });
-
-     close_overlay.addEventListener('click', ()=>{
-
-     view_announcement.style.display= "none";
-     document.querySelector('.app-wrapper').style.opacity = '1';
-
-
-     });
  </script>
 
  <!-- End view announcement script -->
@@ -708,9 +636,8 @@
 </script>
     <!-- Begin script for datatable -->
     <script>
-
-            document.addEventListener("DOMContentLoaded", function() {
-            let table = $('#maintenanc').DataTable({
+        document.addEventListener("DOMContentLoaded", function() {
+            let table = $('#maintanance').DataTable({
                 lengthChange: false, // Removes "Show [X] entries"
                 dom: 't<"bottom"p>', // Removes default search bar & keeps only table + pagination
             });
@@ -806,162 +733,8 @@ $(document).ready(function() {
       });
     </script>
     <!--end::OverlayScrollbars Configure-->
-    <!-- OPTIONAL SCRIPTS -->
-    <!-- apexcharts -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
-      integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-      crossorigin="anonymous"
-    ></script>
-    <script>
-      // NOTICE!! DO NOT USE ANY OF THIS JAVASCRIPT
-      // IT'S ALL JUST JUNK FOR DEMO
-      // ++++++++++++++++++++++++++++++++++++++++++
-
-      /* apexcharts
-       * -------
-       * Here we will create a few charts using apexcharts
-       */
-
-      //-----------------------
-      // - MONTHLY SALES CHART -
-      //-----------------------
-
-      const sales_chart_options = {
-        series: [
-          {
-            name: 'Digital Goods',
-            data: [28, 48, 40, 19, 86, 27, 90],
-          },
-          {
-            name: 'Electronics',
-            data: [65, 59, 80, 81, 56, 55, 40],
-          },
-        ],
-        chart: {
-          height: 180,
-          type: 'area',
-          toolbar: {
-            show: false,
-          },
-        },
-        legend: {
-          show: false,
-        },
-        colors: ['#0d6efd', '#20c997'],
-        dataLabels: {
-          enabled: false,
-        },
-        stroke: {
-          curve: 'smooth',
-        },
-        xaxis: {
-          type: 'datetime',
-          categories: [
-            '2023-01-01',
-            '2023-02-01',
-            '2023-03-01',
-            '2023-04-01',
-            '2023-05-01',
-            '2023-06-01',
-            '2023-07-01',
-          ],
-        },
-        tooltip: {
-          x: {
-            format: 'MMMM yyyy',
-          },
-        },
-      };
-
-      const sales_chart = new ApexCharts(
-        document.querySelector('#sales-chart'),
-        sales_chart_options,
-      );
-      sales_chart.render();
-
-      //---------------------------
-      // - END MONTHLY SALES CHART -
-      //---------------------------
-
-      function createSparklineChart(selector, data) {
-        const options = {
-          series: [{ data }],
-          chart: {
-            type: 'line',
-            width: 150,
-            height: 30,
-            sparkline: {
-              enabled: true,
-            },
-          },
-          colors: ['var(--bs-primary)'],
-          stroke: {
-            width: 2,
-          },
-          tooltip: {
-            fixed: {
-              enabled: false,
-            },
-            x: {
-              show: false,
-            },
-            y: {
-              title: {
-                formatter: function (seriesName) {
-                  return '';
-                },
-              },
-            },
-            marker: {
-              show: false,
-            },
-          },
-        };
-
-        const chart = new ApexCharts(document.querySelector(selector), options);
-        chart.render();
-      }
-
-      const table_sparkline_1_data = [25, 66, 41, 89, 63, 25, 44, 12, 36, 9, 54];
-      const table_sparkline_2_data = [12, 56, 21, 39, 73, 45, 64, 52, 36, 59, 44];
-      const table_sparkline_3_data = [15, 46, 21, 59, 33, 15, 34, 42, 56, 19, 64];
-      const table_sparkline_4_data = [30, 56, 31, 69, 43, 35, 24, 32, 46, 29, 64];
-      const table_sparkline_5_data = [20, 76, 51, 79, 53, 35, 54, 22, 36, 49, 64];
-      const table_sparkline_6_data = [5, 36, 11, 69, 23, 15, 14, 42, 26, 19, 44];
-      const table_sparkline_7_data = [12, 56, 21, 39, 73, 45, 64, 52, 36, 59, 74];
-
-      createSparklineChart('#table-sparkline-1', table_sparkline_1_data);
-      createSparklineChart('#table-sparkline-2', table_sparkline_2_data);
-      createSparklineChart('#table-sparkline-3', table_sparkline_3_data);
-      createSparklineChart('#table-sparkline-4', table_sparkline_4_data);
-      createSparklineChart('#table-sparkline-5', table_sparkline_5_data);
-      createSparklineChart('#table-sparkline-6', table_sparkline_6_data);
-      createSparklineChart('#table-sparkline-7', table_sparkline_7_data);
-
-      //-------------
-      // - PIE CHART -
-      //-------------
-
-      const pie_chart_options = {
-        series: [700, 500, 400, 600, 300, 100],
-        chart: {
-          type: 'donut',
-        },
-        labels: ['Chrome', 'Edge', 'FireFox', 'Safari', 'Opera', 'IE'],
-        dataLabels: {
-          enabled: false,
-        },
-        colors: ['#0d6efd', '#20c997', '#ffc107', '#d63384', '#6f42c1', '#adb5bd'],
-      };
-
-      const pie_chart = new ApexCharts(document.querySelector('#pie-chart'), pie_chart_options);
-      pie_chart.render();
-
-      //-----------------
-      // - END PIE CHART -
-      //-----------------
-    </script>
+    
+    
 
     <!--end::Script-->
   </body>
