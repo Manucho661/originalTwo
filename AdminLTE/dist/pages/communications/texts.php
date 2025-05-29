@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['title']) && !empty($
         $now = (new DateTime('now', new DateTimeZone('Africa/Nairobi')))->format('Y-m-d H:i:s');
 
         // Insert communication thread
-        $stmt = $pdo->prepare("INSERT INTO communication (title, message, files, unit_id, tenant, building_name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$title, $message, $files_json, $unit_id, $tenant, $building_name, $now, $now]);
+        $stmt = $pdo->prepare("INSERT INTO communication (title, message, files, unit_id, tenant, building_name, building_id, created_at, updated_at) VALUES (?, ?,  ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $message, $files_json, $unit_id, $tenant, $building_name, $building_id, $now, $now]);
 
         $thread_id = $pdo->lastInsertId();
         $message_id = $pdo->lastInsertId(); // Get the message ID for attachments
@@ -532,6 +532,31 @@ display: flex;
         font-size: 0.65rem !important;
     }
 }
+.message-options {
+    position: relative;
+    float: right;
+    margin-left: 10px;
+}
+
+.options-btn {
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.options-menu {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 5px;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+
 </style>
 </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
@@ -810,7 +835,7 @@ display: flex;
                               <div class="row">
                                   <div class="col-md-8 col-12">
                                   <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;">
-                                      <select id="categoryFilter"  name="building_id" class="categoryFilter form-select">
+                                      <select id="buildingSelector"  name="building_id" class="categoryFilter form-select">
                                       <option value="">-- Select Building --</option>
                                       <?php foreach ($buildings as $b): ?>
                                         <option value="<?= htmlspecialchars($b['building_id']) ?>">
@@ -871,7 +896,7 @@ display: flex;
       <th>ACTION</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody id="conversationTableBody">
     <?php if (!empty($communications)): ?>
       <?php foreach ($communications as $comm):
         $datetime = new DateTime($comm['created_at'] ?? date('Y-m-d H:i:s'));
@@ -1001,13 +1026,13 @@ display: flex;
 
                                 <div class="input-area">
     <!-- Attachment input -->
-    <input type="file" name="file[]" id="fileInput" class="form-control" style="display: none;" onchange="showFilePreview()">
+    <input type="file" name="file[]" id="fileInput" class="form-control" style="display: none;" onchange="showFilePreview()" multiple accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
     <button class="btn attach-button" onclick="document.getElementById('fileInput').click();">
         <i class="fa fa-paperclip"></i>
     </button>
 
     <!-- File preview container -->
-    <div id="filePreviewContainer" style="display: none; margin-right: 10px; max-width: 200px;">
+    <div id="filePreviewContainer" style="display: none; margin-right: 10px; max-width: 200px; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; background: #f5f5f5; padding: 5px; border-radius: 4px;">
             <!-- Image thumbnail (shown only for image files) -->
             <img id="fileThumbnail" src="" style="max-height: 40px; max-width: 40px; margin-right: 8px; display: none;">
@@ -1107,17 +1132,10 @@ display: flex;
 
                             <div id="field-group-second" class="field-group second" style="display:block">
                             <label for="recipient-units">Unit</label>
-                           <select name="unit_id">
-                            <?php if (!empty($units) && is_array($units)): ?>
-                              <?php foreach ($units as $unit): ?>
-                                <option value="<?= htmlspecialchars($unit['unit_id']) ?>">
-                                  <?= htmlspecialchars($unit['unit_number']) ?>
-                                </option>
-                              <?php endforeach; ?>
-                            <?php else: ?>
-                              <option disabled>No units found</option>
-                            <?php endif; ?>
-                          </select>
+                            <select name="unit_id" id="unit-select">
+                            <option value="">-- Select Unit --</option>
+                            </select>
+
                           </div>
 
 
@@ -1183,24 +1201,80 @@ display: flex;
 function showFilePreview() {
     const fileInput = document.getElementById('fileInput');
     const previewContainer = document.getElementById('filePreviewContainer');
-    const fileThumbnail = document.getElementById('fileThumbnail');
-    const fileName = document.getElementById('fileName');
+
+    // Clear previous previews
+    previewContainer.innerHTML = '';
 
     if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        fileName.textContent = file.name;
+        const iconMap = {
+            'pdf': 'pdf-icon.png',
+            'doc': 'word-icon.png',
+            'docx': 'word-icon.png',
+            'xls': 'excel-icon.png',
+            'xlsx': 'excel-icon.png',
+            'ppt': 'ppt-icon.png',
+            'pptx': 'ppt-icon.png',
+            'zip': 'zip-icon.png',
+            'rar': 'zip-icon.png',
+            'txt': 'txt-icon.png',
+            'csv': 'csv-icon.png',
+        };
+        const fallbackIcon = 'file-icon.png'; // generic icon
 
-        // Check if file is an image
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                fileThumbnail.src = e.target.result;
-                fileThumbnail.style.display = 'block';
+        Array.from(fileInput.files).forEach((file, index) => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            const fileBox = document.createElement('div');
+            fileBox.style.display = 'flex';
+            fileBox.style.alignItems = 'center';
+            fileBox.style.background = '#f5f5f5';
+            fileBox.style.padding = '5px';
+            fileBox.style.borderRadius = '4px';
+            fileBox.style.maxWidth = '200px';
+            fileBox.style.cursor = 'pointer';
+
+            const thumbnail = document.createElement('img');
+            thumbnail.style.maxHeight = '40px';
+            thumbnail.style.maxWidth = '40px';
+            thumbnail.style.marginRight = '8px';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.style.flexGrow = '1';
+            nameDiv.innerHTML = `<div style="font-size: 12px; color: #333;">${file.name}</div>
+                                 <div style="font-size: 10px; color: #666;">Click to remove</div>`;
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.background = 'none';
+            closeBtn.style.border = 'none';
+            closeBtn.style.color = '#999';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.marginLeft = '5px';
+
+            // Remove file when clicked
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeFileAtIndex(index);
+            };
+
+            // Image preview
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    thumbnail.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const iconPath = iconMap[ext] || fallbackIcon;
+                thumbnail.src = `/path/to/icons/${iconPath}`;
             }
-            reader.readAsDataURL(file);
-        } else {
-            fileThumbnail.style.display = 'none';
-        }
+
+            fileBox.appendChild(thumbnail);
+            fileBox.appendChild(nameDiv);
+            fileBox.appendChild(closeBtn);
+            fileBox.onclick = () => removeFileAtIndex(index);
+
+            previewContainer.appendChild(fileBox);
+        });
 
         previewContainer.style.display = 'flex';
     } else {
@@ -1208,14 +1282,24 @@ function showFilePreview() {
     }
 }
 
-function clearFileSelection() {
+function removeFileAtIndex(indexToRemove) {
     const fileInput = document.getElementById('fileInput');
-    const previewContainer = document.getElementById('filePreviewContainer');
-    const fileThumbnail = document.getElementById('fileThumbnail');
+    const dt = new DataTransfer();
 
-    fileInput.value = '';
-    fileThumbnail.src = '';
-    previewContainer.style.display = 'none';
+    Array.from(fileInput.files).forEach((file, index) => {
+        if (index !== indexToRemove) {
+            dt.items.add(file);
+        }
+    });
+
+    fileInput.files = dt.files;
+    showFilePreview(); // refresh preview
+}
+
+function clearFileSelection() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('filePreviewContainer').innerHTML = '';
+    document.getElementById('filePreviewContainer').style.display = 'none';
 }
 
 function sendMessage() {
@@ -1224,29 +1308,17 @@ function sendMessage() {
     const fileInput = document.getElementById('fileInput');
 
     if (message || fileInput.files.length > 0) {
-        // Here you would normally send the data to your server
         console.log("Message:", message);
 
-        if (fileInput.files.length > 0) {
-            console.log("File attached:", fileInput.files[0].name);
-            // For actual implementation, you would need to:
-            // 1. Create FormData object
-            // 2. Append the file and message
-            // 3. Send via AJAX/Fetch
-        }
+        Array.from(fileInput.files).forEach(file => {
+            console.log("File attached:", file.name);
+        });
 
-        // Clear inputs after sending
+        // Clear after sending
         inputBox.innerText = '';
         clearFileSelection();
     }
 }
-
-// Make the file preview container clickable to remove the file
-document.getElementById('filePreviewContainer').addEventListener('click', function(e) {
-    if (e.target.tagName !== 'BUTTON') {
-        clearFileSelection();
-    }
-});
 </script>
 
 
@@ -1336,7 +1408,7 @@ function handleFiles(event) {
     previewContainer.appendChild(previewItem);
   });
 }
-</script> -->
+</script>
 
 
 
@@ -1484,6 +1556,8 @@ document.getElementById('sendMessage').addEventListener('click', function() {
 
 
 
+
+
 <!-- loadConversation -->
 <script>
 //let activeThreadId = null;
@@ -1537,6 +1611,10 @@ function loadConversation(threadId) {
         });
 }
 </script>
+
+
+
+
 
 <!-- send & get message -->
 <script>
@@ -1676,6 +1754,149 @@ function getMessage(messageId) {
 }
 </script>
 
+
+<script>
+document.getElementById('recipient').addEventListener('change', function () {
+    var buildingId = this.value;
+
+    // Clear unit dropdown
+    var unitSelect = document.getElementById('unit-select');
+    unitSelect.innerHTML = '<option value="">-- Loading Units... --</option>';
+
+    if (buildingId) {
+        fetch('fetch_units.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'building_id=' + encodeURIComponent(buildingId)
+        })
+        .then(response => response.json())
+        .then(data => {
+            unitSelect.innerHTML = ''; // Clear and refill
+            if (data.length > 0) {
+                data.forEach(function (unit) {
+                    var option = document.createElement('option');
+                    option.value = unit.unit_id;
+                    option.textContent = unit.unit_number;
+                    unitSelect.appendChild(option);
+                });
+            } else {
+                unitSelect.innerHTML = '<option value="">No units found</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            unitSelect.innerHTML = '<option value="">Error loading units</option>';
+        });
+    } else {
+        unitSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+    }
+});
+</script>
+
+
+<script>
+function toggleOptionsMenu(btn) {
+    const menu = btn.nextElementSibling;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+
+    // Hide others
+    document.querySelectorAll('.options-menu').forEach(m => {
+        if (m !== menu) m.style.display = 'none';
+    });
+}
+
+function deleteMessage(messageId) {
+    if (!confirm("Delete this message?")) return;
+
+    fetch('delete_message.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `message_id=${messageId}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const el = document.querySelector(`.message[data-message-id='${messageId}']`);
+            if (el) el.remove();
+        } else {
+            alert("Failed to delete.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error deleting message.");
+    });
+}
+</script>
+
+<script>
+function editMessage(btn, messageId) {
+    const messageDiv = btn.closest('.message');
+    const bubble = messageDiv.querySelector('.bubble');
+
+    const originalText = bubble.innerText;
+    const textarea = document.createElement('textarea');
+    textarea.value = originalText;
+    textarea.style.width = '100%';
+    textarea.rows = 3;
+
+    const saveBtn = document.createElement('button');
+    saveBtn.innerText = 'Save';
+    saveBtn.classList.add('btn', 'btn-sm', 'btn-primary');
+    saveBtn.style.marginTop = '5px';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.innerText = 'Cancel';
+    cancelBtn.classList.add('btn', 'btn-sm', 'btn-secondary');
+    cancelBtn.style.marginTop = '5px';
+    cancelBtn.style.marginLeft = '5px';
+
+    // Replace bubble with textarea
+    bubble.replaceWith(textarea);
+    textarea.after(saveBtn, cancelBtn);
+
+    saveBtn.onclick = () => {
+        const newText = textarea.value.trim();
+        if (newText === '') return alert("Message cannot be empty.");
+
+        fetch('update_message.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `message_id=${messageId}&content=${encodeURIComponent(newText)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const newBubble = document.createElement('div');
+                newBubble.className = 'bubble';
+                newBubble.innerHTML = newText.replace(/\n/g, '<br>');
+                textarea.replaceWith(newBubble);
+                saveBtn.remove();
+                cancelBtn.remove();
+            } else {
+                alert("Update failed.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error saving message.");
+        });
+    };
+
+    cancelBtn.onclick = () => {
+        const originalBubble = document.createElement('div');
+        originalBubble.className = 'bubble';
+        originalBubble.innerHTML = originalText.replace(/\n/g, '<br>');
+        textarea.replaceWith(originalBubble);
+        saveBtn.remove();
+        cancelBtn.remove();
+    };
+}
+</script>
+
+
 <script>
 let pressTimer;
 
@@ -1691,6 +1912,8 @@ document.querySelectorAll('.message.outgoing').forEach(msg => {
     msg.addEventListener('mouseleave', () => clearTimeout(pressTimer));
 });
 </script>
+
+
 
 
 
@@ -1799,6 +2022,85 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
     </script>
+
+    <script>
+document.getElementById('buildingSelector').addEventListener('change', function () {
+  const buildingId = this.value;
+  const tbody = document.getElementById('conversationTableBody');
+
+  if (!buildingId) {
+    // alert(buildingId);
+    // No building selected: clear table or show default message
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No message available</td></tr>';
+    return;
+  }
+
+  // Fetch conversations via AJAX from backend PHP endpoint
+  fetch(`get-conversations.php?building_id=${encodeURIComponent(buildingId)}`)
+  .then(response => {
+    if (!response.ok) throw new Error('Network response was not OK');
+    return response.json();
+  })
+  .then(data => {
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">No message available</td></tr>';
+      return;
+    }
+
+      // Build rows HTML dynamically
+      let rows = '';
+      data.forEach(comm => {
+        const datetime = new Date(comm.created_at);
+        const date = datetime.toLocaleDateString('en-GB'); // dd/mm/yyyy
+        const time = datetime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        const sender = escapeHtml(comm.tenant) || 'Tenant';
+        const recipient = escapeHtml(comm.recipient) || 'Sender Name';
+        const title = escapeHtml(comm.title);
+        const threadId = comm.thread_id;
+
+        rows += `
+          <tr class="table-row">
+            <td class="timestamp">
+              <div class="date">${date}</div>
+              <div class="time">${time}</div>
+            </td>
+            <td class="title">${title}</td>
+            <td><div class="recipient">${recipient}</div></td>
+            <td>
+              <div class="sender">${sender}</div>
+              <div class="sender-email"></div>
+            </td>
+            <td>
+              <button class="btn btn-primary view" onclick="loadConversation(${threadId})">
+                <i class="bi bi-eye"></i> View
+              </button>
+              <button class="btn btn-danger delete" data-thread-id="${threadId}">
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rows;
+    })
+    .catch(error => {
+      console.error('Error fetching conversations:', error);
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading conversations.</td></tr>';
+    });
+});
+
+// Simple HTML escape helper
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/[&<>"']/g, function(m) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+</script>
+
+
     <!-- Bootstrap Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!--end::OverlayScrollbars Configure-->

@@ -2,19 +2,20 @@
 include '../db/connect.php';
 header('Content-Type: application/json');
 
+// Input
 $threadId = isset($_GET['thread_id']) ? (int)$_GET['thread_id'] : null;
 if (!$threadId) {
     echo json_encode(['error' => 'Missing thread_id']);
     exit;
 }
 
-// Get thread title
+// Fetch thread title
 $stmtTitle = $pdo->prepare("SELECT title FROM communication WHERE thread_id = :thread_id");
 $stmtTitle->execute(['thread_id' => $threadId]);
 $titleRow = $stmtTitle->fetch(PDO::FETCH_ASSOC);
 $title = $titleRow ? $titleRow['title'] : 'Not Found';
 
-// Get messages
+// Fetch messages and attachments
 $stmt = $pdo->prepare("
     SELECT
         m.message_id,
@@ -22,7 +23,7 @@ $stmt = $pdo->prepare("
         m.content,
         m.timestamp,
         m.viewed,
-        m.file_path AS single_file_path,
+        m.file_path AS single_file_path,  -- NEW: directly stored file
         GROUP_CONCAT(mf.file_path SEPARATOR '|||') AS file_paths,
         GROUP_CONCAT(mf.file_id SEPARATOR '|||') AS file_ids
     FROM messages m
@@ -41,6 +42,7 @@ foreach ($messages as $msg) {
     $content = nl2br(htmlspecialchars($msg['content']));
     $timestamp = date('H:i', strtotime($msg['timestamp']));
 
+    // Merge file paths from message_files and messages.file_path
     $file_paths = [];
     $file_ids = [];
 
@@ -50,11 +52,27 @@ foreach ($messages as $msg) {
     }
 
     if (!empty($msg['single_file_path'])) {
-        $file_paths[] = $msg['single_file_path'];
+        $file_paths[] = $msg['single_file_path']; // Add direct file_path
         $file_ids[] = null;
     }
 
-    $messagesHtml .= "<div class='message $class'>";
+    $messagesHtml .= "<div class='message $class' data-message-id='{$msg['message_id']}'>";
+
+    // Add three dots menu only for "outgoing" messages (optional condition)
+    $messagesHtml .= "
+    <div class='message-options'>
+        <button class='options-btn' onclick='toggleOptionsMenu(this)'>⋮</button>
+        <div class='options-menu' style='display: none;'>
+            <button onclick='editMessage(this, {$msg['message_id']})'>
+                <i class='fas fa-edit'></i> Edit
+            </button>
+            <button onclick='deleteMessage({$msg['message_id']})'>
+                <i class='fas fa-trash-alt'></i> Delete
+            </button>
+        </div>
+    </div>
+";
+
     $messagesHtml .= "<div class='bubble'>$content</div>";
 
     if (!empty($file_paths)) {
@@ -64,6 +82,8 @@ foreach ($messages as $msg) {
 
             $base_upload_dir = '/originalTwo/AdminLTE/dist/pages/communications/uploads/';
             $full_path = $_SERVER['DOCUMENT_ROOT'] . $base_upload_dir . basename($file_path);
+            error_log("FULL PATH: " . $full_path);
+
             $basename = basename($file_path);
             $ext = strtolower(pathinfo($basename, PATHINFO_EXTENSION));
             $file_id = $file_ids[$index] ?? '';
@@ -84,7 +104,6 @@ foreach ($messages as $msg) {
                         </div>
                         <div class='file-name'>$basename</div>
                     </div>";
-
                 } elseif ($ext === 'pdf') {
                     $messagesHtml .= "<div class='attachment-file whatsapp-style-file' data-filename='$basename'>
                         <div class='file-container'>
@@ -114,29 +133,27 @@ foreach ($messages as $msg) {
                 </div>";
             }
         }
-        $messagesHtml .= "</div>"; // attachments
+        $messagesHtml .= "</div>"; // end attachments
     }
 
-    // Timestamp + tick logic
-   // Your existing loop for messages
-// ...
-$messagesHtml .= "<div class='timestamp small text-muted d-flex align-items-center message-footer'>"; // Added 'message-meta' class
-$messagesHtml .= "$timestamp";
+    // Timestamp + tick logic (only for landlord sender)
+    $messagesHtml .= "<div class='timestamp small text-muted d-flex align-items-center'>$timestamp";
 
-if ($msg['sender'] === 'landlord') {
-    if ($msg['viewed']) {
-        // Seen → double blue ticks
-        $messagesHtml .= "<i class='fas fa-check-double text-primary ms-2' title='Seen'></i>";
-    } else {
-        // Sent but not seen → single grey tick
-        $messagesHtml .= "<i class='fas fa-check text-muted ms-2' title='Sent, not seen'></i>";
+    if ($msg['sender'] === 'landlord') {
+        if ($msg['viewed']) {
+            // Seen → double blue ticks
+            $messagesHtml .= "<i class='fas fa-check-double text-primary ms-2' title='Seen'></i>";
+        } else {
+            // Sent but not seen → single grey tick
+            $messagesHtml .= "<i class='fas fa-check text-muted ms-2' title='Sent, not seen'></i>";
+        }
     }
+
+    $messagesHtml .= "</div>"; // timestamp
+
+    $messagesHtml .= "</div>"; // end message
 }
 
-$messagesHtml .= "</div>"; // timestamp
-$messagesHtml .= "</div>"; // message container
-// ...
-}
 echo json_encode([
     'title' => $title,
     'messages' => $messagesHtml

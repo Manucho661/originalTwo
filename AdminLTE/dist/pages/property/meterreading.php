@@ -2,19 +2,21 @@
 // Include database connection
 include '../db/connect.php'; // Ensure this defines $pdo for PDO
 
+// Handle success alert after redirect
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo "<script>alert('✅ Meter reading successfully added!');</script>";
+}
+
 // Check if 'building_id' is passed in the URL
 if (isset($_GET['building_id'])) {
-    $buildingId = intval($_GET['building_id']); // Get the building ID from the URL
+    $buildingId = intval($_GET['building_id']);
 
-    // Prepare the query to fetch building data based on the 'building_id'
+    // Fetch building
     $stmt = $pdo->prepare("SELECT * FROM buildings WHERE building_id = ?");
     $stmt->bindParam(1, $buildingId, PDO::PARAM_INT);
     $stmt->execute();
-
-    // Get the result
     $building = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Check if building data is found
     if (!$building) {
         echo "Building not found.";
         exit;
@@ -38,10 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
     if (empty($reading_date) || empty($unit_number)) {
         echo "<p style='color:red;'>Both reading date and unit number are required.</p>";
     } else {
-        // Insert meter reading into the database with building_id
+        // Insert meter reading
         $stmt = $pdo->prepare("INSERT INTO meter_readings (building_id, reading_date, unit_number, meter_type, previous_reading, current_reading, consumption_units)
                                VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bindParam(1, $buildingId, PDO::PARAM_INT); // Ensure the building_id is linked
+        $stmt->bindParam(1, $buildingId, PDO::PARAM_INT);
         $stmt->bindParam(2, $reading_date, PDO::PARAM_STR);
         $stmt->bindParam(3, $unit_number, PDO::PARAM_STR);
         $stmt->bindParam(4, $meter_type, PDO::PARAM_STR);
@@ -50,11 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
         $stmt->bindParam(7, $consumption_units, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-            // Display success alert and reset the form
-            echo "<script>
-                    alert('✅ Meter reading successfully added! Consumption: $consumption_units units');
-                    document.getElementById('meterForm').reset();
-                  </script>";
+            // Redirect to avoid resubmission on reload
+            header("Location: " . $_SERVER['PHP_SELF'] . "?building_id={$buildingId}&success=1");
+            exit;
         } else {
             echo "<p style='color:red;'>Error: " . $stmt->errorInfo()[2] . "</p>";
         }
@@ -67,28 +67,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
 $building_id = isset($_GET['building_id']) ? $_GET['building_id'] : null;
 
 if ($building_id) {
-    // Prepare the query to fetch units for the specific building only
+    // Fetch units for the building
     $stmt = $pdo->prepare("SELECT u.unit_number FROM units u WHERE u.building_id = ?");
-
-    // Check if preparation was successful
     if ($stmt === false) {
         die("Error preparing statement: " . $pdo->errorInfo()[2]);
     }
-
-    $stmt->bindParam(1, $building_id, PDO::PARAM_INT); // Bind the building_id
+    $stmt->bindParam(1, $building_id, PDO::PARAM_INT);
 } else {
-    // If no building_id is provided, fetch all units for this building
     echo "Building ID is missing!";
     exit;
 }
 
 $stmt->execute();
 $units = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Close the statement and connection
 $stmt->closeCursor();
 
-// Fetch meter readings only for units belonging to the specified building
+// Fetch meter readings for the building
 $sql = "
     SELECT mr.reading_date, mr.unit_number, mr.meter_type, mr.previous_reading, mr.current_reading, mr.consumption_units
     FROM meter_readings mr
@@ -101,6 +95,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->bindParam(':building_id', $buildingId, PDO::PARAM_INT);
 $stmt->execute();
 $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->closeCursor();
 ?>
 
 
@@ -596,107 +591,58 @@ $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <!--end::App Wrapper-->
 
-
-
-<!-- Shift Tenant -->
-<div class="shiftpopup" id="shiftPopup">
-  <div class="shiftpopup-content">
-    <button id="close-btns" class="text-secondary" onclick="closeshiftPopup()">×</button>
-    <h2 class="assign-title">Detailed Information Of Meter Reading</h2>
-    <button class="edit-btn"><i class="fas fa-edit"></i>EDIT</button>
-    <form class="wide-form">
-      <div class="form-group">
-        <b><label for="dateInput" class="filter-label">Reading Date</label></b>
-        <input type="" id="dateInput" name="reading_date" class="form-control" placeholder="11-02-2023" required disabled/>
-        <label for="units">Unit:</label>
-        <select id="units"  disabled>
-            <option>D17</option>
-            <option>B18</option>
-            <option>B11</option>
-            <option>C10</option>
-        </select>
-    </div>
-        <div class="form-group">
-            <label for="meter_type">Meter Type:</label>
-            <select id="meter_type" required disabled>
-              <option>Water</option>
-              <option>Electrical</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-            <label for="previous_reading">Previous Reading:</label>
-            <input type="number" id="previous_reading" name="previous_reading" placeholder="11" required disabled>
-        </div>
-
-        <div class="form-group">
-            <label for="current_reading">Current Reading:</label>
-            <input type="number" id="current_reading" name="current_reading" placeholder="15" required disabled>
-        </div>
-
-       <button type="submit" class="submit-btn">Submit</button>
-    </form>
-  </div>
-  </div>
-</div>
-<!-- End shift popup -->
-
-
-      <!-- meterreading popup -->
-      <div class="meterpopup-overlay" id="meterPopup">
-        <div class="meterpopup-content wide-form">
-            <button id="close-btns" class="text-secondary" onclick="meterreadingclosePopup()">×</button>
-            <h2 class="assign-title">Add A Meter Reading</h2>
-            <form class="wide-form" id="meterForm" method="POST" action="">
-              <div class="form-group">
-             <b><label for="dateInput" class="filter-label">Reading Date</label></b>
-              <input type="date" id="dateInput" name="reading_date" class="form-control" required />
-              </div>
-              <div class="form-group">
-
-              <select id="units" name="unit_number" required>
-              <option value="">-- Select Unit --</option>
-            <?php foreach ($units as $unit): ?>
-                <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
-                    <?php echo htmlspecialchars($unit['unit_number']); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+<!-- meterreading popup -->
+<div class="meterpopup-overlay" id="meterPopup">
+    <div class="meterpopup-content wide-form">
+        <button id="close-btns" class="text-secondary" onclick="meterreadingclosePopup()">×</button>
+        <h2 class="assign-title">Add A Meter Reading</h2>
+        <form class="wide-form" id="meterForm" method="POST" action="">
+            <div class="form-group">
+                <b><label for="dateInput" class="filter-label">Reading Date</label></b>
+                <input type="date" id="dateInput" name="reading_date" class="form-control" required />
             </div>
             <div class="form-group">
-        <label for="meter_type">Meter Type:</label>
-        <select id="meter_type" name="meter_type" required>
-        <option value="">-- Select Meter Type --</option>
-            <option value="Water">Water</option>
-            <option value="Electrical">Electrical</option>
-        </select>
-    </div>
+                <select id="units" name="unit_number" required onchange="checkPreviousReading()">
+                    <option value="">-- Select Unit --</option>
+                    <?php foreach ($units as $unit): ?>
+                        <option value="<?php echo htmlspecialchars($unit['unit_number']); ?>">
+                            <?php echo htmlspecialchars($unit['unit_number']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="meter_type">Meter Type:</label>
+                <select id="meter_type" name="meter_type" required>
+                    <option value="">-- Select Meter Type --</option>
+                    <option value="Water">Water</option>
+                    <option value="Electrical">Electrical</option>
+                </select>
+            </div>
 
-    <div class="form-group">
-    <label for="previous_reading">Previous Reading:</label>
-    <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
-    <small id="prev_reading_note" style="color: gray; display: none;">
-        This is the first reading for this unit.
-    </small>
+            <div class="form-group">
+                <label for="previous_reading">Previous Reading:</label>
+                <input type="number" id="previous_reading" name="previous_reading" placeholder="Previous Reading" required>
+                <small id="prev_reading_note" style="color: gray; display: none;">
+                    This is the first reading for this unit.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="current_reading">Current Reading:</label>
+                <input type="number" id="current_reading" name="current_reading" placeholder="Current Reading" required>
+            </div>
+
+            <div class="form-group">
+                <label>Consumption Units:</label>
+                <p id="consumption_preview"><i>Calculated automatically</i></p>
+            </div>
+
+            <button type="submit" name="submit" class="submit-btn">Create Meter Reading</button>
+        </form>
+    </div>
 </div>
-
-
-    <div class="form-group">
-        <label for="current_reading">Current Reading:</label>
-        <input type="number" id="current_reading" name="current_reading" placeholder="Current Reading" required>
-    </div>
-
-    <div class="form-group">
-    <label>Consumption Units:</label>
-    <p id="consumption_preview"><i>Calculated automatically</i></p>
-    </div>
-
-     <button type="submit" name="submit" class="submit-btn">Create Meter Reading</button>
-            </form>
-        </div>
-    </div>
-    <!-- end -->
-
+<!-- end -->
 <!-- popup -->
 <!-- Create Meter Reading Button -->
 <!-- <button type="button" class="submit-btn" onclick="showChargeForm()">Create Meter Reading</button> -->
@@ -1115,49 +1061,6 @@ setInterval(() => {
   });
 </script>
 
-<script>
-document.getElementById('units').addEventListener('change', fetchPreviousReading);
-document.getElementById('meter_type').addEventListener('change', fetchPreviousReading);
-document.getElementById('current_reading').addEventListener('input', updateConsumption);
-
-function fetchPreviousReading() {
-    const unit = document.getElementById('units').value;
-    const meterType = document.getElementById('meter_type').value;
-
-    if (!unit || !meterType) return;
-
-    fetch(`get_previous_reading.php?unit_number=${encodeURIComponent(unit)}&meter_type=${encodeURIComponent(meterType)}`)
-        .then(response => response.json())
-        .then(data => {
-            const prevInput = document.getElementById('previous_reading');
-            const note = document.getElementById('prev_reading_note');
-
-            if (data.found) {
-                prevInput.value = data.previous_reading;
-                prevInput.readOnly = true;
-                note.style.display = 'none';
-            } else {
-                prevInput.value = '';
-                prevInput.readOnly = false;
-                note.style.display = 'block';
-            }
-        })
-        .catch(err => {
-            console.error("Fetch error:", err);
-        });
-}
-
-function updateConsumption() {
-    const prev = parseFloat(document.getElementById('previous_reading').value) || 0;
-    const curr = parseFloat(document.getElementById('current_reading').value) || 0;
-    const diff = curr - prev;
-
-    document.getElementById('consumption_preview').textContent =
-        diff >= 0 ? `${diff} units` : 'Invalid (current < previous)';
-}
-</script>
-
-
     <!--end::OverlayScrollbars Configure-->
     <!-- OPTIONAL SCRIPTS -->
     <!-- apexcharts -->
@@ -1318,6 +1221,60 @@ function updateConsumption() {
       // - END PIE CHART -
       //-----------------
     </script>
+ <script>
+  function checkPreviousReading() {
+    const unitSelect = document.getElementById('units');
+    const unitNumber = unitSelect.value;
+    const previousReadingInput = document.getElementById('previous_reading');
+    const prevReadingNote = document.getElementById('prev_reading_note');
+
+    // Reset state
+    previousReadingInput.value = '';
+    previousReadingInput.readOnly = false;
+    prevReadingNote.style.display = 'none';
+
+    if (!unitNumber) return;
+
+    console.log('Fetching previous reading for unit:', unitNumber);
+
+    // Add cache-buster to prevent wrong cached responses
+    const timestamp = new Date().getTime();
+    fetch(`get_previous_reading.php?unit=${encodeURIComponent(unitNumber)}&_=${timestamp}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data);
+
+            // Verify the response matches our request
+            if (data.unit_number && data.unit_number !== unitNumber) {
+                console.error('Wrong unit returned! Requested:', unitNumber, 'Received:', data.unit_number);
+                return;
+            }
+
+            if (data.success && data.previous_reading !== null) {
+                // Existing reading found
+                previousReadingInput.value = data.previous_reading;
+                previousReadingInput.readOnly = true;
+                prevReadingNote.style.display = 'none';
+                console.log(`Found previous reading ${data.previous_reading} for unit ${unitNumber}`);
+            } else {
+                // No previous reading found
+                previousReadingInput.readOnly = false;
+                prevReadingNote.style.display = 'inline';
+                console.log(`No previous reading found for unit ${unitNumber}`);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            previousReadingInput.readOnly = false;
+        });
+}
+
+// Add event listener with proper binding
+document.getElementById('units').addEventListener('change', checkPreviousReading);
+ </script>
     <!--end::Script-->
   </body>
   <!--end::Body-->
