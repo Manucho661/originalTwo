@@ -13,7 +13,7 @@ $building_id = isset($_GET['building_id']) ? $_GET['building_id'] : null;
 
 if ($building_id) {
     // Prepare the query to fetch units for a specific building
-    $stmt = $pdo->prepare("SELECT u.unit_number, u.rooms, u.room_type, u.unit_type, u.floor_number  FROM units u WHERE u.building_id = ?");
+    $stmt = $pdo->prepare("SELECT u.unit_id, u.unit_number, u.rooms, u.room_type, u.unit_type, u.floor_number  FROM units u WHERE u.building_id = ?");
 
     // Check if preparation was successful
     if ($stmt === false) {
@@ -449,50 +449,6 @@ if (isset($_GET['building_id'])) {
   </div>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-
-      <form action="update_property.php" method="POST">
-        <div class="modal-header " style="background-color: #00192D; color: #FFC107;" >
-          <h5 class="modal-title" id="editModalLabel"><i class="fas fa-edit me-1"  ></i> Edit Property Details</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <!-- Location -->
-          <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="editLocation" name="location" placeholder="Location" required>
-            <label for="editLocation"><i class="fas fa-map-marker-alt me-1"></i> Location</label>
-          </div>
-
-          <!-- Ownership -->
-          <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="editOwnership" name="ownership" placeholder="Ownership Type" required>
-            <label for="editOwnership"><i class="fas fa-user-tag me-1"></i> Ownership Type</label>
-          </div>
-
-          <!-- Units -->
-          <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="editUnits" name="units" placeholder="Number of Units" required>
-            <label for="editUnits"><i class="fas fa-building me-1"></i> Number of Units</label>
-          </div>
-        </div>
-
-        <div class="modal-footer bg-light d-flex justify-content-between">
-          <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Make sure all details are correct</small>
-          <button type="submit" class="btn btn-success" style="background-color: #00192D; color: #FFC107;">
-            <i class="fas fa-save me-1"></i> Save Changes
-          </button>
-        </div>
-      </form>
-
-    </div>
-  </div>
-</div>
-
-
 
 <div class="col-md-12 mt-2">
   <div class="row">
@@ -612,15 +568,150 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
             <td><?= htmlspecialchars($unit['floor_number']) ?></td>
             <td>
           <!-- Edit Button -->
-<button
-  class="btn btn-sm"
-  style="background-color:#193042; color:#ffc107;"
-  title="Edit this unit"
-  data-bs-toggle="modal"
-  data-bs-target="#editUnitModal"
->
-  <i class="fa fa-edit" style="font-size: 12px;"></i> EDIT
-</button>
+            <button
+              class="btn btn-sm"
+              style="background-color:#193042; color:#ffc107;"
+              title="Edit this unit"
+              data-bs-toggle="modal"
+              data-bs-target="#editUnitModal"
+            >
+              <i class="fa fa-edit" style="font-size: 12px;"></i> EDIT
+            </button>
+
+                <button class="btn btn-sm" style="background-color: #193042; color:#FFC107; margin-right: 2px;" data-toggle="modal" data-target="#viewUnitModal" title="View">
+                    <i class="fas fa-eye"> View</i>
+                </button>
+
+
+
+    <button
+      class="btn btn-sm btn-delete-unit"
+      style="background-color: red; color: white;"
+      title="Delete this unit"
+      data-unit-id="<?php echo $unit['unit_id']; ?>">
+      <i class="fa fa-trash" style="font-size: 12px;"></i> <!-- The Delete Icon -->
+    </button>
+  </div>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+</tbody>
+
+<!-- Delete Confirmation Modal -->
+<!-- <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteConfirmLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this unit?
+      </div>
+      <div class="modal-footer">
+        <form id="deleteUnitForm" method="POST" action="delete_unit.php">
+          <input type="hidden" name="unit_number" id="modalUnitNumber">
+          <input type="hidden" name="building_id" id="modalBuildingId">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+
+            </table>
+            <!-- /.col -->
+          </div>
+          <!--end::Row-->
+
+
+                      <!-- /.col -->
+                    </div>
+                    <!--end::Row-->
+                  <!-- ./card-body -->
+                  <div class="card-footer">
+                    <!--begin::Row-->
+
+                      <!-- /.col -->
+
+                    <!--end::Row-->
+                  </div>
+                  <!-- /.card-footer -->
+                </div>
+                <!-- /.card -->
+              </div>
+              <!-- /.col -->
+            </div>
+            <!-- End mantainance row -->
+          </div>
+          <!--end::Container-->
+        </div>
+        <!--end::App Content-->
+      </main>
+      <!--end::App Main-->
+      <!--begin::Footer-->
+      <footer class="app-footer">
+        <!--begin::To the end-->
+        <div class="float-end d-none d-sm-inline">Anything you want</div>
+        <!--end::To the end-->
+        <!--begin::Copyright-->
+        <strong>
+          Copyright &copy; 2014-2024&nbsp;
+          <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+        </strong>
+        All rights reserved.
+        <!--end::Copyright-->
+      </footer>
+      <!--end::Footer-->
+    </div>
+    <!--end::App Wrapper-->
+
+
+    <!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+
+      <form action="update_property.php" method="POST">
+        <div class="modal-header " style="background-color: #00192D; color: #FFC107;" >
+          <h5 class="modal-title" id="editModalLabel"><i class="fas fa-edit me-1"  ></i> Edit Property Details</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Location -->
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="editLocation" name="location" placeholder="Location" required>
+            <label for="editLocation"><i class="fas fa-map-marker-alt me-1"></i> Location</label>
+          </div>
+
+          <!-- Ownership -->
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="editOwnership" name="ownership" placeholder="Ownership Type" required>
+            <label for="editOwnership"><i class="fas fa-user-tag me-1"></i> Ownership Type</label>
+          </div>
+
+          <!-- Units -->
+          <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="editUnits" name="units" placeholder="Number of Units" required>
+            <label for="editUnits"><i class="fas fa-building me-1"></i> Number of Units</label>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light d-flex justify-content-between">
+          <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Make sure all details are correct</small>
+          <button type="submit" class="btn btn-success" style="background-color: #00192D; color: #FFC107;">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
 
 
 <!-- Edit Unit Modal -->
@@ -685,103 +776,6 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
     </div>
   </div>
 </div>
-
-
-                <button class="btn btn-sm" style="background-color: #193042; color:#FFC107; margin-right: 2px;" data-toggle="modal" data-target="#viewUnitModal" title="View">
-                    <i class="fas fa-eye"> View</i>
-                </button>
-                <button
-  class="btn btn-sm btn-delete-unit"
-  style="background-color: red; color: white;"
-  title="Delete this unit" 
-  data-bs-toggle="modal"
-  data-bs-target="#deleteConfirmModal"
-  data-unit-number="<?= htmlspecialchars($unit['unit_number']) ?>"
-  data-building-id="<?= (int)$building_id ?>"
->
-  <i class="fa fa-trash" style="font-size: 12px;"></i>
-</button>
-
-
-
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</tbody>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteModalLabel" >
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        Are you sure you want to delete unit <strong id="unitToDelete"></strong>?
-        <!-- Hidden inputs to hold data -->
-        <input type="hidden" id="deleteUnitNumber" name="deleteUnitNumber" />
-        <input type="hidden" id="deleteBuildingId" name="deleteBuildingId" />
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-            </table>
-            <!-- /.col -->
-          </div>
-          <!--end::Row-->
-
-
-                      <!-- /.col -->
-                    </div>
-                    <!--end::Row-->
-                  <!-- ./card-body -->
-                  <div class="card-footer">
-                    <!--begin::Row-->
-
-                      <!-- /.col -->
-
-                    <!--end::Row-->
-                  </div>
-                  <!-- /.card-footer -->
-                </div>
-                <!-- /.card -->
-              </div>
-              <!-- /.col -->
-            </div>
-            <!-- End mantainance row -->
-          </div>
-          <!--end::Container-->
-        </div>
-        <!--end::App Content-->
-      </main>
-      <!--end::App Main-->
-      <!--begin::Footer-->
-      <footer class="app-footer">
-        <!--begin::To the end-->
-        <div class="float-end d-none d-sm-inline">Anything you want</div>
-        <!--end::To the end-->
-        <!--begin::Copyright-->
-        <strong>
-          Copyright &copy; 2014-2024&nbsp;
-          <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
-        </strong>
-        All rights reserved.
-        <!--end::Copyright-->
-      </footer>
-      <!--end::Footer-->
-    </div>
-    <!--end::App Wrapper-->
 
  <!-- units popup -->
  <div class="units-overlay" id="unitsPopup">
@@ -978,6 +972,37 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
   }
 </script>
 
+
+<script>
+function deleteUnit(unitId) {
+    if (confirm('Are you sure you want to delete this unit?')) {
+        // Create a form dynamically
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'delete_unit.php'; // Your PHP processing file
+
+        // Add the unit ID as a hidden input
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'unit_id';
+        input.value = unitId;
+        form.appendChild(input);
+
+        // Add CSRF token if needed (recommended)
+        var csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrf_token';
+        csrf.value = '<?php echo $_SESSION["csrf_token"] ?? ""; ?>';
+        form.appendChild(csrf);
+
+        // Submit the form
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+
 <script>
         $(document).ready(function () {
             $('#myTableOne').DataTable();
@@ -1169,48 +1194,6 @@ setInterval(() => {
   });
 </script>
 
-<script>
-  // Function to open the complaint popup
-  function openshiftPopup() {
-    document.getElementById("shiftPopup").style.display = "flex";
-  }
-
-  // Function to close the complaint popup
-  function closeshiftPopup() {
-    document.getElementById("shiftPopup").style.display = "none";
-  }
-</script>
-
-
-<script>
-  const ctx = document.getElementById('myPieChart').getContext('2d');
-
-  const myPieChart = new Chart(ctx, {
-      type: 'pie',
-      data: {
-          labels: ['Occupied','Vacant', 'Vacant Soon'],
-          datasets: [{
-              data: [30, 50, 20],
-              backgroundColor: ['#28a745', '#ffc107', '#dc3545']
-          }]
-      },
-      options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          onClick: function(event, elements) {
-              if (elements.length > 0) {
-                  let index = elements[0].index;
-                  let label = this.data.labels[index];
-                  // let links = { "Approved": "approved.html", "Pending": "pending.html", "Rejected": "rejected.html" };
-                  let links = { "Occupied": "occupied.html", "Vacant": "vacant.html", "Vacant Soon": "vacantsoon.html"};
-                  if (links[label]) window.location.href = links[label];
-              }
-          }
-      }
-  });
-</script>
-
-
 
 
     <!--end::OverlayScrollbars Configure-->
@@ -1375,63 +1358,48 @@ setInterval(() => {
     </script>
 
 <script>
-  let deletePayload = {};
+$(document).ready(function() {
+  // Handle delete button click
+  $(document).on('click', '.btn-delete-unit', function() {
+    const unitId = $(this).data('unit-id');
+    const button = $(this);
 
-  function prepareDelete(unitNumber, buildingId) {
-    document.getElementById('unitToDelete').textContent = `#${unitNumber}`;
-    document.getElementById('deleteUnitNumber').value = unitNumber;
-    document.getElementById('deleteBuildingId').value = buildingId;
+    // Confirm before deleting
+    if (confirm('Are you sure you want to delete this unit? This cannot be undone!')) {
+      // Disable button to prevent double-clicks
+      button.prop('disabled', true);
 
-    deletePayload = {
-      id: unitNumber,
-      type: 'unit',
-      building_id: buildingId
-    };
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    // Attach click handlers to all delete buttons
-    document.querySelectorAll('.btn-delete-unit').forEach(btn => {
-      btn.addEventListener('click', function () {
-        const unitNumber = btn.getAttribute('data-unit-number');
-        const buildingId = btn.getAttribute('data-building-id');
-        prepareDelete(unitNumber, buildingId);
-      });
-    });
-
-    const confirmBtn = document.getElementById('confirmDeleteBtn');
-    if (confirmBtn) {
-      confirmBtn.addEventListener('click', function () {
-        fetch('../actions/delete_record.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(deletePayload)
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            const modalEl = document.getElementById('deleteConfirmModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-
-            const row = document.querySelector(`[data-unit="${deletePayload.id}"]`);
-            if (row) row.remove();
-
-            alert(data.message);
+      // Send AJAX request
+      $.ajax({
+        url: 'delete_unit.php', // Backend endpoint
+        type: 'POST',
+        data: { unit_id: unitId },
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            // Remove the unit row from the table (or reload page)
+            button.closest('tr').fadeOut(300, function() {
+              $(this).remove();
+            });
           } else {
-            alert('Error: ' + data.message);
+            alert('Error: ' + response.message);
+            button.prop('disabled', false);
           }
-        })
-        .catch(err => {
-          console.error(err);
-          alert('Request failed.');
-        });
+        },
+        error: function(xhr) {
+          alert('Request failed. Please try again.');
+          button.prop('disabled', false);
+        }
       });
     }
   });
+});
+
 </script>
+
+
+
+
 
 
 <script src="units.js"></script>
