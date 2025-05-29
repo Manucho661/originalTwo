@@ -1524,7 +1524,7 @@ function loadConversation(threadId) {
         })
         .then(data => {
             if (data.messages) {
-                //  alert(data.messages);
+               alert(data.messages);
                 const messagesDiv = document.getElementById('messages');
                 messagesDiv.innerHTML = data.messages;
                 messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to bottom
