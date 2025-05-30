@@ -35,7 +35,7 @@ try {
     $stmt = $pdo->prepare("
         UPDATE income_source 
         SET income_type = :income_type,
-            work_place = :employer,
+            place_of_work = :employer,
             job_title = :job_title
         WHERE tenant_id = :tenant_id
     ");
