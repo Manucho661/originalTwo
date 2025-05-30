@@ -1,24 +1,24 @@
 // delete building
 
-function handleDelete(event, id, type) {
-  event.stopPropagation(); // Prevents event bubbling
+// function handleDelete(event, id, type) {
+//   event.stopPropagation(); // Prevents event bubbling
 
-  if (confirm("Are you sure?")) {
-    fetch('../actions/delete_record.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: 'id=' + encodeURIComponent(id) + '&type=' + encodeURIComponent(type)
-    })
-    .then(res => res.text())
-    .then(data => {
-      alert(data);
-      location.reload();
-    })
-    .catch(err => console.error('Delete error:', err));
-  }
-}
+//   if (confirm("Are you sure?")) {
+//     fetch('../actions/delete_record.php', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/x-www-form-urlencoded'
+//       },
+//       body: 'id=' + encodeURIComponent(id) + '&type=' + encodeURIComponent(type)
+//     })
+//     .then(res => res.text())
+//     .then(data => {
+//       alert(data);
+//       location.reload();
+//     })
+//     .catch(err => console.error('Delete error:', err));
+//   }
+// }
 
 
 

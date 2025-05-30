@@ -1,9 +1,8 @@
-// delete building
 function handleDelete(event, id, type) {
-  event.stopPropagation();
+  event.stopPropagation(); // Prevents event bubbling
 
   if (confirm("Are you sure?")) {
-    fetch('pages /actions/delete_record.php', {
+    fetch('../actions/delete_record.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -18,6 +17,8 @@ function handleDelete(event, id, type) {
     .catch(err => console.error('Delete error:', err));
   }
 }
+
+
 
 // data tables
 $(document).ready(function () {

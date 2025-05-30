@@ -24,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("DELETE FROM maintenance_requests WHERE request_id = :id");
                 break;
 
+
+
             case 'building':
                 // First delete related units (and other child data, if any)
                 $pdo->prepare("DELETE FROM units WHERE building_id = :id")->execute(['id' => $id]);
@@ -31,37 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("DELETE FROM buildings WHERE building_id = :id");
                 break;
 
-                case 'unit':
-                  // Get raw POST body and decode JSON
-                  $input = json_decode(file_get_contents('php://input'), true);
-
-                  $id = isset($input['id']) ? (int)$input['id'] : 0;
-                  $buildingId = isset($input['building_id']) ? (int)$input['building_id'] : 0;
-
-                  if (!$id || !$buildingId) {
-                      echo json_encode([
-                          'success' => false,
-                          'message' => 'Missing unit ID or building ID for deletion.'
-                      ]);
-                      exit;
-                  }
-
-                  // Prepare and execute the deletion
-                  $stmt = $pdo->prepare("DELETE FROM units WHERE unit_id = :id AND building_id = :building_id");
-                  $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                  $stmt->bindParam(':building_id', $buildingId, PDO::PARAM_INT);
-
-                  if ($stmt->execute()) {
-                      echo json_encode([
-                          'success' => true,
-                          'message' => "Unit #$id deleted successfully."
-                      ]);
-                  } else {
-                      echo json_encode([
-                          'success' => false,
-                          'message' => 'Failed to delete unit.'
-                      ]);
-                  }
+            case 'unit':
+                  $stmt = $pdo->prepare("DELETE FROM units WHERE unit_id = :id");
                   break;
 
 

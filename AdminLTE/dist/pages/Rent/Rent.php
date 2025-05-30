@@ -24,9 +24,6 @@ $summaryStmt = $pdo->prepare($summaryQuery);
 $summaryStmt->execute([':year' => $year, ':month' => $month]);
 $summaryData = $summaryStmt->fetch(PDO::FETCH_ASSOC);
 
-
-
-
 // Fetch available years from the database
 $yearsQuery = $pdo->query("SELECT DISTINCT year FROM rental_summary ORDER BY year DESC");
 $availableYears = $yearsQuery->fetchAll(PDO::FETCH_COLUMN);
@@ -43,17 +40,6 @@ $availableBuildings = $buildingsQuery->fetchAll(PDO::FETCH_COLUMN);
 $yearFilter = $_GET['year'] ?? ($availableYears[0] ?? date('Y')); // Default: latest year
 $monthFilter = $_GET['month'] ?? ($availableMonths[0] ?? date('n')); // Default: earliest month
 $buildingFilter = $_GET['building'] ?? ''; // Default: all buildings
-
-// Rest of your query logic (same as before)
-$summaryQuery = "...";
-$detailsQuery = "...";
-// Execute queries and fetch data...
-
-
-// // At the top of the file, after the database connection
-// $buildingFilter = $_GET['building'] ?? '';
-// $yearFilter = $_GET['year'] ?? '2025';
-// $monthFilter = $_GET['month'] ?? '4';
 
 // Update summary query with filters - JOIN with buildings table if building_name is needed
 $summaryQuery = "SELECT
@@ -114,7 +100,6 @@ if ($buildingFilter) {
 $detailsStmt->execute();
 $buildingData = $detailsStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!doctype html>
 <html lang="en">
   <!--begin::Head-->
@@ -627,11 +612,10 @@ select:hover {
                                           <th scope="col">Action</th>
 
                                   </tr>
-                              </thead>
+                            </thead>
                               <tbody>
-                              <tbody>
-                              <tr >
-                                  <th >Manucho</th>
+
+                                <th >Manucho</th>
                                       <td class="rent paid">KSH&nbsp;80,000</td>
 
                                       <td >
@@ -644,14 +628,9 @@ select:hover {
                                     <td>
                                       <button class="btn view"> <a class="view-link" href="building-rent.php">View</a> </button>
                                     </td>
-                                </tr>
+                                </tr> 
 
-
-
-
-
-
-                              <?php foreach ($buildingData as $building): ?>
+                                <?php foreach ($buildingData as $building): ?>
                               <tr>
                                 <th><?= htmlspecialchars($building['building_name']) ?></th>
                                 <td class="rent paid">$&nbsp;<?= number_format($building['collected'], 2) ?></td>
