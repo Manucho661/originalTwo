@@ -143,16 +143,40 @@ if (isset($_GET['building_id'])) {
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <!-- Bootstrap Bundle JS (before </body>) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+       <!-- Place this in <head> or before </body> -->
+<script>
+function handleDelete(event, id, type) {
+  event.stopPropagation(); // Prevents event bubbling
+
+  if (confirm("Are you sure?")) {
+    fetch('../actions/delete_record.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'id=' + encodeURIComponent(id) + '&type=' + encodeURIComponent(type)
+    })
+    .then(res => res.text())
+    .then(data => {
+      alert(data);
+      location.reload();
+    })
+    .catch(err => console.error('Delete error:', err));
+  }
+}
+
+</script>
+
 
         <style>
           body{
             font-size: 16px;
           }
         </style>
-<!-- </style> -->
   </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <!--begin::App Wrapper-->
@@ -443,9 +467,18 @@ if (isset($_GET['building_id'])) {
 
   <div class="col-md-3">
   <div class="personal-item-edit d-flex btn personal-info justify-content-between">
-    <button class="btn edit-btn personal-info rounded" data-bs-toggle="modal" data-bs-target="#editModal">
-      <i class="fas fa-edit icon"></i> Edit
-    </button>
+  <button
+    class="btn edit-btn personal-info rounded"
+    data-bs-toggle="modal"
+    data-bs-target="#editModal"
+    data-building-id="<?php echo htmlspecialchars($building['building_id'] ?? ''); ?>"
+    data-county="<?php echo htmlspecialchars($building['county'] ?? ''); ?>"
+    data-ownership-info="<?php echo htmlspecialchars($building['ownership_info'] ?? ''); ?>"
+    data-units-number="<?php echo htmlspecialchars($building['units_number'] ?? ''); ?>"
+>
+    <i class="fas fa-edit icon"></i> Edit
+</button>
+
   </div>
 </div>
 
@@ -567,16 +600,24 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
             <td><?= htmlspecialchars($unit['room_type']) ?></td>
             <td><?= htmlspecialchars($unit['floor_number']) ?></td>
             <td>
+
           <!-- Edit Button -->
-            <button
-              class="btn btn-sm"
-              style="background-color:#193042; color:#ffc107;"
-              title="Edit this unit"
-              data-bs-toggle="modal"
-              data-bs-target="#editUnitModal"
-            >
-              <i class="fa fa-edit" style="font-size: 12px;"></i> EDIT
-            </button>
+          <button
+  class="btn btn-sm"
+  style="background-color:#193042; color:#ffc107;"
+  title="Edit this unit"
+  data-bs-toggle="modal"
+  data-bs-target="#editUnitModal"
+  data-unit-id="<?php echo htmlspecialchars($unit['unit_id'] ?? ''); ?>"
+  data-unit-number="<?php echo htmlspecialchars($unit['unit_number'] ?? ''); ?>"
+  data-room="<?php echo htmlspecialchars($unit['room'] ?? ''); ?>"
+  data-unit-type="<?php echo htmlspecialchars($unit['unit_type'] ?? ''); ?>"
+  data-room-type="<?php echo htmlspecialchars($unit['room_type'] ?? ''); ?>"
+  data-floor-number="<?php echo htmlspecialchars($unit['floor_number'] ?? ''); ?>"
+>
+  <i class="fa fa-edit" style="font-size: 12px;"></i> EDIT
+</button>
+
 
                 <button class="btn btn-sm" style="background-color: #193042; color:#FFC107; margin-right: 2px;" data-toggle="modal" data-target="#viewUnitModal" title="View">
                     <i class="fas fa-eye"> View</i>
@@ -585,40 +626,19 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
 
 
     <button
-      class="btn btn-sm btn-delete-unit"
-      style="background-color: red; color: white;"
-      title="Delete this unit"
-      data-unit-id="<?php echo $unit['unit_id']; ?>">
-      <i class="fa fa-trash" style="font-size: 12px;"></i> <!-- The Delete Icon -->
-    </button>
+    onclick="handleDelete(event, <?= $unit['unit_id'] ?>, 'unit')"
+    class="btn btn-sm btn-delete-unit"
+    style="background-color: red; color: white;"
+    title="Delete this unit">
+    <i class="fa fa-trash" style="font-size: 12px;"></i>
+</button>
+
   </div>
             </td>
         </tr>
     <?php endforeach; ?>
 </tbody>
 
-<!-- Delete Confirmation Modal -->
-<!-- <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="deleteConfirmLabel">Confirm Delete</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to delete this unit?
-      </div>
-      <div class="modal-footer">
-        <form id="deleteUnitForm" method="POST" action="delete_unit.php">
-          <input type="hidden" name="unit_number" id="modalUnitNumber">
-          <input type="hidden" name="building_id" id="modalBuildingId">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div> -->
 
 
 
@@ -671,17 +691,20 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
 
 
     <!-- Edit Modal -->
+<!-- Edit Property Modal -->
+<!-- Edit Property Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-
-      <form action="update_property.php" method="POST">
-        <div class="modal-header " style="background-color: #00192D; color: #FFC107;" >
-          <h5 class="modal-title" id="editModalLabel"><i class="fas fa-edit me-1"  ></i> Edit Property Details</h5>
+      <form action="update_property.php" method="POST" id="editPropertyForm">
+        <div class="modal-header" style="background-color: #00192D; color: #FFC107;">
+          <h5 class="modal-title" id="editModalLabel"><i class="fas fa-edit me-1"></i> Edit Property Details</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body">
+          <input type="hidden" name="building_id" id="buildingId"> <!-- Hidden input for building_id -->
+
           <!-- Location -->
           <div class="form-floating mb-3">
             <input type="text" class="form-control" id="editLocation" name="location" placeholder="Location" required>
@@ -708,19 +731,18 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
           </button>
         </div>
       </form>
-
     </div>
   </div>
 </div>
 
+<!-- end -->
 
 <!-- Edit Unit Modal -->
 <div class="modal fade" id="editUnitModal" tabindex="-1" aria-labelledby="editUnitModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-
-      <form action="update_unit.php" method="POST">
-        <div class="modal-header "style="background-color: #00192D; color: #FFC107;">
+      <form id="editUnitForm" method="POST">
+        <div class="modal-header" style="background-color: #00192D; color: #FFC107;">
           <h5 class="modal-title" id="editUnitModalLabel">
             <i class="fas fa-edit me-1"></i> Edit Unit Details
           </h5>
@@ -728,39 +750,35 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
         </div>
 
         <div class="modal-body">
+          <input type="hidden" name="unit_id" id="unitId"> <!-- Hidden input for unit_id -->
+
           <!-- Unit Number -->
           <div class="form-floating mb-3">
             <input type="text" class="form-control" id="unitNumber" name="unit_number" placeholder="Unit Number" required>
             <label for="unitNumber"><i class="fas fa-door-open me-1"></i> Unit Number</label>
           </div>
 
-          <!-- Tenant -->
-          <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="tenant" name="tenant" placeholder="Tenant Name">
-            <label for="tenant"><i class="fas fa-user me-1"></i> Tenant</label>
-          </div>
-
           <!-- Room -->
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="room" name="room" placeholder="Room">
-            <label for="room"><i class="fas fa-door-closed me-1"></i> Room</label>
+            <input type="text" class="form-control" id="rooms" name="rooms" placeholder="Rooms" required>
+            <label for="rooms"><i class="fas fa-door-closed me-1"></i> Room</label>
           </div>
 
           <!-- Unit Type -->
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="unitType" name="unit_type" placeholder="Unit Type">
+            <input type="text" class="form-control" id="unitType" name="unit_type" placeholder="Unit Type" required>
             <label for="unitType"><i class="fas fa-home me-1"></i> Unit Type</label>
           </div>
 
           <!-- Room Type -->
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="roomType" name="room_type" placeholder="Room Type">
+            <input type="text" class="form-control" id="roomType" name="room_type" placeholder="Room Type" required>
             <label for="roomType"><i class="fas fa-couch me-1"></i> Room Type</label>
           </div>
 
           <!-- Floor Number -->
           <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="floorNumber" name="floor_number" placeholder="Floor Number">
+            <input type="number" class="form-control" id="floorNumber" name="floor_number" placeholder="Floor Number" required>
             <label for="floorNumber"><i class="fas fa-layer-group me-1"></i> Floor Number</label>
           </div>
         </div>
@@ -772,67 +790,13 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
           </button>
         </div>
       </form>
-
     </div>
   </div>
 </div>
 
- <!-- units popup -->
- <div class="units-overlay" id="unitsPopup">
-  <div class="units-content wide-form">
-      <button class="close-btn" onclick="closeunitsPopup()">×</button>
-      <h2 class="assign-title">Detailed Units Information</h2>
-      <button class="edit-btn"><i class="fas fa-edit"></i>EDIT</button>
-      <form class="wide-form" method="POST" action="process_unit.php"> <!-- Add method and action -->
-        <div class="form-group">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="building_id">Building:</label>
-              <select id="building_id" name="building_id" required>
-                <option value="" disabled selected>Select Building</option>
-                <?php
-                // Fetch all buildings from the database
-                $sql = "SELECT building_id, building_name FROM building_identification";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute();
-                $buildings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Populate the dropdown with building names
-                foreach ($buildings as $building) {
-                  echo "<option value=\"" . $building['building_id'] . "\">" . $building['building_name'] . "</option>";
-                }
-                ?>
-              </select>
-            </div>
 
-            <div class="col-md-6">
-              <label for="unit_number">Unit Number:</label>
-              <input type="number" id="unit_number" name="unit_number" placeholder="D17" required>
-            </div>
 
-            <div class="col-md-6">
-              <label for="size">Size:</label>
-              <input type="text" id="size" name="size" placeholder="3 by 3" required>
-            </div>
-
-            <div class="col-md-6">
-              <label for="floor_number">Floor Number</label>
-              <input type="number" id="floor_number" name="floor_number" placeholder="2" required>
-            </div>
-
-            <div class="col-md-6">
-              <label for="rooms">Room</label>
-              <input type="text" id="rooms" name="rooms" placeholder="Bed Sitter" required>
-            </div>
-
-            <!-- Add other unit details as needed -->
-
-            <button type="submit" class="submit-btn">Submit</button>
-          </div>
-        </div>
-      </form>
-  </div>
-</div>
 
 <!-- edit info -->
 
@@ -959,6 +923,130 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
               }
           </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const editUnitModal = new bootstrap.Modal(document.getElementById('editUnitModal'));
+    const editUnitForm = document.getElementById('editUnitForm');
+
+    // When the modal is shown, load the unit details into the form
+    document.getElementById('editUnitModal').addEventListener('show.bs.modal', function (event) {
+        // Assuming you have unit details in your page or fetched via an API
+        const button = event.relatedTarget; // Button that triggered the modal
+        const unitId = button.getAttribute('data-unit-id');
+
+        // Fetch unit data (replace with your AJAX code to get data from the server)
+        fetch(`get_unit_details.php?unit_id=${unitId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Populate modal fields with the unit data
+                    document.getElementById('unitId').value = data.unit.unit_id;
+                    document.getElementById('unitNumber').value = data.unit.unit_number;
+                    document.getElementById('rooms').value = data.unit.rooms;
+                    document.getElementById('unitType').value = data.unit.unit_type;
+                    document.getElementById('roomType').value = data.unit.room_type;
+                    document.getElementById('floorNumber').value = data.unit.floor_number;
+                } else {
+                    alert('Failed to load unit details.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Handle the form submission via AJAX
+    editUnitForm.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent the default form submission
+
+        const formData = new FormData(editUnitForm);
+
+        fetch('update_unit.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message); // Success message
+                editUnitModal.hide(); // Close the modal
+                location.reload(); // Reload the page (or use AJAX to update the page dynamically)
+            } else {
+                alert(data.message); // Error message
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving changes.');
+        });
+    });
+});
+</script>
+
+<script>
+ document.addEventListener("DOMContentLoaded", function () {
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    const editPropertyForm = document.getElementById('editPropertyForm');
+
+    // Open modal and populate fields with property data
+    document.querySelectorAll('.editPropertyBtn').forEach(button => {
+        button.addEventListener('click', function () {
+            const buildingId = this.getAttribute('data-building-id');
+            document.getElementById('buildingId').value = buildingId;
+
+            // Fetch property details
+            fetch(`get_property_details.php?building_id=${buildingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Populate modal with data
+                        document.getElementById('editLocation').value = data.building.county;
+                        document.getElementById('editOwnership').value = data.building.ownership_info;
+                        document.getElementById('editUnits').value = data.building.units_number;
+                    } else {
+                        alert('Failed to load property details.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+            // Open the modal
+            editModal.show();
+        });
+    });
+
+    // Handle the form submission via AJAX
+    editPropertyForm.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent the default form submission
+
+        const formData = new FormData(editPropertyForm);
+
+        fetch('update_property.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);  // Success message
+                editModal.hide();  // Close the modal
+                // Reload the page (or update the page dynamically)
+                location.reload();  // You can replace this with a more targeted update if needed
+            } else {
+                alert('Error: ' + data.message);  // Error message
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving changes.');
+        });
+    });
+
+    // Optional: Reset form when modal is hidden (to clear any stale data)
+    editModal._element.addEventListener('hidden.bs.modal', function () {
+        editPropertyForm.reset();  // Reset the form when the modal closes
+    });
+});
+
+
+</script>
 
 <script>
   // Function to meter the meter popup
@@ -1356,49 +1444,6 @@ setInterval(() => {
       // - END PIE CHART -
       //-----------------
     </script>
-
-<script>
-$(document).ready(function() {
-  // Handle delete button click
-  $(document).on('click', '.btn-delete-unit', function() {
-    const unitId = $(this).data('unit-id');
-    const button = $(this);
-
-    // Confirm before deleting
-    if (confirm('Are you sure you want to delete this unit? This cannot be undone!')) {
-      // Disable button to prevent double-clicks
-      button.prop('disabled', true);
-
-      // Send AJAX request
-      $.ajax({
-        url: 'delete_unit.php', // Backend endpoint
-        type: 'POST',
-        data: { unit_id: unitId },
-        dataType: 'json',
-        success: function(response) {
-          if (response.success) {
-            // Remove the unit row from the table (or reload page)
-            button.closest('tr').fadeOut(300, function() {
-              $(this).remove();
-            });
-          } else {
-            alert('Error: ' + response.message);
-            button.prop('disabled', false);
-          }
-        },
-        error: function(xhr) {
-          alert('Request failed. Please try again.');
-          button.prop('disabled', false);
-        }
-      });
-    }
-  });
-});
-
-</script>
-
-
-
 
 
 
