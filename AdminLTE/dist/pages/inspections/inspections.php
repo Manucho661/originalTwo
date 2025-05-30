@@ -477,6 +477,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                                            <!-- OVERLAYS(that Covers whole viewport) -->
       <!-- Perfom an inspection -->
       <section id="perform_inspection_modal" class="perform_inspection_modal" style="display: none;" >
+        
         <div  class="container-fluid"  >
           <div class="card">
               <div class="card-header" style="background-color:#00192D; color:#FFC107"><b>Perform Inspection</b></div>

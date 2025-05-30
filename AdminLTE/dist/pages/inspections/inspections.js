@@ -203,10 +203,12 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
       </td>
     `;
 
-   // Add the event listener here AFTER the row is in memory
+   
+    // Add the event listener here AFTER the row is in memory
     const tempDiv = document.createElement('div');
     tempDiv.appendChild(row);
     
+    // select all inspectBTNS
     const inspectBtn = tempDiv.querySelector('.inspect_btn');
     inspectBtn.addEventListener('click', (e) => {
       const btn = e.currentTarget;
@@ -218,6 +220,7 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
       document.getElementById('modal_unit').textContent = unit;
       document.getElementById('modal_inspection_id').value = inspectionId;
 
+      
       const prfm_Ins_mdl = document.getElementById('perform_inspection_modal');
       prfm_Ins_mdl.style.display =  "block";
     });

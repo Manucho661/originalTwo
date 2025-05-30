@@ -350,7 +350,7 @@
                     <div class="summary-card_icon"> <i class="fas fa-clipboard-check"></i></div>
                   <div>
                     <div class="summary-card_label">Scheduled</div>
-                    <div class="summary-card_value" > </div>
+                    <div class="summary-card_value" >200 </div>
                   </div>
                 </div>
               </div>
