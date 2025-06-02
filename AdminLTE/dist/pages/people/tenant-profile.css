@@ -168,6 +168,9 @@ padding-left: 2px;
 /* border-left:5px solid #F28B88; */
  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
  border-radius: 5px;
+ overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .icon-category-number .icon{
   color: #FFC107;
@@ -182,6 +185,10 @@ padding-left: 2px;
   font-size: 16px;
   color: #767676;
   border-radius: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
 }
 .icon-category-number .number{
   font-weight: 600;
@@ -204,6 +211,10 @@ padding-left: 2px;
   border-radius: 10px;
   margin-top: 2px;
   height: fit-content;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
 }
 .rent-type-date-paid {
   display: flex;
@@ -231,12 +242,15 @@ margin-top: 2px;
                                                 box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
                                                 overflow: hidden;
                                                 border-radius: 5px;
+                                                white-space: nowrap;
+
                                               }
                                               .personal-info.item-name{
                                                 /* color: rgb(41, 41, 41); */
                                                 color: #767676;
                                                 font-weight: 600;
                                                 font-size: 14px;
+                                                white-space: nowrap;
                                               }
 
                                             .personal-info-icon.email{

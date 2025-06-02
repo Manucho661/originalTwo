@@ -1,4 +1,3 @@
-
 <?php
 include '../db/connect.php'; // Make sure $pdo is available
 
@@ -12,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['title']) && !empty($
         $message = $_POST['message'];
         $uploaded_files = [];
         $upload_dir = "uploads/";
+        // $uploadDir = "C:/xampp/htdocs/originalTwo/AdminLTE/dist/pages/communications/uploads/";
 
         // Handle file uploads
         if (!empty($_FILES['files']['name'][0])) {
@@ -34,24 +34,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['title']) && !empty($
         $now = (new DateTime('now', new DateTimeZone('Africa/Nairobi')))->format('Y-m-d H:i:s');
 
         // Insert communication thread
-        $stmt = $pdo->prepare("INSERT INTO communication (title, message, files, unit_id, tenant, building_name, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$title, $message, $files_json, $unit_id, $tenant, $building_name, $now, $now]);
+        $stmt = $pdo->prepare("INSERT INTO communication (title, message, files, unit_id, tenant, building_name, building_id, created_at, updated_at) VALUES (?, ?,  ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $message, $files_json, $unit_id, $tenant, $building_name, $building_id, $now, $now]);
 
         $thread_id = $pdo->lastInsertId();
         $message_id = $pdo->lastInsertId(); // Get the message ID for attachments
 
+        if (!empty($uploaded_files)) {
+          foreach ($uploaded_files as $file_path) {
+              $stmt = $pdo->prepare("INSERT INTO messages (thread_id, sender, content, timestamp, file_path) VALUES (?, ?, ?, ?, ?)");
+              $stmt->execute([$thread_id, 'landlord', $message, $now, $file_path]);
+          }
+
+      } else {
+          $stmt = $pdo->prepare("INSERT INTO messages (thread_id, sender, content, timestamp) VALUES (?, ?, ?, ?)");
+          $stmt->execute([$thread_id, 'landlord', $message, $now]);
+      }
+
+
+      // Store attachments
+      if (!empty($uploaded_files)) {
+          $stmt_file = $pdo->prepare("INSERT INTO message_files (message_id, thread_id, file_path) VALUES (?, ?, ?)");
+          foreach ($uploaded_files as $file_path) {
+              $stmt_file->execute([$message_id, $thread_id, $file_path]);
+          }
+     }
+
+
+    //   if (!empty($uploaded_files)) {
+    //     foreach ($uploaded_files as $file_path) {
+    //         $stmt = $pdo->prepare("INSERT INTO messages  (message_id, thread_id, file_path) VALUES (?, ?, ?)");
+    //         $stmt->execute([$message_id, $thread_id, $file_path]);
+    //     }
+
+    // } else {
+    //     $stmt = $pdo->prepare("INSERT INTO message_files  (message_id, thread_id) VALUES (?, ?)");
+    //     $stmt->execute([$message_id, $thread_id]);
+    // }
+
+
       // Insert initial message (no file_path here)
-        $stmt = $pdo->prepare("INSERT INTO messages (thread_id, sender, content, timestamp) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$thread_id, 'landlord', $message, $now]);
+    //   if (!empty($uploaded_files)) {
+    //     $stmt_file = $pdo->prepare("INSERT INTO messages (thread_id, sender, content, timestamp, file_path) VALUES (?, ?, ?, ?, ?)");
+    //     foreach ($uploaded_files as $file_path) {
+    //         $stmt_file->execute([$thread_id, 'landlord', $message, $now,$file_path]);
+    //     }
+    // }
+
+        // $stmt = $pdo->prepare("INSERT INTO messages (thread_id, sender, content, timestamp) VALUES (?, ?, ?, ?)");
+        // $stmt->execute([$thread_id, 'landlord', $message, $now]);
 
 
         // Store attachments
-        if (!empty($uploaded_files)) {
-            $stmt_file = $pdo->prepare("INSERT INTO message_files (message_id, thread_id, file_path) VALUES (?, ?, ?)");
-            foreach ($uploaded_files as $file_path) {
-                $stmt_file->execute([$message_id, $thread_id, $file_path]);
-            }
-        }
+        // if (!empty($uploaded_files)) {
+        //     $stmt_file = $pdo->prepare("INSERT INTO message_files (message_id, thread_id, file_path) VALUES (?, ?, ?)");
+        //     foreach ($uploaded_files as $file_path) {
+        //         $stmt_file->execute([$message_id, $thread_id, $file_path]);
+        //     }
+        // }
 
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
@@ -213,11 +253,312 @@ display: flex;
   color: #007BFF;
   text-decoration: underline;
 }
+.attachment-image.whatsapp-style {
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    padding: 8px;
+    display: inline-block;
+    max-width: 220px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-family: sans-serif;
+    position: relative;
+}
+
+.image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.media-image {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 10px;
+    display: block;
+}
+
+.download-icon {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    /* background: rgba(0,0,0,0.5); */
+    background-color: #00192D;
+    color: white;
+    padding: 4px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.download-icon:hover {
+    background: rgba(0,0,0,0.7);
+}
+
+.file-name {
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+    margin-top: 6px;
+    word-break: break-all;
+}
+
+.attachment-file.whatsapp-style-file {
+    background-color: #f0f0f0;
+    border-radius: 12px;
+    padding: 8px;
+    display: inline-block;
+    max-width: 250px;
+    font-family: sans-serif;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.file-container {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.file-preview {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background-color: #fff;
+}
+
+.download-icon {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    padding: 4px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.download-icon:hover {
+    background: rgba(0,0,0,0.7);
+}
+
+.file-download-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #333;
+}
+
+.file-icon {
+    font-size: 18px;
+    color:#00192D;
+}
+
+.file-name {
+    font-size: 14px;
+    word-break: break-word;
+}
+.viewed-tick {
+    color: #34B7F1; /* WhatsApp blue */
+    font-size: 14px;
+    margin-left: 15rem;
+}
+
+.unviewed-tick {
+    color: #ccc; /* grey */
+    font-size: 14px;
+    margin-left: 25rem;
+}
+.tick-status {
+    text-align: right;
+    font-size: 0.9em;
+    margin-top: 4px;
+    color: grey;
+}
+/* .timestamp{
+  margin-left: 25rem;
+  font-size:12px;
+} */
+.file-previews-container {
+  display: none; /* Hidden by default */
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.file-preview {
+  width: 120px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.preview-image-container {
+  height: 100px;
+  position: relative;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-document, .preview-generic {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #f0f2f5;
+}
+
+.pdf-icon {
+  font-size: 40px;
+  color: #e74c3c;
+}
+
+.file-icon {
+  font-size: 40px;
+  color: #7f8c8d;
+}
+
+.preview-overlay {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.file-preview:hover .preview-overlay {
+  opacity: 1;
+}
+
+.remove-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-footer {
+  padding: 8px;
+  font-size: 12px;
+}
+
+.file-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  color: #666;
+  font-size: 11px;
+}
+.input-box[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: #999;
+    pointer-events: none;
+    display: block;
+}
+
+#filesPreviewList div:hover {
+    background: #e9e9e9;
+    cursor: pointer;
+}
+/* Base styles (apply to all screen sizes) */
+/* Base styles for the message footer (applies to all screen sizes) */
+.message-footer {
+    /* Ensures the timestamp and ticks stay on one line if possible */
+    white-space: nowrap;
+    /* Vertically align items in the flex container */
+    align-items: center;
+    /* Add some padding or margin if they are too close to the message content */
+    padding-top: 5px;
+}
+
+/* Adjustments specifically for small screens (e.g., mobile phones) */
+@media (max-width: 576px) { /* This breakpoint targets screens up to 576px wide (typical mobile portrait) */
+    .message-footer {
+        /* Reduce font size to save space */
+        font-size: 0.7rem !important; /* Slightly smaller than default 'small' */
+
+        /* Ensure it doesn't get squished if its parent is a flex container */
+        flex-shrink: 0;
+        flex-grow: 0;
+
+        /* If needed, position it absolutely within the message bubble */
+        /* This can be useful if space is extremely tight and you want it in a fixed corner.
+           Requires the message bubble (parent) to have `position: relative;`. */
+        /*
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: rgba(255, 255, 255, 0.7); // Semi-transparent background
+        padding: 2px 5px;
+        border-radius: 3px;
+        */
+    }
+
+    /* Reduce margin between the time and the tick icon for tighter spacing */
+    .message-footer .ms-2 {
+        margin-left: 0.3rem !important; /* Reduce the default Bootstrap margin-left */
+    }
+}
+
+/* Optional: Even smaller screens, if you need to fine-tune further */
+@media (max-width: 375px) { /* Example for very small phone screens */
+    .message-footer {
+        font-size: 0.65rem !important;
+    }
+}
+.message-options {
+    position: relative;
+    float: right;
+    margin-left: 10px;
+}
+
+.options-btn {
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.options-menu {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 5px;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
 
 
 </style>
-
-  </head>
+</head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
@@ -494,7 +835,7 @@ display: flex;
                               <div class="row">
                                   <div class="col-md-8 col-12">
                                   <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;">
-                                      <select id="categoryFilter"  name="building_id" class="categoryFilter form-select">
+                                      <select id="buildingSelector"  name="building_id" class="categoryFilter form-select">
                                       <option value="">-- Select Building --</option>
                                       <?php foreach ($buildings as $b): ?>
                                         <option value="<?= htmlspecialchars($b['building_id']) ?>">
@@ -555,7 +896,7 @@ display: flex;
       <th>ACTION</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody id="conversationTableBody">
     <?php if (!empty($communications)): ?>
       <?php foreach ($communications as $comm):
         $datetime = new DateTime($comm['created_at'] ?? date('Y-m-d H:i:s'));
@@ -590,7 +931,7 @@ display: flex;
       <?php endforeach; ?>
     <?php else: ?>
       <tr>
-        <td colspan="5" class="text-center">No data available</td>
+        <td colspan="5" class="text-center">No message available</td>
       </tr>
     <?php endif; ?>
   </tbody>
@@ -675,44 +1016,45 @@ display: flex;
 
                               <div class="individual-message-body" style="height: 100%;">
                                  <div class="messages" id="messages" >
-                                   <div class="message incoming"></div>
+                                   <div class="message incoming">
                                   <div class="message outgoing">
 
                                   </div>
                                 </div>
+                                </div>
 
 
                                 <div class="input-area">
-                              <!-- Attachment input -->
-                              <!-- <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFiles(event)">
-                                <button class="btn attach-button" onclick="document.getElementById('fileInput').click();">
-                                  <i class="fa fa-paperclip"></i>
-                                </button> -->
+    <!-- Attachment input -->
+    <input type="file" name="file[]" id="fileInput" class="form-control" style="display: none;" onchange="showFilePreview()" multiple accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+    <button class="btn attach-button" onclick="document.getElementById('fileInput').click();">
+        <i class="fa fa-paperclip"></i>
+    </button>
 
-                                <div class="input-box" id="inputBox" contenteditable="true"></div>
+    <!-- File preview container -->
+    <div id="filePreviewContainer" style="display: none; margin-right: 10px; max-width: 200px; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; background: #f5f5f5; padding: 5px; border-radius: 4px;">
+            <!-- Image thumbnail (shown only for image files) -->
+            <img id="fileThumbnail" src="" style="max-height: 40px; max-width: 40px; margin-right: 8px; display: none;">
+            <!-- File info -->
+            <div style="flex-grow: 1;">
+                <div id="fileName" style="font-size: 12px; color: #333;"></div>
+                <div style="font-size: 10px; color: #666;">Click to remove</div>
+            </div>
+            <button onclick="clearFileSelection()" style="background: none; border: none; color: #999; cursor: pointer; margin-left: 5px;">×</button>
+        </div>
+    </div>
 
-                                <!-- <div id="filePreviews" class="preview-container"></div> -->
-                                <!-- <div id="filePreviews" class="preview-container"></div> -->
+    <div class="input-box" id="inputBox" contenteditable="true" placeholder="Type your message..."></div>
 
-                                  <div class="message-input-wrapper" >
-                                  <button name="incoming_message" class="btn message-send-button" onclick="sendMessage()">
-                                    <i class="fa fa-paper-plane"></i>
-                                  </button>
-                                </div>
-                                    </div>
-                                  </div>
-                              </div>
+    <!-- MESSAGE SEND BUTTON -->
+    <div class="message-input-wrapper">
+        <button name="incoming_message" class="btn message-send-button" onclick="sendMessage()">
+            <i class="fa fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
 
-
-
-
-                               <!-- <div class="input-area">
-                                <div class="message-input-wrapper" >
-                                  <button name="incoming_message" class="btn message-send-button" onclick="sendMessage()">
-                                    <i class="fa fa-paper-plane"></i>
-                                  </button>
-                                </div>
-                              </div> -->
 
                               </div>
                             </div>
@@ -773,7 +1115,7 @@ display: flex;
                       </div>
                       <div class="card-body new-message-body">
                         <div class="row">
-                        <form action="texts.php" method="POST" enctype="multipart/form-data">
+                        <form action="texts.php" method="POST" id="messageForm" enctype="multipart/form-data">
                           <div class="col-md-12" style="display: flex;">
 
                             <div id="field-group-first" class="field-group first">
@@ -790,17 +1132,10 @@ display: flex;
 
                             <div id="field-group-second" class="field-group second" style="display:block">
                             <label for="recipient-units">Unit</label>
-                           <select name="unit_id">
-                            <?php if (!empty($units) && is_array($units)): ?>
-                              <?php foreach ($units as $unit): ?>
-                                <option value="<?= htmlspecialchars($unit['unit_id']) ?>">
-                                  <?= htmlspecialchars($unit['unit_number']) ?>
-                                </option>
-                              <?php endforeach; ?>
-                            <?php else: ?>
-                              <option disabled>No units found</option>
-                            <?php endif; ?>
-                          </select>
+                            <select name="unit_id" id="unit-select">
+                            <option value="">-- Select Unit --</option>
+                            </select>
+
                           </div>
 
 
@@ -861,8 +1196,167 @@ display: flex;
 
 
 <!-- !-- create new text -->
+<!-- Add this JavaScript -->
+<script>
+function showFilePreview() {
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('filePreviewContainer');
 
-<!-- <script>
+    // Clear previous previews
+    previewContainer.innerHTML = '';
+
+    if (fileInput.files.length > 0) {
+        const iconMap = {
+            'pdf': 'pdf-icon.png',
+            'doc': 'word-icon.png',
+            'docx': 'word-icon.png',
+            'xls': 'excel-icon.png',
+            'xlsx': 'excel-icon.png',
+            'ppt': 'ppt-icon.png',
+            'pptx': 'ppt-icon.png',
+            'zip': 'zip-icon.png',
+            'rar': 'zip-icon.png',
+            'txt': 'txt-icon.png',
+            'csv': 'csv-icon.png',
+        };
+        const fallbackIcon = 'file-icon.png'; // generic icon
+
+        Array.from(fileInput.files).forEach((file, index) => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            const fileBox = document.createElement('div');
+            fileBox.style.display = 'flex';
+            fileBox.style.alignItems = 'center';
+            fileBox.style.background = '#f5f5f5';
+            fileBox.style.padding = '5px';
+            fileBox.style.borderRadius = '4px';
+            fileBox.style.maxWidth = '200px';
+            fileBox.style.cursor = 'pointer';
+
+            const thumbnail = document.createElement('img');
+            thumbnail.style.maxHeight = '40px';
+            thumbnail.style.maxWidth = '40px';
+            thumbnail.style.marginRight = '8px';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.style.flexGrow = '1';
+            nameDiv.innerHTML = `<div style="font-size: 12px; color: #333;">${file.name}</div>
+                                 <div style="font-size: 10px; color: #666;">Click to remove</div>`;
+
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.background = 'none';
+            closeBtn.style.border = 'none';
+            closeBtn.style.color = '#999';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.marginLeft = '5px';
+
+            // Remove file when clicked
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeFileAtIndex(index);
+            };
+
+            // Image preview
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    thumbnail.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const iconPath = iconMap[ext] || fallbackIcon;
+                thumbnail.src = `/path/to/icons/${iconPath}`;
+            }
+
+            fileBox.appendChild(thumbnail);
+            fileBox.appendChild(nameDiv);
+            fileBox.appendChild(closeBtn);
+            fileBox.onclick = () => removeFileAtIndex(index);
+
+            previewContainer.appendChild(fileBox);
+        });
+
+        previewContainer.style.display = 'flex';
+    } else {
+        previewContainer.style.display = 'none';
+    }
+}
+
+function removeFileAtIndex(indexToRemove) {
+    const fileInput = document.getElementById('fileInput');
+    const dt = new DataTransfer();
+
+    Array.from(fileInput.files).forEach((file, index) => {
+        if (index !== indexToRemove) {
+            dt.items.add(file);
+        }
+    });
+
+    fileInput.files = dt.files;
+    showFilePreview(); // refresh preview
+}
+
+function clearFileSelection() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('filePreviewContainer').innerHTML = '';
+    document.getElementById('filePreviewContainer').style.display = 'none';
+}
+
+function sendMessage() {
+    const inputBox = document.getElementById('inputBox');
+    const message = inputBox.innerText.trim();
+    const fileInput = document.getElementById('fileInput');
+
+    if (message || fileInput.files.length > 0) {
+        console.log("Message:", message);
+
+        Array.from(fileInput.files).forEach(file => {
+            console.log("File attached:", file.name);
+        });
+
+        // Clear after sending
+        inputBox.innerText = '';
+        clearFileSelection();
+    }
+}
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector('#newtextPopup form');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // Stop default form submission
+
+    const formData = new FormData(form);
+
+    fetch('texts.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (response.ok) {
+        alert("Message Sent Successfully!");
+        // Optionally reset form or close popup
+        form.reset();
+        closenewtextPopup(); // if this function hides the popup
+      } else {
+        alert("Failed to send message.");
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("An error occurred while sending the message.");
+    });
+  });
+});
+</script>
+
+
+
+
+<script>
 let selectedFiles = [];
 
 function handleFiles(event) {
@@ -914,7 +1408,7 @@ function handleFiles(event) {
     previewContainer.appendChild(previewItem);
   });
 }
-</script> -->
+</script>
 
 
 
@@ -1062,8 +1556,12 @@ document.getElementById('sendMessage').addEventListener('click', function() {
 
 
 
+
+
 <!-- loadConversation -->
 <script>
+//let activeThreadId = null;
+
 function loadConversation(threadId) {
     if (!threadId) {
         console.error('Invalid or missing threadId');
@@ -1088,6 +1586,8 @@ function loadConversation(threadId) {
 
     console.log('Loading thread:', threadId);
 
+    // console.log('Loading thread:', threadId);
+
     // Fetch messages for the selected thread
     fetch('load_conversation.php?thread_id=' + encodeURIComponent(threadId))
         .then(response => {
@@ -1098,6 +1598,7 @@ function loadConversation(threadId) {
         })
         .then(data => {
             if (data.messages) {
+                //  alert(data.messages);
                 const messagesDiv = document.getElementById('messages');
                 messagesDiv.innerHTML = data.messages;
                 messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to bottom
@@ -1111,16 +1612,33 @@ function loadConversation(threadId) {
 }
 </script>
 
+
+
+
+
 <!-- send & get message -->
 <script>
-let activeThreadId = null; // Ensure this is declared in the global scope if not already
+let activeThreadId = null; // Declare globally
 
+function selectThread(threadId) {
+    activeThreadId = threadId;
+    loadConversation(threadId);
+}
+// Function to send the message and files
 function sendMessage() {
     const inputBox = document.getElementById('inputBox');
     const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
 
-    if (!messageText && !file) {
+    if (!inputBox || !fileInput) {
+        console.error("Required input elements not found.");
+        return;
+    }
+
+    const messageText = inputBox.innerText.trim();
+    const files = fileInput.files;
+
+    if (!messageText && (!files || files.length === 0)) {
         alert("Please type a message or attach a file.");
         return;
     }
@@ -1135,10 +1653,12 @@ function sendMessage() {
     formData.append('thread_id', activeThreadId);
     formData.append('sender', 'landlord');
 
-    if (file) {
-        formData.append('file', file);
+    // Append all selected files
+    for (let i = 0; i < files.length; i++) {
+        formData.append('file[]', files[i]);
     }
 
+    // Send the message and files
     fetch('send_message.php', {
         method: 'POST',
         body: formData
@@ -1148,23 +1668,71 @@ function sendMessage() {
         if (!data.success) {
             throw new Error(data.error || 'Failed to send message.');
         }
-
-        // Clear input fields only after a successful send
+        else{
+          alert('Message Sent Successfully');
+        }
+        // Clear the input box and file previews after sending
         inputBox.innerText = '';
         fileInput.value = '';
-
-        // Reload thread messages
-        loadConversation(activeThreadId);
+        filePreviewContainer.innerHTML = ''; // Clear file preview after sending
+        loadConversation(activeThreadId); // Reload conversation after message is sent
     })
     .catch(error => {
         console.error('Error sending message:', error);
         alert('Failed to send message. Please try again.');
     });
-}
+  }
 
 
+  function previewFile() {
+    const fileInput = document.getElementById('fileInput');
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    filePreviewContainer.innerHTML = ''; // Clear previous previews
 
-// Function to load messages (AJAX request to fetch new messages)
+    const files = fileInput.files;
+    if (files.length === 0) {
+        return;
+    }
+
+    // Loop through selected files and create previews
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const fileType = file.type.split('/')[0]; // Get file type (image, pdf, etc.)
+            const filePreview = document.createElement('div');
+            filePreview.classList.add('file-preview');
+
+            // Image files preview
+            if (fileType === 'image') {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.classList.add('img-thumbnail');
+                img.style.maxWidth = '150px';
+                img.style.maxHeight = '150px';
+                filePreview.appendChild(img);
+            }
+            // PDF files preview
+            else if (file.type === 'application/pdf') {
+                const pdfPreview = document.createElement('div');
+                pdfPreview.innerHTML = `<i class="fa fa-file-pdf"></i> ${file.name}`;
+                filePreview.appendChild(pdfPreview);
+            }
+            // Other file types
+            else {
+                const fileNamePreview = document.createElement('div');
+                fileNamePreview.innerHTML = `<i class="fa fa-file"></i> ${file.name}`;
+                filePreview.appendChild(fileNamePreview);
+            }
+
+            // Append file preview to container
+            filePreviewContainer.appendChild(filePreview);
+        };
+        reader.readAsDataURL(file); // Read file as Data URL for preview
+    });
+
+  }
+
+
 function getMessage(messageId) {
     const messageContainer = document.getElementById('messageDetails');
 
@@ -1185,6 +1753,168 @@ function getMessage(messageId) {
         });
 }
 </script>
+
+
+<script>
+document.getElementById('recipient').addEventListener('change', function () {
+    var buildingId = this.value;
+
+    // Clear unit dropdown
+    var unitSelect = document.getElementById('unit-select');
+    unitSelect.innerHTML = '<option value="">-- Loading Units... --</option>';
+
+    if (buildingId) {
+        fetch('fetch_units.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'building_id=' + encodeURIComponent(buildingId)
+        })
+        .then(response => response.json())
+        .then(data => {
+            unitSelect.innerHTML = ''; // Clear and refill
+            if (data.length > 0) {
+                data.forEach(function (unit) {
+                    var option = document.createElement('option');
+                    option.value = unit.unit_id;
+                    option.textContent = unit.unit_number;
+                    unitSelect.appendChild(option);
+                });
+            } else {
+                unitSelect.innerHTML = '<option value="">No units found</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            unitSelect.innerHTML = '<option value="">Error loading units</option>';
+        });
+    } else {
+        unitSelect.innerHTML = '<option value="">-- Select Unit --</option>';
+    }
+});
+</script>
+
+
+<script>
+function toggleOptionsMenu(btn) {
+    const menu = btn.nextElementSibling;
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+
+    // Hide others
+    document.querySelectorAll('.options-menu').forEach(m => {
+        if (m !== menu) m.style.display = 'none';
+    });
+}
+
+function deleteMessage(messageId) {
+    if (!confirm("Delete this message?")) return;
+
+    fetch('delete_message.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `message_id=${messageId}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const el = document.querySelector(`.message[data-message-id='${messageId}']`);
+            if (el) el.remove();
+        } else {
+            alert("Failed to delete.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error deleting message.");
+    });
+}
+</script>
+
+<script>
+function editMessage(btn, messageId) {
+    const messageDiv = btn.closest('.message');
+    const bubble = messageDiv.querySelector('.bubble');
+
+    const originalText = bubble.innerText;
+    const textarea = document.createElement('textarea');
+    textarea.value = originalText;
+    textarea.style.width = '100%';
+    textarea.rows = 3;
+
+    const saveBtn = document.createElement('button');
+    saveBtn.innerText = 'Save';
+    saveBtn.classList.add('btn', 'btn-sm', 'btn-primary');
+    saveBtn.style.marginTop = '5px';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.innerText = 'Cancel';
+    cancelBtn.classList.add('btn', 'btn-sm', 'btn-secondary');
+    cancelBtn.style.marginTop = '5px';
+    cancelBtn.style.marginLeft = '5px';
+
+    // Replace bubble with textarea
+    bubble.replaceWith(textarea);
+    textarea.after(saveBtn, cancelBtn);
+
+    saveBtn.onclick = () => {
+        const newText = textarea.value.trim();
+        if (newText === '') return alert("Message cannot be empty.");
+
+        fetch('update_message.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `message_id=${messageId}&content=${encodeURIComponent(newText)}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const newBubble = document.createElement('div');
+                newBubble.className = 'bubble';
+                newBubble.innerHTML = newText.replace(/\n/g, '<br>');
+                textarea.replaceWith(newBubble);
+                saveBtn.remove();
+                cancelBtn.remove();
+            } else {
+                alert("Update failed.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error saving message.");
+        });
+    };
+
+    cancelBtn.onclick = () => {
+        const originalBubble = document.createElement('div');
+        originalBubble.className = 'bubble';
+        originalBubble.innerHTML = originalText.replace(/\n/g, '<br>');
+        textarea.replaceWith(originalBubble);
+        saveBtn.remove();
+        cancelBtn.remove();
+    };
+}
+</script>
+
+
+<script>
+let pressTimer;
+
+document.querySelectorAll('.message.outgoing').forEach(msg => {
+    msg.addEventListener('mousedown', e => {
+        pressTimer = setTimeout(() => {
+            const menu = msg.querySelector('.attachment-menu');
+            if (menu) menu.style.display = 'block';
+        }, 600); // long press threshold (600ms)
+    });
+
+    msg.addEventListener('mouseup', () => clearTimeout(pressTimer));
+    msg.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+});
+</script>
+
+
+
 
 
 <script>
@@ -1292,6 +2022,85 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
     </script>
+
+    <script>
+document.getElementById('buildingSelector').addEventListener('change', function () {
+  const buildingId = this.value;
+  const tbody = document.getElementById('conversationTableBody');
+
+  if (!buildingId) {
+    // alert(buildingId);
+    // No building selected: clear table or show default message
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No message available</td></tr>';
+    return;
+  }
+
+  // Fetch conversations via AJAX from backend PHP endpoint
+  fetch(`get-conversations.php?building_id=${encodeURIComponent(buildingId)}`)
+  .then(response => {
+    if (!response.ok) throw new Error('Network response was not OK');
+    return response.json();
+  })
+  .then(data => {
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">No message available</td></tr>';
+      return;
+    }
+
+      // Build rows HTML dynamically
+      let rows = '';
+      data.forEach(comm => {
+        const datetime = new Date(comm.created_at);
+        const date = datetime.toLocaleDateString('en-GB'); // dd/mm/yyyy
+        const time = datetime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        const sender = escapeHtml(comm.tenant) || 'Tenant';
+        const recipient = escapeHtml(comm.recipient) || 'Sender Name';
+        const title = escapeHtml(comm.title);
+        const threadId = comm.thread_id;
+
+        rows += `
+          <tr class="table-row">
+            <td class="timestamp">
+              <div class="date">${date}</div>
+              <div class="time">${time}</div>
+            </td>
+            <td class="title">${title}</td>
+            <td><div class="recipient">${recipient}</div></td>
+            <td>
+              <div class="sender">${sender}</div>
+              <div class="sender-email"></div>
+            </td>
+            <td>
+              <button class="btn btn-primary view" onclick="loadConversation(${threadId})">
+                <i class="bi bi-eye"></i> View
+              </button>
+              <button class="btn btn-danger delete" data-thread-id="${threadId}">
+                <i class="bi bi-trash3"></i> Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rows;
+    })
+    .catch(error => {
+      console.error('Error fetching conversations:', error);
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading conversations.</td></tr>';
+    });
+});
+
+// Simple HTML escape helper
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/[&<>"']/g, function(m) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+  });
+}
+</script>
+
+
     <!-- Bootstrap Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!--end::OverlayScrollbars Configure-->

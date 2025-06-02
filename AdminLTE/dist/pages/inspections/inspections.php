@@ -92,12 +92,16 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
 
-
+    <!--Tailwind CSS  -->
     <style>
       .app-wrapper{
          background-color: rgba(128,128,128, 0.1);
+        
       }
-      
+      .modal-backdrop.show {
+        opacity: 0.4 !important; /* Adjust the value as needed */
+      }
+
     </style>
   </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
@@ -249,12 +253,12 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
       <main class="app-main">
                       <!--MAIN MODALS -->
         <!-- add new inspection modal-->
-        <div class="modal fade" id="shiftTenantModal" tabindex="-1" aria-labelledby="shiftTenantModalLabel" aria-hidden="true">
+        <div class="modal fade" id="newSchedule" tabindex="-1" aria-labelledby="newScheduleLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content shadow">
               <form id="form_new_inspection" onsubmit="submitInspectionForm(event)">
-                <div class="modal-header" style="background-color:#00192D; color:#FFC107;">
-                  <h5 class="modal-title" id="shiftTenantModalLabel">Schedule Inspection</h5>
+                <div class="modal-header" style="background-color:#00192D;">
+                  <h5 class="modal-title" id="newScheduleLabel" style="color:#FFA000 !important">Schedule Inspection</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
@@ -307,13 +311,12 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
             <!--begin::Row-->
             <div class="row">
               <div class="col-sm-8">
-                <h3 class="mb-0 contact_section_header"> <i class="fas fa-search icon title-icon"></i>INSPECTIONS</h3>
-                    <div class="row mt-2">
-                </div>
+                <h3 class="mb-0 contact_section_header"> <i class="fas fa-search icon title-icon"></i>&nbsp; INSPECTIONS MANAGEMENT</h3>
+                       
               </div>
 
               <div class="col-sm-4 d-flex justify-content-end">
-                <button type="button" class="btn newSchedule" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
+                <button type="button" class="btn newSchedule" data-bs-toggle="modal" data-bs-target="#newSchedule">
                   New Schedule
                 </button>
             </div>
@@ -327,11 +330,34 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
           <div class="container-fluid">
             <!-- BEGIN ROW -->
             <div class="row">
-
-              <h6 class="mb-0 contact_section_header summary mb-2"></i> Summary</h6>
-
               <div class="container-fluid">
-                <div class="row">
+                <div class="row g-3 mb-4">
+                  <p class="text-muted">Manage inspections for buildings and tenants</p>
+                  <div class="col-md-3">
+                    <select class="form-select filter-shadow">
+                      <option selected>Filter by Building</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select filter-shadow ">
+                      <option selected>Filter by Tenant</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select filter-shadow">
+                      <option selected>Filter Status</option>
+                      <option>Pending</option>
+                      <option>Completed</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <input type="date" class="form-control filter-shadow ">
+                  </div>
+                </div>
+                                
+                
+                <h6 class="mb-0 contact_section_header summary mb-2"></i> Summary</h6>
+                <div class="row mb-2">
                   <div class="col-12 col-sm-6 col-md-3">
                     <div class="summary-card mb-2" >
                         <div class="summary-card_icon"> <i class="fas fa-clipboard-check"></i></div>
@@ -377,9 +403,8 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
             <!-- /end row -->
             <!-- Begin Row -->
             <div class="row">
-              <h6 class="mb-0 contact_section_header summary mb-2"></i> Scheduled Inspections</h6>
-              
               <div class="col-md-12">
+                <h6 class="mb-0 contact_section_header summary mb-2"></i>  Scheduled Inspections</h6>
                 <div class="inspection-details-container bg-white p-2">
                   <div id="filter-pdf-excel-section" class="filter-pdf-excel-section mb-2">
                     <div class="d-flex" style="gap: 10px;">
@@ -402,7 +427,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                       <div id="custom-buttons"></div>
                     </div>
                   </div>
-                  <div class="entries">Manucho Apartments/ <span class="entries_label">/5  entries</span>
+                  <div class="entries">Manucho Apartments <span class="entries_label">/5  entries</span>
                   </div>
                   <div class="scheduledInspectionsTbl">
                     <table id="maintanance" class=" display summary-table">
@@ -740,6 +765,82 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
         </div>                                          
       </section>
 
+      <!-- Inspection(inspected) Modal -->
+      <div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+          <div class="modal-content rounded-3 shadow-lg">
+            <div class="modal-header">
+              <h5 class="modal-title" id="inspectionModalLabel">🏠 Inspection Details - <strong>Unit A12</strong></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+              <table class="table inspection-table table-bordered table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Item</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Photos</th>
+                  </tr>
+                </thead>
+                <tbody  id="inspectionModalTableBody">
+                  <tr>
+                    <td>Floor</td>
+                    <td><span class="status-bad">Needs Repair</span></td>
+                    <td>Scratches and water damage near the corner.</td>
+                    <td>
+                      <img src="https://www.districtfloordepot.com/wp-content/uploads/2022/02/types-of-floor-damage.jpg" class="repair-photo" alt="Floor damage">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Window</td>
+                    <td><span class="status-bad">Needs Repair</span></td>
+                    <td>Broken lock on the left window pane.</td>
+                    <td>
+                      <img src="https://apexwindowwerks.com/wp-content/uploads/2023/03/wood-window-repair-guide.jpg" class="repair-photo" alt="Window issue">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Door</td>
+                    <td><span class="status-good">Good</span></td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td>Wall</td>
+                    <td><span class="status-bad">Needs Repair</span></td>
+                    <td>Peeling paint and minor cracks.</td>
+                    <td>
+                      <img src="https://images.pexels.com/photos/276267/pexels-photo-276267.jpeg" class="repair-photo" alt="Wall damage">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Bulb</td>
+                    <td><span class="status-good">Good</span></td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                  <tr>
+                    <td>Sockets</td>
+                    <td><span class="status-bad">Needs Repair</span></td>
+                    <td>One socket in the kitchen is not working.</td>
+                    <td>
+                      <img src="https://create.vista.com/wp-content/uploads/2021/09/damaged-socket.jpg" class="repair-photo" alt="Socket issue">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="modal-footer d-flex justify-content-between">
+              <small class="text-muted">📅 Inspection Date: <strong>2025-05-26</strong></small>
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
   <!-- Main Js File -->
   <script src="inspections.js"></script>
       <!-- Scripts -->
@@ -916,6 +1017,11 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
   ></script>
 
         <!--end::Script-->
+  <!-- date display only future date -->
+   <script>
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById("inspectionDate").setAttribute("min", today);
+   </script>
   </body>
   <!--end::Body-->
 </html>

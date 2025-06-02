@@ -76,7 +76,7 @@
 
   // fetch scheduled schedules.
   function fetchScheduledInspections(){
-     fetch('actions/fetch_records.php')
+     fetch('actions/fetch_records.php?table=inspections')
       .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -129,6 +129,41 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
   inspections.forEach(inspection => {
     const row = document.createElement("tr");
 
+    // ✅ STEP 1: Create statusHTML
+    let statusHTML = '';
+    const status = (inspection.status || '').toLowerCase();
+
+    if (status === 'in progress') {
+      statusHTML = `
+        <td>
+          <span class="status in-progress">
+            <i class="fas fa-spinner fa-spin"></i> In Progress
+          </span>
+        </td>`;
+    } else if (status === 'completed') {
+      statusHTML = `
+        <td>
+          <span class="status completed" >
+            <i class="fas fa-check-circle"></i> Completed
+          </span>
+        </td>`;
+    } else if (status === 'incomplete') {
+      statusHTML = `
+        <td>
+          <span class="status incomplete">
+            <i class="fas fa-times-circle"></i> Incomplete
+          </span>
+        </td>`;
+    } else {
+      statusHTML = `
+        <td>
+          <span class="status unknown" style="color: gray;">
+            <i class="fas fa-question-circle"></i> Unknown
+          </span>
+        </td>`;
+    }
+
+
     row.innerHTML = `
       <td>${inspection.date || ''}</td>
       <td>${inspection.id || ''}</td>
@@ -137,8 +172,8 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
         <div style="color: green;">${inspection.unit_name }</div>
       </td>
       <td>${inspection.inspection_type|| ''}</td>
-      <td > <span class="${inspection.status|| ''}"><i class="fas fa-spinner fa-spin"></i>  ${inspection.status|| ''}</span> </td>
-      <td>   
+      ${statusHTML}
+      <td class="d-flex gap-15px">   
         <button class="btn inspect_btn"
           data-building-name="${inspection.building_name}"
           data-unit="${inspection.unit || ''}"
@@ -146,13 +181,32 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
 
          style="background-color: #00192D; color:#FFC107">
          Inspect</button>
-        <button class="btn btn-sm" style="background-color: #193042; color:#fff; margin-right: 2px;" data-toggle="modal" data-target="#assignPlumberModal" title="View"><i class="fas fa-eye"></i></button>
+
+        <button class="btn btn-sm view-btn"
+          style="background-color: #193042; margin-left:10px; color:#fff;"
+          title="View"
+          data-id="${inspection.id}"
+          data-status="${status}">
+          <i class="fas fa-eye"></i>
+        </button>
+
+        <!-- Edit Button -->
+        <button class="btn btn-sm" style="background-color: #1e6f5c; margin-left: 2px; margin-right: 2px; color: #fff;" title="Edit">
+          <i class="fas fa-edit"></i>
+        </button>
+
+        <!-- Delete Button -->
+        <button class="btn btn-sm" style="background-color: #b02a37; margin-left: 2px; margin-right: 2px; color: #fff;" title="Delete">
+          <i class="fas fa-trash"></i>
+        </button>
+
       </td>
     `;
 
    // Add the event listener here AFTER the row is in memory
     const tempDiv = document.createElement('div');
     tempDiv.appendChild(row);
+    
     const inspectBtn = tempDiv.querySelector('.inspect_btn');
     inspectBtn.addEventListener('click', (e) => {
       const btn = e.currentTarget;
@@ -168,13 +222,67 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
       prfm_Ins_mdl.style.display =  "block";
     });
 
+   const viewBtn = tempDiv.querySelector('.view-btn');
+   viewBtn.addEventListener('click', () => {
+    const inspectionId = viewBtn.getAttribute('data-id');
+
+    // Get the status text from the row
+    const statusSpan = tempDiv.querySelector('td span');
+    const statusText = statusSpan?.textContent?.trim().toLowerCase();
+
+    const status = viewBtn.getAttribute('data-status');
+    if (status === 'completed') {
+      viewDetails(inspectionId);
+    } else {
+      alert('You can only view details for completed inspections.');
+    }
+  });
+
     tableBody.appendChild(tempDiv.firstChild); // append the full row
 
   });
 }
 
+function viewDetails(inspectionId) {
+  
+fetch(`actions/fetch_records.php?table=inspection_items&inspection_id=${inspectionId}`)
+      .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Inspections:", data.data);
+                // you can now use data.data to display in your UI
+                populateItemsTable(data.data);
+            } else {
+                console.error("Backend error:", data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Network or parsing error:", error);
+        });
+  const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
+  modal.show();
+}
 
+// populateItemsTable
+ 
+  function populateItemsTable(inspection_items) {
+  const tableBody = document.getElementById("inspectionModalTableBody");
+  tableBody.innerHTML = ""; // Clear existing rows
 
+  inspection_items.forEach(item => {
+    const row = document.createElement("tr");
+
+    // Example columns: item name, status, comments
+    row.innerHTML = `
+      <td>${item.category || '—'}</td>
+      <td>${item.status || '—'}</td>
+      <td>${item.description || '—'}</td>
+      <td>${item.photos || '—'}</td>
+    `;
+
+    tableBody.appendChild(row);
+  });
+}
 
   // Initialize everything after DOM loads
   document.addEventListener("DOMContentLoaded", () => {
