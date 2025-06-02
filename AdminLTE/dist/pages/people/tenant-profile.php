@@ -7,14 +7,14 @@ if (!isset($_GET['id'])) {
   exit;
 }
 else{
-  
+
 }
 
 $user_id = intval($_GET['id']);
 
 try {
   // ✅ Must be a string
-  $sql = "SELECT 
+  $sql = "SELECT
           tenants.id AS tenant_id,
           tenants.status,
           tenants.phone_number,
@@ -24,7 +24,7 @@ try {
           tenants.job_title,
           users.id AS user_id,
           users.email
-        FROM tenants 
+        FROM tenants
         INNER JOIN users ON tenants.user_id = users.id
         WHERE users.id = ?";
 
@@ -36,7 +36,7 @@ try {
   $stmt->execute([$user_id]);
 
   $data = $stmt->fetch(PDO::FETCH_ASSOC);
-  
+
   if (!$data) {
     echo json_encode(['success' => false, 'message' => 'No matching tenant found']);
   } else {
@@ -361,6 +361,7 @@ try {
       <main class="app-main">
         <!--begin::App Content Header-->
         <div class="app-content-header">
+
           <!--begin::Container-->
           <div class="container-fluid">
             <!--begin::Row-->
@@ -375,325 +376,315 @@ try {
           <!--end::Container-->
         </div>
         <div  class="app-content">
-
           <div class="container-fluid">
 
-                                                     <!-- HEADER SECTION -->
             <!-- First Row -->
             <div class="row  " >
-              <div class="col-sm-6">
-                <div class="d-flex">
-                  <h3 class="section_header tenantName"><i class="fas fa-user-tie icon" style="color:#FFC107"></i> <span id="first_name"> </span> <span id="middle_name"> </span> </h3>
-                  <h6 style="color:#00192D; ">  <span id="residence" style="color:#767676;">Ebenezer/</span> <span id="unit" style=" margin-right:2px;">Unit</span> </h6>
-                  <h6  class="active" id="status"></h6>
+                <div class="col-sm-6">
+                  <div class="d-flex align-items-center gap-3">
+                    <h3 class="section_header tenantName">
+                      <span class="me-2" aria-hidden="true">👤</span>
+                      <span id="first_name" aria-label="First name"></span>
+                      <span id="middle_name" aria-label="Middle name"></span>
+                    </h3>
+                    <p class="mb-0" style="color:#00192D;">
+                      <span id="residence" class="text-muted">Ebenezer/</span>
+                      <span id="unit" style="margin-right:2px;">Unit</span>
+                    </p>
+                    <p id="status" class="mb-0 fw-semibold text-success"></p>
+                  </div>
+                  <div>
+                  </div>
                 </div>
-                <div>
-                  
+                <!-- Button to open modal -->
+                  <!-- Shift & Vacate Buttons -->
+                  <div class="col-sm-6">
+                    <div class="headerButtons d-flex gap-2">
+                      <div class="shift">
+                        <button class="btn shift-tenant rounded" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
+                          Shift Joseph
+                        </button>
+                      </div>
+
+                      <div class="vacate">
+                        <button class="btn vacate-tenant rounded">Vacate Joseph</button>
+                      </div>
+                    </div>
+                  </div>
+
+                    <!-- Shift Tenant Modal -->
+                    <div class="modal fade" id="shiftTenantModal" tabindex="-1" aria-labelledby="shiftTenantModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content shadow">
+                          <form id="shiftTenantForm">
+                            <div class="modal-header" style="background-color: #00192D; color: #FFC107;">
+                              <h5 class="modal-title" id="shiftTenantModalLabel">
+                                <i class="fas fa-exchange-alt me-2"></i> Shift Tenant - Joseph
+                              </h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" ></button>
+                            </div>
+
+                            <div class="modal-body px-4">
+                              <!-- Tenant Name (Pre-filled) -->
+                              <div class="mb-3">
+                                <label class="form-label">Tenant Name</label>
+                                <input type="text" class="form-control" name="tenantName" value="Joseph" readonly>
+                              </div>
+
+                              <!-- Select Building -->
+                              <div class="mb-3">
+                                <label for="buildingSelect" class="form-label">Select Building</label>
+                                <select id="buildingSelect" class="form-select" required>
+                                  <option value="">-- Select Building --</option>
+                                  <option value="Manucho">Manucho</option>
+                                  <option value="White House">White House</option>
+                                  <option value="Pink House">Pink House</option>
+                                  <option value="Silver">Silver</option>
+                                </select>
+                              </div>
+
+                              <!-- Select Unit -->
+                              <div class="mb-3">
+                                <label for="unitSelect" class="form-label">Select Unit</label>
+                                <select id="unitSelect" class="form-select" required>
+                                  <option value="">-- Select Unit --</option>
+                                  <option value="Unit 101">Unit 101</option>
+                                  <option value="Unit 102">Unit 102</option>
+                                  <option value="Unit 201">Unit 201</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div class="modal-footer px-4">
+                              <button type="submit" class="btn btn-primary" style="background-color: #00192D; color: #FFC107;">Shift</button>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
                 </div>
-
-                <!-- <h3 >   </h3> -->
-
-
-                    <div class="row mt-2  ">
-
-                </div>
-              </div>
-             <!-- Button to open modal -->
-<!-- Shift & Vacate Buttons -->
-<div class="col-sm-6">
-  <div class="headerButtons d-flex gap-2">
-    <div class="shift">
-      <button class="btn shift-tenant rounded" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
-        Shift Joseph
-      </button>
-    </div>
-
-    <div class="vacate">
-      <button class="btn vacate-tenant rounded">Vacate Joseph</button>
-    </div>
-  </div>
-</div>
-
-<!-- Shift Tenant Modal -->
-<div class="modal fade" id="shiftTenantModal" tabindex="-1" aria-labelledby="shiftTenantModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content shadow">
-      <form id="shiftTenantForm">
-        <div class="modal-header" style="background-color: #00192D; color: #FFC107;">
-          <h5 class="modal-title" id="shiftTenantModalLabel">
-            <i class="fas fa-exchange-alt me-2"></i> Shift Tenant - Joseph
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" ></button>
-        </div>
-
-        <div class="modal-body px-4">
-          <!-- Tenant Name (Pre-filled) -->
-          <div class="mb-3">
-            <label class="form-label">Tenant Name</label>
-            <input type="text" class="form-control" name="tenantName" value="Joseph" readonly>
-          </div>
-
-          <!-- Select Building -->
-          <div class="mb-3">
-            <label for="buildingSelect" class="form-label">Select Building</label>
-            <select id="buildingSelect" class="form-select" required>
-              <option value="">-- Select Building --</option>
-              <option value="Manucho">Manucho</option>
-              <option value="White House">White House</option>
-              <option value="Pink House">Pink House</option>
-              <option value="Silver">Silver</option>
-            </select>
-          </div>
-
-          <!-- Select Unit -->
-          <div class="mb-3">
-            <label for="unitSelect" class="form-label">Select Unit</label>
-            <select id="unitSelect" class="form-select" required>
-              <option value="">-- Select Unit --</option>
-              <option value="Unit 101">Unit 101</option>
-              <option value="Unit 102">Unit 102</option>
-              <option value="Unit 201">Unit 201</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="modal-footer px-4">
-          <button type="submit" class="btn btn-primary" style="background-color: #00192D; color: #FFC107;">Shift</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-
-
-
-            <!-- End first Row -->
-
-
-                                                      <!-- SUMMARY SECTION -->
-            <!-- start Row -->
+                <!-- End first Row -->
 
                                                    <!--PERSONAL INFO  -->
-
-              <!-- start row -->
+                <!-- start row -->
                 <div class="row mt-2 personal-info">
-
-                      <h6 class="mb-0 contact_section_header mb-2"> </i> Personal Info</h6>
+                  <h6 class="mb-0 contact_section_header mb-2"> </i> Personal Info</h6>
                   <div class="col-md-12">
-                      <div class="row">
+                    <div class="row g-3">
+                      <!-- Email Card -->
+                      <div class="col-md-3">
+                        <div class="personal-info-card shadow-sm bg-white p-3 rounded">
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-envelope icon"></i>
+                            <div>
+                              <div class="personal-info-card-label">Email</div>
+                              <b id="email" class="personal-info-card-value email"></b>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Phone Card -->
+                      <div class="col-md-3">
+                        <div class="personal-info-card shadow-sm bg-white p-3 rounded">
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-phone icon"></i>
+                            <div>
+                              <div class="personal-info-card-label">Phone</div>
+                              <b id="phone" class="personal-info-card-value phone"></b>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                              <div class="col-md-3">
-                                <div class="personal-item d-flex justify-content-between bg-white">
-                                <!-- <i class="fas fa-calculator"></i> -->
-                                  <div class="labal-value p-2" style="display: flex; gap: 5px;   align-items: center;">
-                                    <div class="label"> <i class="fa fa-envelope personal-info-icon "></i>
-                                      <span class="personal-info item-name email" > Email,</span> </div>
-                                    <div class="value" ><b id="email"> <span></span> </b></div>
-                                  </div>
-                                </div>
-                              </div>
+                      <!-- ID Card -->
+                      <div class="col-md-3">
+                        <div class="personal-info-card shadow-sm bg-white p-3 rounded">
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-id-card icon"></i>
+                            <div>
+                              <div class="personal-info-card-label">ID NO</div>
+                              <b id="id_no" class="personal-info-card-value" >45862394</b>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary ms-auto">View</button>
+                          </div>
+                        </div>
+                      </div>
 
-                              <div class="col-md-3">
-                                <div class="personal-item d-flex justify-content-between bg-white">
-                                  <!-- <i class="fas fa-calculator"></i> -->
-                                    <div class="category-number p-2" style="display: flex; gap: 5px;   align-items: center;">
-                                      <div class="category"><i class="fas fa-phone icon personal-info-icon "></i> 
-                                      <span class="personal-info item-name" >Phone</span>  </div>
-                                      <div class="value"><b id="phone"></b></div>
-                                    </div>
-                                </div>
-
-                              </div>
-
-                              <div class="col-md-3">
-                                <div class="personal-item d-flex justify-content-between bg-white">
-                                <!-- <i class="fas fa-calculator"></i> -->
-                                  <div class="category-number p-2" style="display: flex; gap: 5px;   align-items: center;">
-                                    <div class="category"> <i class="fas fa-id-card personal-info-icon "></i> <span class="personal-info item-name">ID NO,</span></div>
-                                    <div class="number" ><b id="id_no">45862394</b></div>
-                                    <button class="btn view id rounded"> view </button>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div class="col-md-3">
-                                <div class="personal-item-edit d-flex justify-content-between">
-                                <!-- <i class="fas fa-calculator"></i> -->
-                               <button class="btn edit-btn personal-info rounded" data-bs-toggle="modal" data-bs-target="#editPersonalInfoModal"><i class="fas fa-edit icon"></i> Edit</button>
-                              </div>
+                      <!-- Edit Button Card -->
+                      <div class="col-md-3">
+                        <div class="personal-info-card shadow-sm bg-white p-3 rounded d-flex align-items-center justify-content-center">
+                          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editPersonalInfoModal">
+                            <i class="fas fa-edit me-1 icon"></i> Edit
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    
-
+                  </div>
                     <div class="col-md-12 mt-2">
                         <h6 class=" contact_section_header details mb-2 mt-2"> </i> Income Info</h6>
-
-                      <div class="row">
-                        
-
-                            <div class="col-md-3">
-
-                               <div class="personal-item d-flex justify-content-between bg-white">
-                                <!-- <i class="fas fa-calculator"></i> -->
-                          
-                                  <div class="category-number p-2" style="display: flex; gap: 5px;   align-items: center;">
-                                    <div class="category"><i class="fas fa-briefcase personal-info-icon"></i> <span class="personal-info item-name" > Income Source,</span> </div>
-                                    <div class="number" ><b id="income_source"></b></div>
-                                  </div>
-                                </div>
-
-                            </div>
-
-                            <div class="col-md-3">
-
-                              <div class="personal-item d-flex justify-content-between bg-white">
-                                    <!-- <i class="fas fa-calculator"></i> -->
-                                      <div class="category-number p-2" style="display: flex; gap: 5px;   align-items: center;">
-                                        <div class="category"><i class="fas fa-globe icon personal-info-icon "></i> <span class="personal-info item-name" >Employer,</span>  </div>
-                                        <div class="number"><b id="work_place"></b></div>
-                                      </div>
-                                  </div>
-                              </div>
-
-                          <div class="col-md-3">
-                            <div class="personal-item d-flex justify-content-between bg-white">
-                            <!-- <i class="fas fa-calculator"></i> -->
-                              <div class="category-number p-2" style="display: flex; gap: 5px;   align-items: center;">
-                                <div class="category"> <i class="fas fa-id-card personal-info-icon "></i> <span class="personal-info item-name">Job Title,</span></div>
-                                <div class="number"><b id="job_title"></b></div>
+                     <div class="row g-3">
+                        <!-- Income Type -->
+                        <div class="col-md-3">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded">
+                            <div class="d-flex align-items-center gap-2">
+                              <i class="fas fa-briefcase icon"></i>
+                              <div>
+                                <div class="income-info-card-label text-muted small">Income Type</div>
+                                <b id="income_source" class="info-card-value"></b>
                               </div>
                             </div>
                           </div>
-
-                          <div class="col-md-3">
-                                <div class="personal-item-edit d-flex justify-content-between">
-                                <!-- <i class="fas fa-calculator"></i> -->
-                               <button class="btn  btn-sm edit-btn income-info rounded" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal"><i class="fas fa-edit icon"></i> Edit</button>
+                        </div>
+                        <!-- Employer -->
+                        <div class="col-md-3">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded">
+                            <div class="d-flex align-items-center gap-2">
+                              <i class="fas fa-globe icon"></i>
+                              <div>
+                                <div class="income-info-card-label text-muted small">Employer</div>
+                                <b id="work_place" class="info-card-value"></b>
                               </div>
-
-
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Job Title -->
+                        <div class="col-md-3">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded">
+                            <div class="d-flex align-items-center gap-2">
+                              <i class="fas fa-id-card icon"></i>
+                              <div>
+                                <div class="income-info-card-label text-muted small">Job Title</div>
+                                <b id="job_title" class="info-card-value"></b>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Edit Button -->
+                        <div class="col-md-3">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded d-flex align-items-center justify-content-center">
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal">
+                              <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                          </div>
+                        </div>
                       </div>
                   </div>
                 </div>
               </div>
+              <!-- Edit Income Info Modal -->
+              <div class="modal fade" id="editIncomeInfoModal" tabindex="-1" aria-labelledby="editIncomeInfoLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                  <div class="modal-content shadow-lg rounded-4 border-0">
+                    <form id="editIncomeInfoForm">
 
-<!-- Edit Income Info Modal -->
-<div class="modal fade" id="editIncomeInfoModal" tabindex="-1" aria-labelledby="editIncomeInfoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content shadow-lg rounded-4 border-0">
-      <form id="editIncomeInfoForm">
-      
-        <!-- Modal Header -->
-        <div class="modal-header py-3 px-4" style="background-color: #00192D; color: #FFC107;">
-          <h5 class="modal-title" id="editIncomeInfoLabel">
-            <i class="fas fa-edit me-2"></i> Edit Income Information
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <!-- Modal Body -->
-        <div class="modal-body px-4 py-4 bg-light">
-
-          <!-- Income Source -->
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control shadow-sm" id="editIncomeSource" placeholder="Income Source" 
-                   value="<?= htmlspecialchars($data['income_source'] ?? '') ?>" name="income_source" required>
-            <label for="editIncomeSource"><i class="fas fa-briefcase me-1 text-muted"></i> Income Source</label>
-          </div>
-
-          <!-- Employer -->
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control shadow-sm" id="editEmployer" placeholder="Employer" 
-                   value="<?= htmlspecialchars($data['work_place'] ?? '') ?>" name="employer" required>
-            <label for="editEmployer"><i class="fas fa-building me-1 text-muted"></i> Employer</label>
-          </div>
-
-          <!-- Job Title -->
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control shadow-sm" id="editJobTitle" placeholder="Job Title" 
-                   value="<?= htmlspecialchars($data['job_title'] ?? '') ?>" name="job_title" required>
-            <label for="editJobTitle"><i class="fas fa-user-tie me-1 text-muted"></i> Job Title</label>
-          </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="modal-footer px-4 pb-4 pt-3">
-          <button type="submit" class="btn btn-sm " style="background-color: #00192D; color: #FFC107;">
-            <i class="fas fa-save me-1"></i> Save Changes
-          </button>
-          <button type="button" class="btn btn-sm" data-bs-dismiss="modal" style="background-color: #00192D; color: #FFC107;">
-            <i class="fas fa-times me-1"></i> Cancel
-          </button>
-        </div>
-
-      </form>
-    </div>
-  </div>
-</div>
-
-
-
-
+                      <!-- Modal Header -->
+                      <div class="modal-header py-3 px-4" style="background-color: #00192D; color: #FFC107;">
+                        <h5 class="modal-title" id="editIncomeInfoLabel">
+                          <i class="fas fa-edit me-2"></i> Edit Income Information
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <!-- Modal Body -->
+                      <div class="modal-body px-4 py-4 bg-light">
+                        <!-- Income Source -->
+                        <div class="form-floating mb-4">
+                          <input type="text" class="form-control shadow-sm" id="editIncomeSource" placeholder="Income Source"
+                                value="<?= htmlspecialchars($data['income_source'] ?? '') ?>" name="income_source" required>
+                          <label for="editIncomeSource"><i class="fas fa-briefcase me-1 text-muted"></i> Income Source</label>
+                        </div>
+                        <!-- Employer -->
+                        <div class="form-floating mb-4">
+                          <input type="text" class="form-control shadow-sm" id="editEmployer" placeholder="Employer"
+                                value="<?= htmlspecialchars($data['work_place'] ?? '') ?>" name="employer" required>
+                          <label for="editEmployer"><i class="fas fa-building me-1 text-muted"></i> Employer</label>
+                        </div>
+                        <!-- Job Title -->
+                        <div class="form-floating mb-4">
+                          <input type="text" class="form-control shadow-sm" id="editJobTitle" placeholder="Job Title"
+                                value="<?= htmlspecialchars($data['job_title'] ?? '') ?>" name="job_title" required>
+                          <label for="editJobTitle"><i class="fas fa-user-tie me-1 text-muted"></i> Job Title</label>
+                        </div>
+                      </div>
+                      <!-- Modal Footer -->
+                      <div class="modal-footer px-4 pb-4 pt-3">
+                        <button type="submit" class="btn btn-sm " style="background-color: #00192D; color: #FFC107;">
+                          <i class="fas fa-save me-1"></i> Save Changes
+                        </button>
+                        <button type="button" class="btn btn-sm" data-bs-dismiss="modal" style="background-color: #00192D; color: #FFC107;">
+                          <i class="fas fa-times me-1"></i> Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
              <!-- start row -->
-
               <div class="row mt-4 mb-3">
                 <h6 class=" contact_section_header details mb-2 mt-2"> </i> Rent Details</h6>
                 <div class="col-md-12 ">
-                  <div class="row  mb-4">
-                        <span class="summary title">Summary</span>
-                      <div class="col-md-3">
-                        <!-- <div class="summary-item d-flex justify-content-between bg-white"> -->
-                        <div class="icon-category-number Deposit" style="display: flex; gap: 10px;   align-items: center; ">
-                          <div class="icon"> <i class="fas fa-coins"></i></div>
-                          <div>
-                            <div class="rent-type-date-paid">
-                              <div class="rent-type">Deposit</div>
-                              <div class="date-paid">
-                                <div><i>2023-12</i></div>
-                              </div>
-                            </div>
-
-                            <div class="number"> $&nbsp;11000</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="icon-category-number paid-rent" style="display: flex; gap: 10px;   align-items: center; ">
-                          <div class="icon"> <i class="fas fa-coins"></i></div>
-                          <div>
-                            <div class="rent-type-duration-stayed">
-                              <div class="rent-type">Total Paid Rent</div>
-                              <div class="duration-stayed"> 14 Mons</div>
-                            </div>
-
-                            <div class="number"> $&nbsp;12000</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-3 outstanding-rent">
-
-                        <div class="icon-category-number outstanding-rent" style="display: flex; gap: 10px;   align-items: center; ">
-                          <div class="icon"> <i class="fas fa-coins"></i></div>
-                          <div>
-                            <div class="rent-type">Outstanding Balance</div>
-                            <div class="number"> $&nbsp;1000</div>
-                          </div>
-                        </div>
-
-                      </div>
-                      <div class="col-md-3">
-                        <div class="icon-category-number" style="display: flex; gap: 10px;   align-items: center; ">
-                          <div class="icon"> <i class="fas fa-coins"></i></div>
-                          <div>
-                            <div class="rent-type refundable">Total Refundable</div>
-                            <div class="number"> $&nbsp;4000</div>
-                          </div>
-                        </div>
-                      </div>
+                 <div class="row mb-4 g-3">
+                  <div class="col-12">
+                    <span class="rent-summary-title">Summary</span>
                   </div>
+
+                  <!-- Deposit -->
+                  <div class="col-md-3">
+                    <div class="rent-summary-card shadow-sm bg-white p-3 rounded">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="fas fa-coins fs-4 icon"></i>
+                          <div>
+                            <div class="detail-card-label">Deposit</div>
+                            <div class="number fw-bold mt-1">$&nbsp;11,000</div>
+                          </div>
+                        </div>
+                        <div class="small detail-card-date"><i>2023-12</i></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Total Paid Rent -->
+                  <div class="col-md-3">
+                    <div class="rent-summary-card shadow-sm bg-white p-3 rounded">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="fas fa-coins fs-4 icon"></i>
+                          <div>
+                            <div class="detail-card-label">Total Paid Rent</div>
+                            <div class="number fw-bold mt-1">$&nbsp;12,000</div>
+                          </div>
+                        </div>
+                        <div class="small detail-card-months">14 Mons</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Outstanding Balance -->
+                  <div class="col-md-3">
+                    <div class="rent-summary-card shadow-sm bg-white p-3 rounded">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-coins fs-4 icon"></i>
+                        <div>
+                          <div class="detail-card-label">Outstanding Balance</div>
+                          <div class="number fw-bold mt-1">$&nbsp;1,000</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Total Refundable -->
+                  <div class="col-md-3">
+                    <div class="rent-summary-card shadow-sm bg-white p-3 rounded">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-coins icon fs-4"></i>
+                        <div>
+                          <div class="detail-card-label">Total Refundable</div>
+                          <div class="number fw-bold mt-1">$&nbsp;4,000</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                    <span class="details title mt-3">Details</span>
                   <div class="row">
@@ -950,8 +941,8 @@ try {
                         </thead>
 
                         <tbody>
-                          
-                          
+
+
                         </tbody>
 
                       </table>
@@ -968,7 +959,7 @@ try {
 
 
               </div>
-   
+
   </div>
 </div>
 
@@ -1011,7 +1002,7 @@ try {
 </div>
 
 
-          
+
         <!-- OVERLAYS -->
         <!-- Edit Personal Info Modal -->
               <div class="modal fade" id="editPersonalInfoModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
@@ -1022,7 +1013,7 @@ try {
                      <!-- your form inputs... -->
                     <input type="hidden" id="user_id" name="user_id" value="<?= htmlspecialchars($_GET['id'] ?? '') ?>">
 
-                    
+
                       <div class="modal-header   rounded-top" style= "background-color: #00192D; color:#FFC107;">
                         <h5 class="modal-title" id="editModalLabel">
                           <i class="fas fa-user-edit me-2"></i> Edit Personal Information
@@ -1034,21 +1025,21 @@ try {
 
                       <!-- Email -->
                         <div class="form-floating mb-3">
-                          <input type="email" class="form-control" id="editEmail" placeholder="Email" 
+                          <input type="email" class="form-control" id="editEmail" placeholder="Email"
                                 value="<?= htmlspecialchars($data['email'] ?? '') ?>" required>
                           <label for="editEmail"><i class="fas fa-envelope me-1"></i> Email Address</label>
                         </div>
 
                         <!-- Phone -->
                         <div class="form-floating mb-3">
-                          <input type="text" class="form-control" id="editPhone" placeholder="Phone Number" 
+                          <input type="text" class="form-control" id="editPhone" placeholder="Phone Number"
                                 value="<?= htmlspecialchars($data['phone_number'] ?? '') ?>" required>
                           <label for="editPhone"><i class="fas fa-phone me-1"></i> Phone Number</label>
                         </div>
 
 <!-- ID Number -->
 <div class="form-floating mb-3">
-  <input type="text" class="form-control" id="editIDNo" placeholder="ID Number" 
+  <input type="text" class="form-control" id="editIDNo" placeholder="ID Number"
          value="<?= htmlspecialchars($data['id_no'] ?? '') ?>" required>
   <label for="editIDNo"><i class="fas fa-id-card me-1"></i> National ID Number</label>
 </div>

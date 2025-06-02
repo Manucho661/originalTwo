@@ -49,158 +49,118 @@ main{
  border-radius: 5px;
  font-weight: 500;
 }
-                                          /* BUTTONS */
-                                                            .btn{
-                                                              font: bold !important;
-                                                              letter-spacing: 0.15em;
-                                                              /* padding: 6px 14px; */
-                                                              height: fit-content;
-                                                              background-color: #002a4d;
+/* BUTTONS */
+.btn{
+  font: bold !important;
+  letter-spacing: 0.15em;
+  /* padding: 6px 14px; */
+  height: fit-content;
+  background-color: #002a4d;
 
-                                                              cursor: pointer;
-                                                              color: #FFC107;
-                                                            }
-                                                            .headerButtons{
-                                                              display: flex;
-                                                              justify-content: end;
-                                                              gap: 15px;
-                                                            }
-                                                            .shift-tenant{
-                                                                  height: fit-content;
-                                                                  padding: 2px 8px;
-                                                                  font-size: 12px;
-                                                                  /* background-color: transparent; */
-                                                                  /* color: green; */
-                                                                  border: 1px solid #002a4d;
-                                                            }
-                                                            .vacate-tenant{
-                                                                  height: fit-content;
-                                                                  padding: 2px 8px;
-                                                                  font-size: 12px;
-                                                                  background-color: #e74c3c;
-                                                                  color: white;
-                                                            }
-                                                            .btn:hover {
-                                                              background-color: #002a4d; /* Slightly lighter blue */
-                                                              transform: scale(1.05); /* Slightly enlarge */
-                                                              color: #FFC107;
-                                                            }
-                                                            .edit-btn.personal-info{
-                                                              height: fit-content;
-                                                                  padding: 2px 6px;
-                                                                  font-size: 12px;
-                                                                  border: 1px solid #002a4d;
-                                                            }
-                                                            .edit-btn:hover{
-                                                              background-color: #002a4d; /* Slightly lighter blue */
-                                                              transform: scale(1.05); /* Slightly enlarge */
-                                                              color: #FFC107;
-                                                            }
-                                                            .btn.view.id{
-                                                              padding: 0px 3px;
-                                                              font-size: 12px;
-                                                              background-color: #00192D;
-                                                              color: #FFC107;
-
-                                                            height: fit-content;
-                                                            }
-                                                            .btn.view.id:hover{
-                                                              background-color: #002a4d; /* Slightly lighter blue */
-                                                              transform: scale(1.05); /* Slightly enlarge */
-                                                              color: #FFC107;
-                                                            }
-                                                            .pdf {
-                                                              border: 1px solid #FFC107;
-                                                              margin-right: 3px;
-                                                            }
-                                                            .excel{
-                                                              border: 1px solid #FFC107;
-                                                            }
-                                                            .pdf:hover{
-                                                              border: 1px solid #002a4d;
-                                                              box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-                                                            }
-                                                            .excel:hover{
-                                                              border: 1px solid #002a4d;
-                                                              box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-                                                            }
-                                                            .reciept{
-                                                              padding: 2px 8px;
-                                                              font-size: 12px;
-                                                              background-color: #00192D;
-                                                              color: #FFC107;
-                                                            /* border: 1px solid #FFC107; */
-                                                            height: fit-content;
-                                                            }
-                                                            .btn.edit{
-                                                              padding: 0px 3px;
-                                                              font-size: 12px;
-                                                              background-color: #00192D;
-                                                              color: #FFC107;
-                                                              /* color: white; */
-                                                            /* border: 1px solid #FFC107; */
-                                                            height: fit-content;
-
-                                                            }
-                                                            .btn.btn-changes{
-                                                                 height: fit-content;
-                                                                  padding: 4px 12px;
-                                                                  font-size: 12px;
-                                                                  /* background-color: transparent; */
-                                                                  /* color: green; */
-                                                                  border: 1px solid #002a4d;
-                                                                  font-weight: 600px;
-                                                            }
-                                                            .btn.btn-shift{
-                                                                 height: fit-content;
-                                                                  padding: 4px 12px;
-                                                                  font-size: 12px;
-                                                                  /* background-color: transparent; */
-                                                                  /* color: green; */
-                                                                  border: 1px solid #002a4d;
-                                                                  font-weight: 600px;
-                                                            }
-                                                            /* SUMMARY SECTION */
-
-.col-md-3 .icon-category-number {
-background-color: white;
-padding-left: 2px;
-/* border-left:5px solid #F28B88; */
- box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
- border-radius: 5px;
- overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.icon-category-number .icon{
+  cursor: pointer;
   color: #FFC107;
 }
-.yoyo{
-  font-weight: 600;
-  font-size: 16px;
-  color: #767676;
-}
-.icon-category-number .rent-type{
-  font-weight: 600;
-  font-size: 16px;
-  color: #767676;
-  border-radius: 5px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-
-}
-.icon-category-number .number{
-  font-weight: 600;
-  font-size: 16px;
-  color: rgb(41, 41, 41);
-  /* color: #FFB000; */
-}
-
-.rent-type-duration-stayed{
+.headerButtons{
   display: flex;
-  gap: 3px;
+  justify-content: end;
+  gap: 15px;
 }
+.shift-tenant{
+      height: fit-content;
+      padding: 2px 8px;
+      font-size: 12px;
+      /* background-color: transparent; */
+      /* color: green; */
+      border: 1px solid #002a4d;
+}
+.vacate-tenant{
+      height: fit-content;
+      padding: 2px 8px;
+      font-size: 12px;
+      background-color: #e74c3c;
+      color: white;
+}
+.btn:hover {
+  background-color: #002a4d; /* Slightly lighter blue */
+  transform: scale(1.05); /* Slightly enlarge */
+  color: #FFC107;
+}
+.edit-btn.personal-info{
+  height: fit-content;
+      padding: 2px 6px;
+      font-size: 12px;
+      border: 1px solid #002a4d;
+}
+.edit-btn:hover{
+  background-color: #002a4d; /* Slightly lighter blue */
+  transform: scale(1.05); /* Slightly enlarge */
+  color: #FFC107;
+}
+.btn.view.id{
+  padding: 0px 3px;
+  font-size: 12px;
+  background-color: #00192D;
+  color: #FFC107;
+
+height: fit-content;
+}
+.btn.view.id:hover{
+  background-color: #002a4d; /* Slightly lighter blue */
+  transform: scale(1.05); /* Slightly enlarge */
+  color: #FFC107;
+}
+.pdf {
+  border: 1px solid #FFC107;
+  margin-right: 3px;
+}
+.excel{
+  border: 1px solid #FFC107;
+}
+.pdf:hover{
+  border: 1px solid #002a4d;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.excel:hover{
+  border: 1px solid #002a4d;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+.reciept{
+  padding: 2px 8px;
+  font-size: 12px;
+  background-color: #00192D;
+  color: #FFC107;
+/* border: 1px solid #FFC107; */
+height: fit-content;
+}
+.btn.edit{
+  padding: 0px 3px;
+  font-size: 12px;
+  background-color: #00192D;
+  color: #FFC107;
+  /* color: white; */
+/* border: 1px solid #FFC107; */
+height: fit-content;
+
+}
+.btn.btn-changes{
+      height: fit-content;
+      padding: 4px 12px;
+      font-size: 12px;
+      /* background-color: transparent; */
+      /* color: green; */
+      border: 1px solid #002a4d;
+      font-weight: 600px;
+}
+.btn.btn-shift{
+      height: fit-content;
+      padding: 4px 12px;
+      font-size: 12px;
+      /* background-color: transparent; */
+      /* color: green; */
+      border: 1px solid #002a4d;
+      font-weight: 600px;
+}
+/* SUMMARY SECTION */
 
 .duration-stayed{
   font-weight: 400px;
@@ -216,10 +176,6 @@ padding-left: 2px;
   text-overflow: ellipsis;
 
 }
-.rent-type-date-paid {
-  display: flex;
-  gap: 4px;
-}
 .date-paid
 {
   font-weight: 500px;
@@ -233,55 +189,84 @@ padding: 0px 4px;
 height: fit-content;
 margin-top: 2px;
 }
-                                    /*PERSONAL INFO  */
 
-                                              .personal-info-icon{
-                                                color: #FFC107;
-                                              }
-                                              .personal-item{
-                                                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-                                                overflow: hidden;
-                                                border-radius: 5px;
-                                                white-space: nowrap;
+/*PERSONAL INFO  */
 
-                                              }
-                                              .personal-info.item-name{
-                                                /* color: rgb(41, 41, 41); */
-                                                color: #767676;
-                                                font-weight: 600;
-                                                font-size: 14px;
-                                                white-space: nowrap;
-                                              }
+    .personal-info-icon{
+      color: #FFC107;
+    }
+    .personal-info.item-name{
+      /* color: rgb(41, 41, 41); */
+      color: #767676;
+      font-weight: 600;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+  .personal-info-card-value.email{color: #0072C6;
+  }
 
-                                            .personal-info-icon.email{
-                                              color: #0072C6;
-                                              overflow: hidden;
-                                            }
+  .personal-info-card-value.email:hover{
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .personal-info-card-value.phone{
+    color: #0072C6;
+    font-size: 14px;
+  }
+  .personal-info-card-value.phone:hover{
+    text-decoration: underline;
+    cursor: pointer;
+  }
+.personal-info-card {
+  position: relative;
+  overflow: hidden; /* Prevent content from spilling out */
+  max-width: 100%;  /* Ensure it doesn’t expand beyond its column */
+  height: fit-content !important;
+  padding: 5px !important;
+}
+.icon {
+  color: #FFC107;
+}
+.personal-info-card-label{
+   font-weight: 600;
+  font-size: 16px;
+  color: #767676;
+  border-radius: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.personal-info-card-value{
+    display: inline-block;
+  max-width: 150px;     /* Adjust to your needs */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-                                            .email:hover{
-                                              text-decoration: underline;
-                                              cursor: pointer;
-                                            }
-                                            .phone{
-                                              color: #0072C6;
-                                              font-size: 14px;
-                                            }
-                                            .phone:hover{
-                                              text-decoration: underline;
-                                              cursor: pointer;
-                                            }
-                                            .labal-value .value{
-                                              color: #0072C6;
-                                              font-size: 14px;
-                                            }
-                                            .labal-value .value:hover{
-                                              text-decoration: underline;
-                                              cursor: pointer;
-                                            }
-
-
-
-                                            /* RENT DETAILS */
+/* Income info */
+.income-info-card {
+  position: relative;
+  overflow: hidden; /* Prevent content from spilling out */
+  max-width: 100%;  /* Ensure it doesn’t expand beyond its column */
+  height: fit-content !important;
+  padding: 5px !important;
+}
+.income-info-card-label{
+   font-weight: 600;
+  font-size: 16px;
+  color: #767676;
+  border-radius: 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.income-info-card-value{
+    display: inline-block;
+  max-width: 150px;     /* Adjust to your needs */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* RENT DETAILS */
   .contact_section_header.details{
     border-bottom: 1px solid rgba(128, 128, 128, 0.5);
     font-weight: 600;
@@ -289,12 +274,24 @@ margin-top: 2px;
     /* color: #00192D; */
 
   }
-.summary.title{
+
+.rent-summary-card{
+   position: relative;
+  overflow: hidden; /* Prevent content from spilling out */
+  max-width: 100%;  /* Ensure it doesn’t expand beyond its column */
+  height: fit-content !important;
+  padding: 5px !important;
+}
+.rent-summary-title{
   color: #767676;
     font-weight: 600;
     font-size: 14px;
-
 }
+  .detail-card-label{
+    color: #767676;
+    font-weight: 600;
+    font-size: 16px;
+  }
 .details.title{
   color: #767676;
     font-weight: 600;
@@ -306,7 +303,31 @@ margin-top: 2px;
   font-size: 14px;
   text-transform: uppercase;
 }
-
+.detail-card-date{
+   font-weight: 500px;
+  font-size: 14px;
+  color: green;
+  background-color: rgba(128,128,128,0.2);
+  padding-bottom: 0px;
+  border-radius: 10px;
+vertical-align: middle;
+padding: 0px 4px;
+height: fit-content;
+margin-top: 2px;
+}
+.detail-card-months{
+ font-weight: 400px;
+  font-size: 14px;
+  color: green;
+  background-color: rgba(128,128,128,0.2);
+  padding:0px 4px;
+  border-radius: 10px;
+  margin-top: 2px;
+  height: fit-content;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
                                           /* SELECT, INPUT, TEXT_AREA */
                                                         input, textarea {
                                                         width: 100%;
