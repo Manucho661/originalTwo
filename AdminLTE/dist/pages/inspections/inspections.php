@@ -316,7 +316,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
               </div>
 
               <div class="col-sm-4 d-flex justify-content-end">
-                <button type="button" class="btn newSchedule" data-bs-toggle="modal" data-bs-target="#newSchedule">
+                <button type="button" class="btn newSchedule" data-bs-toggle="modal" data-bs-target="#newSchedule" style="background-color:#FFC107 !important; color:#00192D;">
                   New Schedule
                 </button>
             </div>
@@ -608,7 +608,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                                                       <div class="card shadow p-3" style="border: 1px solid rgb(0,25,45,.2);">
                                                           <i class="fa fa-wrench" style="font-size:30px;"></i>
                                                           <div class="icheck-dark d-inline">
-                                                              <input type="radio" name="door_condition" id="doorBad" value="Good">
+                                                              <input type="radio" name="door_condition" id="doorBad" value="Needs Repair">
                                                               <label for="doorBad"> Needs Repair</label>
                                                           </div>
                                                       </div>
@@ -619,7 +619,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                                                   <div class="card-body">
                                                       <div class="form-group">
                                                           <label for="">Describe the Damage</label>
-                                                          <textarea name="door_baddesc" class="form-control"></textarea>
+                                                          <textarea name="door_state" class="form-control"></textarea>
                                                       </div>
                                                       <div class="form-group">
                                                           <label for="">Attach Photo</label>
@@ -659,7 +659,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                                                   <div class="card-body">
                                                       <div class="form-group">
                                                           <label for="">Describe the Repair Needed</label>
-                                                          <textarea name="wall_faulty" id="" cols="30" class="form-control"></textarea>
+                                                          <textarea name="wall_state" id="" cols="30" class="form-control"></textarea>
                                                       </div>
                                                       <div class="form-group">
                                                           <label for="">Attach Photo</label>
@@ -701,7 +701,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                                                   <div class="card-body">
                                                       <div class="form-group">
                                                           <label for="">Describe the Fault</label>
-                                                          <textarea name="bulb_holder_desc" id="bulb_holder_desc" class="form-control"></textarea>
+                                                          <textarea name="bulb_holder_state" id="bulb_holder_desc" class="form-control"></textarea>
                                                       </div>
                                                       <div class="form-group">
                                                           <label for="">Attach Photo</label>
@@ -741,7 +741,7 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
                                                   <div class="card-body">
                                                       <div class="form-group">
                                                           <label>Describe the Fault</label>
-                                                          <textarea name="fault_socket_description" id="fault_socket_description" class="form-control"></textarea>
+                                                          <textarea name="socket_state" id="fault_socket_description" class="form-control"></textarea>
                                                       </div>
                                                       <div class="form-group">
                                                           <label>Attach Photos</label>
@@ -769,14 +769,14 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
       <!-- Inspection(inspected) Modal -->
       <div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
-          <div class="modal-content rounded-3 shadow-lg">
-            <div class="modal-header">
-              <h5 class="modal-title" id="inspectionModalLabel">🏠 Inspection Details - <strong>Unit A12</strong></h5>
+          <div class="modal-content rounded-2 shadow-lg">
+            <div class="modal-header" style="background-color: #00192D !important; padding:5px !important;">
+              <h5 class="modal-title" style="color:#FFA000 !important; margin-left:5px;" id="inspectionModalLabel"> Inspection Details - Unit A12</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="modal-body p-4">
-              <table class="table inspection-table table-bordered table-hover">
+            <div class="modal-body p-2">
+              <table class="table inspection-table table-striped rounded-2">
                 <thead class="table-light">
                   <tr>
                     <th>Item</th>
@@ -834,9 +834,9 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
               </table>
             </div>
 
-            <div class="modal-footer d-flex justify-content-between">
+            <div class="modal-footer d-flex justify-content-between p-2">
               <small class="text-muted">📅 Inspection Date: <strong>2025-05-26</strong></small>
-              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" style="background-color:#FFC107 !important; color:#00192D;" class="btn btn-outline" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
         </div>

@@ -409,8 +409,86 @@
                   </tbody>
                 </table> 
               </div>
+               <!-- Record Payment Modal -->
+              <div class="modal fade" id="recordPaymentModal" tabindex="-1" aria-labelledby="recordPaymentModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                  <div class="modal-content rounded-4 shadow-sm">
+                    <div class="modal-header bg-primary text-white rounded-top">
+                      <h5 class="modal-title" id="recordPaymentModalLabel">
+                        <i class="fas fa-money-check-alt me-2"></i> Record Payment
+                      </h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <form id="recordPaymentForm">
+                      <div class="modal-body">
+                        <div class="row g-3">
 
-              <!-- Pay Modal -->
+                          <!-- Amount Paid -->
+                          <div class="col-md-6 form-floating">
+                            <input type="number" class="form-control" id="amountPaid" placeholder="Amount Paid" required>
+                            <label for="amountPaid"><i class="fas fa-coins me-2 text-primary"></i>Amount Paid</label>
+                          </div>
+
+                          <!-- Payment Method -->
+                          <div class="col-md-6 form-floating">
+                            <select class="form-select" id="paymentMethod" required>
+                              <option value="" selected disabled>Select Method</option>
+                              <option>Cash</option>
+                              <option>M-Pesa</option>
+                              <option>Bank Transfer</option>
+                              <option>Cheque</option>
+                            </select>
+                            <label for="paymentMethod"><i class="fas fa-wallet me-2 text-primary"></i>Payment Method</label>
+                          </div>
+
+                          <!-- Date Paid -->
+                          <div class="col-md-6 form-floating">
+                            <input type="date" class="form-control" id="datePaid" placeholder="Date Paid" required>
+                            <label for="datePaid"><i class="fas fa-calendar-day me-2 text-primary"></i>Date Paid</label>
+                          </div>
+
+                          <!-- Service Provider -->
+                          <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" id="serviceProvider" placeholder="Service Provider" required>
+                            <label for="serviceProvider"><i class="fas fa-user-tie me-2 text-primary"></i>Service Provider</label>
+                          </div>
+
+                          <!-- Cheque Number -->
+                          <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" id="chequeNumber" placeholder="Cheque Number">
+                            <label for="chequeNumber"><i class="fas fa-receipt me-2 text-primary"></i>Cheque Number</label>
+                          </div>
+
+                          <!-- Invoice Number -->
+                          <div class="col-md-6 form-floating">
+                            <input type="text" class="form-control" id="invoiceNumber" placeholder="Invoice Number">
+                            <label for="invoiceNumber"><i class="fas fa-file-invoice me-2 text-primary"></i>Invoice Number</label>
+                          </div>
+
+                          <!-- Notes -->
+                          <div class="col-12 form-floating">
+                            <textarea class="form-control" id="paymentNotes" placeholder="Notes" style="height: 100px;"></textarea>
+                            <label for="paymentNotes"><i class="fas fa-comment-dots me-2 text-primary"></i>Payment Notes</label>
+                          </div>
+
+                          <!-- Upload Receipt (Optional) -->
+                          <div class="col-12">
+                            <label for="uploadReceipt" class="form-label text-primary fw-bold"><i class="fas fa-upload me-2"></i>Upload Receipt (optional)</label>
+                            <input class="form-control" type="file" id="uploadReceipt" accept="image/*,application/pdf">
+                          </div>
+
+                        </div>
+                      </div>
+                      
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Payment</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
             </div>
             <!--end::Row-->
           </div>

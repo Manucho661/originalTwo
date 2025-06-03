@@ -1,4 +1,4 @@
-// fetch scheduled schedules.
+// fetch maintanence records.
 fetch('actions/fetch_records.php', { cache: 'no-store' })
 .then(response => response.text()) // read as plain text
 .then(rawText => {
@@ -19,7 +19,8 @@ fetch('actions/fetch_records.php', { cache: 'no-store' })
 .catch(error => {
   console.error("❌ Network error:", error.message);
 });
-maintenanceRequests();
+
+// populate maintenanceRequests Table
 function populateRequestsTable(requests) {
   const tableBody = document.getElementById("maintenanceRequestsTableBody");
   tableBody.innerHTML = ""; // Clear any existing rows
@@ -121,7 +122,7 @@ function populateRequestsTable(requests) {
         </button>
       </div>
       <div>
-        <button class="btn btn-sm view-btn"
+        <button class="btn btn-sm pay-btn"
           style="background-color: #193042; margin-left:10px; color:#fff;"
           title="View"
           data-id="${requests.id}"
@@ -143,36 +144,24 @@ function populateRequestsTable(requests) {
    // Add the event listener here AFTER the row is in memory
      const tempDiv = document.createElement('div');
      tempDiv.appendChild(row);
-      const payBtn = tempDiv.querySelector('.pay_btn');
+      const payBtn = tempDiv.querySelector('.pay-btn');
       payBtn.addEventListener('click', (e) => {
       const btn = e.currentTarget;
-      const buildingName = btn.getAttribute('data-building-name');
-       const unit = btn.getAttribute('data-unit');
-       const requestId = btn.getAttribute('data-request-id');
+      // const buildingName = btn.getAttribute('data-building-name');
+      //  const unit = btn.getAttribute('data-unit');
+      //  const requestId = btn.getAttribute('data-request-id');
 
-      document.getElementById('modal_building_name').textContent = buildingName;
-      document.getElementById('modal_unit').textContent = unit;
-      document.getElementById('modal_inspection_id').value = inspectionId;
-
-      const pay_mdl = document.getElementById('pay_modal');
-      pay.style.display =  "block";
+      // document.getElementById('modal_building_name').textContent = buildingName;
+      // document.getElementById('modal_unit').textContent = unit;
+      // document.getElementById('modal_inspection_id').value = inspectionId;
+      const modal = new bootstrap.Modal(document.getElementById('recordPaymentModal'));
+      modal.show();
       });
-
-//    const viewBtn = tempDiv.querySelector('.view-btn');
-//    viewBtn.addEventListener('click', () => {
-//     const inspectionId = viewBtn.getAttribute('data-id');
-
-//     // Get the status text from the row
-//     const statusSpan = tempDiv.querySelector('td span');
-//     const statusText = statusSpan?.textContent?.trim().toLowerCase();
-
-//     const status = viewBtn.getAttribute('data-status');
-//     if (status === 'completed') {
-//       viewDetails(inspectionId);
-//     } else {
-//       alert('You can only view details for completed inspections.');
-//     }
-//   });
     tableBody.appendChild(tempDiv.firstChild); // append the full row
   });
 }
+
+// Add a payment
+document.addEventListener("DOMContentLoaded", function() {
+      fetch(`actions/tenant_profile/fetch_records.php?user_id=${user_id}`)
+});

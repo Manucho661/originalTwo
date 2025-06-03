@@ -249,7 +249,7 @@ tr td:first-child {
  thead {
     color: white;
     font-size: 16px !important;
-    border-top:2px solid #4f4f52 !important;
+   
   }
   tbody tr:nth-child(even) {
     background-color: #ecf0f1;
@@ -504,6 +504,17 @@ border-bottom-left-radius: 5px;
     .inspection-table tr:hover {
       background-color: #f8f9fa;
     }
+/* view inspection table */
+.Good{
+  color: #4CAF50;
+}
+.Needs.Repair{
+  color: #F87171;
+}
+
+
+
+
 
     .modal-footer {
       background-color: #f8f9fa;
