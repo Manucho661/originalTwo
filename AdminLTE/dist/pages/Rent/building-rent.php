@@ -1,3 +1,39 @@
+<?php
+require_once '../db/connect.php'; // This must define $pdo (not $conn)
+require_once '../includes/functions.php';
+
+$building_id = isset($_GET['building_id']) ? (int)$_GET['building_id'] : null;
+$month = isset($_GET['month']) ? $_GET['month'] : null;
+$year = isset($_GET['year']) ? (int)$_GET['year'] : null;
+
+$building_name = "Selected Building";
+if ($building_id) {
+    $stmt = $conn->prepare("SELECT name FROM buildings WHERE id = ?");
+    $stmt->bind_param("i", $building_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $building_name = $row['name'];
+    }
+    $stmt->close();
+}
+
+// Fetch detailed rent entries for this specific building, month, and year
+$building_rent_details = [];
+if ($building_id && $month && $year) {
+    $stmt = $conn->prepare("SELECT * FROM rent_entries WHERE building_id = ? AND month = ? AND year = ?");
+    $stmt->bind_param("isi", $building_id, $month, $year);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $building_rent_details = $row;
+    }
+    $stmt->close();
+}
+
+?>
+
+
 <!doctype html>
 <html lang="en">
   <!--begin::Head-->
