@@ -278,7 +278,7 @@ fetch(`actions/fetch_records.php?table=inspection_items&inspection_id=${inspecti
     // Example columns: item name, status, comments
     row.innerHTML = `
       <td>${item.category || '—'}</td>
-      <td>${item.status || '—'}</td>
+      <td> <div class="${item.status || '—'}"> ${item.status || '—'}</div>  </td>
       <td>${item.description || '—'}</td>
       <td>${item.photos || '—'}</td>
     `;

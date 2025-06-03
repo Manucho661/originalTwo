@@ -4,6 +4,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+
+
 require_once '../../db/connect.php';
 
 /**
@@ -22,6 +24,7 @@ function processInspectionItems(PDO $pdo, int $inspectionId, array $items): void
 
         if (!isset($_POST[$statusKey])) {
             throw new Exception("Missing required field: {$statusKey}");
+            exit;
         }
 
         $status = trim($_POST[$statusKey]);
@@ -32,6 +35,9 @@ function processInspectionItems(PDO $pdo, int $inspectionId, array $items): void
             INSERT INTO inspection_items (inspection_id, category, status, description)
             VALUES (:inspection_id, :category, :status, :description)
         ");
+
+        error_log("Inserting: $item | Status: $status | Description: $description");
+
         $stmt->execute([
             'inspection_id' => $inspectionId,
             'category'      => ucfirst($item),
