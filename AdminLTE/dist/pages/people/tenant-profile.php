@@ -558,13 +558,14 @@ try {
                               </div>
                             </div>
                           </div>
-
-                          <div class="col-md-3">
-                                <div class="personal-item-edit d-flex justify-content-between">
-                                <!-- <i class="fas fa-calculator"></i> -->
-                               <button class="btn  btn-sm edit-btn income-info rounded" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal"><i class="fas fa-edit icon"></i> Edit</button>
-                              </div>
-                      </div>
+                        </div>
+                        <div class="col-md-3">
+                              <div class="income-info-card shadow-sm bg-white p-3 rounded d-flex align-items-center justify-content-center">
+                              <!-- <i class="fas fa-calculator"></i> -->
+                              <button class="btn  btn-sm edit-btn income-info rounded" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal"><i class="fas fa-edit icon"></i> Edit</button>
+                            </div>
+                        </div>
+                      
                   </div>
                 </div>
               </div>
