@@ -14,7 +14,7 @@ $user_id = intval($_GET['id']);
 
 try {
   // ✅ Must be a string
-  $sql = "SELECT
+  $sql = "SELECT 
           tenants.id AS tenant_id,
           tenants.status,
           tenants.phone_number,
@@ -24,7 +24,7 @@ try {
           tenants.job_title,
           users.id AS user_id,
           users.email
-        FROM tenants
+        FROM tenants 
         INNER JOIN users ON tenants.user_id = users.id
         WHERE users.id = ?";
 
@@ -36,7 +36,7 @@ try {
   $stmt->execute([$user_id]);
 
   $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
+  
   if (!$data) {
     echo json_encode(['success' => false, 'message' => 'No matching tenant found']);
   } else {
@@ -466,10 +466,10 @@ try {
 
                                                    <!--PERSONAL INFO  -->
                 <!-- start row -->
-                <div class="row mt-2 personal-info">
-                  <h6 class="mb-0 contact_section_header mb-2"> </i> Personal Info</h6>
-                  <div class="col-md-12">
+                
+                  
                     <div class="row g-3">
+                      <h6 class="mb-0 contact_section_header mb-2"> </i> Personal Info</h6>
                       <!-- Email Card -->
                       <div class="col-md-3">
                         <div class="personal-info-card shadow-sm bg-white p-3 rounded">
@@ -519,13 +519,14 @@ try {
                       </div>
                     </div>
 
-                  </div>
-                    <div class="col-md-12 mt-2">
-                        <h6 class=" contact_section_header details mb-2 mt-2"> </i> Income Info</h6>
+                
+                    
+                        
                      <div class="row g-3">
+                      <h6 class=" contact_section_header details mb-2 mt-2"> </i> Income Info</h6>
                         <!-- Income Type -->
                         <div class="col-md-3">
-                          <div class="income-info-card shadow-sm bg-white p-3 rounded">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
                             <div class="d-flex align-items-center gap-2">
                               <i class="fas fa-briefcase icon"></i>
                               <div>
@@ -537,7 +538,7 @@ try {
                         </div>
                         <!-- Employer -->
                         <div class="col-md-3">
-                          <div class="income-info-card shadow-sm bg-white p-3 rounded">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
                             <div class="d-flex align-items-center gap-2">
                               <i class="fas fa-globe icon"></i>
                               <div>
@@ -549,7 +550,7 @@ try {
                         </div>
                         <!-- Job Title -->
                         <div class="col-md-3">
-                          <div class="income-info-card shadow-sm bg-white p-3 rounded">
+                          <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
                             <div class="d-flex align-items-center gap-2">
                               <i class="fas fa-id-card icon"></i>
                               <div>
@@ -566,13 +567,13 @@ try {
                             </div>
                         </div>
                       
-                  </div>
-                </div>
+                
+              
               </div>
 
 <!-- Edit Income Info Modal -->
 <div class="modal fade" id="editIncomeInfoModal" tabindex="-1" aria-labelledby="editIncomeInfoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered modal-m">
     <div class="modal-content shadow-lg rounded-4 border-0">
       <form id="editIncomeInfoForm" class="edit-income-info-modal" autocomplete="off" onsubmit="submitEditIncomeInfo (event)">
         <!--your form inputs...-->
@@ -580,6 +581,7 @@ try {
         
 
         <input type="hidden" id="user_id" name="user_id" value="<?=htmlspecialchars($_GET['id'] ?? '') ?>">
+
       
         <!-- Modal Header -->
         <div class="modal-header py-3 px-4" style="background-color: #00192D; color: #FFC107;">
@@ -595,21 +597,21 @@ try {
           <!-- Income Source -->
           <div class="form-floating mb-4">
             <input type="text" class="form-control shadow-sm" id="editIncomeSource" placeholder="Income Source" 
-                   value="<?= htmlspecialchars($data['income_source'] ?? '') ?>" name="income_source" required>
+                   value="" name="income_source" required>
             <label for="editIncomeSource"><i class="fas fa-briefcase me-1 text-muted"></i> Income Source</label>
           </div>
 
           <!-- Employer -->
           <div class="form-floating mb-4">
             <input type="text" class="form-control shadow-sm" id="editEmployer" placeholder="Employer" 
-                   value="<?= htmlspecialchars($data['work_place'] ?? '') ?>" name="employer" required>
+                   value="" name="employer" required>
             <label for="editEmployer"><i class="fas fa-building me-1 text-muted"></i> Employer</label>
           </div>
 
           <!-- Job Title -->
           <div class="form-floating mb-4">
             <input type="text" class="form-control shadow-sm" id="editJobTitle" placeholder="Job Title" 
-                   value="<?= htmlspecialchars($data['job_title'] ?? '') ?>" name="job_title" required>
+                   value="" name="job_title" required>
             <label for="editJobTitle"><i class="fas fa-user-tie me-1 text-muted"></i> Job Title</label>
           </div>
         </div>
