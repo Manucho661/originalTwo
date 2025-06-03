@@ -463,11 +463,8 @@ try {
                       </div>
                 </div>
                 <!-- End first Row -->
-
-                                                   <!--PERSONAL INFO  -->
-                <!-- start row -->
-                
-                  
+                    <!--PERSONAL INFO  -->
+                    <!-- start row -->
                     <div class="row g-3">
                       <h6 class="mb-0 contact_section_header mb-2"> </i> Personal Info</h6>
                       <!-- Email Card -->
@@ -518,118 +515,112 @@ try {
                         </div>
                       </div>
                     </div>
-
-                
-                    
-                        
-                     <div class="row g-3">
-                      <h6 class=" contact_section_header details mb-2 mt-2"> </i> Income Info</h6>
-                        <!-- Income Type -->
-                        <div class="col-md-3">
-                          <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
-                            <div class="d-flex align-items-center gap-2">
-                              <i class="fas fa-briefcase icon"></i>
-                              <div>
-                                <div class="income-info-card-label text-muted small">Income Type</div>
-                                <b id="income_source" class="info-card-value"></b>
-                              </div>
+                    <div class="row g-3 align-items-stretch">
+                    <h6 class="contact_section_header details">Income Info</h6>
+                      <!-- Income Type -->
+                      <div class="col-md-3">
+                        <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-briefcase icon"></i>
+                            <div>
+                              <div class="income-info-card-label text-muted small">Income Type</div>
+                              <b id="income_source" class="info-card-value"></b>
                             </div>
                           </div>
                         </div>
-                        <!-- Employer -->
-                        <div class="col-md-3">
-                          <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
-                            <div class="d-flex align-items-center gap-2">
-                              <i class="fas fa-globe icon"></i>
-                              <div>
-                                <div class="income-info-card-label text-muted small">Employer</div>
-                                <b id="work_place" class="info-card-value"></b>
-                              </div>
+                      </div>
+                      <!-- Employer -->
+                      <div class="col-md-3">
+                        <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-globe icon"></i>
+                            <div>
+                              <div class="income-info-card-label text-muted small">Employer</div>
+                              <b id="work_place" class="info-card-value"></b>
                             </div>
                           </div>
                         </div>
-                        <!-- Job Title -->
-                        <div class="col-md-3">
-                          <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
-                            <div class="d-flex align-items-center gap-2">
-                              <i class="fas fa-id-card icon"></i>
-                              <div>
-                                <div class="income-info-card-label text-muted small">Job Title</div>
-                                <b id="job_title" class="info-card-value"></b>
-                              </div>
+                      </div>
+                      <!-- Job Title -->
+                      <div class="col-md-3">
+                        <div class="income-info-card shadow-sm bg-white p-3 rounded h-100">
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-id-card icon"></i>
+                            <div>
+                              <div class="income-info-card-label text-muted small">Job Title</div>
+                              <b id="job_title" class="info-card-value"></b>
                             </div>
                           </div>
                         </div>
-                        <div class="col-md-3">
-                              <div class="income-info-card shadow-sm bg-white p-3 rounded d-flex align-items-center justify-content-center">
-                              <!-- <i class="fas fa-calculator"></i> -->
-                              <button class="btn  btn-sm edit-btn income-info rounded" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal"><i class="fas fa-edit icon"></i> Edit</button>
-                            </div>
+                      </div>
+                      <!-- Edit Button -->
+                      <div class="col-md-3">
+                        <div class="income-info-card shadow-sm bg-white p-3 rounded h-100 d-flex align-items-center justify-content-center">
+                          <button class="btn btn-sm edit-btn income-info rounded" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal">
+                            <i class="fas fa-edit icon"></i> Edit
+                          </button>
                         </div>
-                      
-                
-              
-              </div>
+                      </div>
+                    </div>
+                    <!-- Edit Income Info Modal -->
+                    <div class="modal fade" id="editIncomeInfoModal" tabindex="-1" aria-labelledby="editIncomeInfoLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-m">
+                        <div class="modal-content shadow-lg rounded-4 border-0">
+                          <form id="editIncomeInfoForm" class="edit-income-info-modal" autocomplete="off" onsubmit="submitEditIncomeInfo (event)">
+                            <!--your form inputs...-->
+                            <input type="hidden" id="tenant_id" name="tenant_id" value="<?=htmlspecialchars($_GET['tenant_id'] ?? '') ?>"/>
+                            
 
-<!-- Edit Income Info Modal -->
-<div class="modal fade" id="editIncomeInfoModal" tabindex="-1" aria-labelledby="editIncomeInfoLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-m">
-    <div class="modal-content shadow-lg rounded-4 border-0">
-      <form id="editIncomeInfoForm" class="edit-income-info-modal" autocomplete="off" onsubmit="submitEditIncomeInfo (event)">
-        <!--your form inputs...-->
-        <input type="hidden" id="tenant_id" name="tenant_id" value="<?=htmlspecialchars($_GET['tenant_id'] ?? '') ?>"/>
-        
+                            <input type="hidden" id="user_id" name="user_id" value="<?=htmlspecialchars($_GET['id'] ?? '') ?>">
 
-        <input type="hidden" id="user_id" name="user_id" value="<?=htmlspecialchars($_GET['id'] ?? '') ?>">
+                          
+                            <!-- Modal Header -->
+                            <div class="modal-header py-3 px-4" style="background-color: #00192D; color: #FFC107;">
+                              <h5 class="modal-title" id="editIncomeInfoLabel">
+                                <i class="fas fa-edit me-2"></i> Edit Income Information
+                              </h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
 
-      
-        <!-- Modal Header -->
-        <div class="modal-header py-3 px-4" style="background-color: #00192D; color: #FFC107;">
-          <h5 class="modal-title" id="editIncomeInfoLabel">
-            <i class="fas fa-edit me-2"></i> Edit Income Information
-          </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+                            <!-- Modal Body -->
+                            <div class="modal-body px-4 py-4 bg-light">
 
-        <!-- Modal Body -->
-        <div class="modal-body px-4 py-4 bg-light">
+                              <!-- Income Source -->
+                              <div class="form-floating mb-4">
+                                <input type="text" class="form-control shadow-sm" id="editIncomeSource" placeholder="Income Source" 
+                                      value="" name="income_source" required>
+                                <label for="editIncomeSource"><i class="fas fa-briefcase me-1 text-muted"></i> Income Source</label>
+                              </div>
 
-          <!-- Income Source -->
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control shadow-sm" id="editIncomeSource" placeholder="Income Source" 
-                   value="" name="income_source" required>
-            <label for="editIncomeSource"><i class="fas fa-briefcase me-1 text-muted"></i> Income Source</label>
-          </div>
+                              <!-- Employer -->
+                              <div class="form-floating mb-4">
+                                <input type="text" class="form-control shadow-sm" id="editEmployer" placeholder="Employer" 
+                                      value="" name="employer" required>
+                                <label for="editEmployer"><i class="fas fa-building me-1 text-muted"></i> Employer</label>
+                              </div>
 
-          <!-- Employer -->
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control shadow-sm" id="editEmployer" placeholder="Employer" 
-                   value="" name="employer" required>
-            <label for="editEmployer"><i class="fas fa-building me-1 text-muted"></i> Employer</label>
-          </div>
+                              <!-- Job Title -->
+                              <div class="form-floating mb-4">
+                                <input type="text" class="form-control shadow-sm" id="editJobTitle" placeholder="Job Title" 
+                                      value="" name="job_title" required>
+                                <label for="editJobTitle"><i class="fas fa-user-tie me-1 text-muted"></i> Job Title</label>
+                              </div>
+                            </div>
 
-          <!-- Job Title -->
-          <div class="form-floating mb-4">
-            <input type="text" class="form-control shadow-sm" id="editJobTitle" placeholder="Job Title" 
-                   value="" name="job_title" required>
-            <label for="editJobTitle"><i class="fas fa-user-tie me-1 text-muted"></i> Job Title</label>
-          </div>
-        </div>
+                            <!-- Modal Footer -->
+                            <div class="modal-footer px-4 pb-4 pt-3">
+                              <button type="submit" class="btn btn-sm " style="background-color: #00192D; color: #FFC107;">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                              </button>
+                              <button type="button" class="btn btn-sm" data-bs-dismiss="modal" style="background-color: #00192D; color: #FFC107;">
+                                <i class="fas fa-times me-1"></i> Cancel
+                              </button>
+                            </div>
 
-        <!-- Modal Footer -->
-        <div class="modal-footer px-4 pb-4 pt-3">
-          <button type="submit" class="btn btn-sm " style="background-color: #00192D; color: #FFC107;">
-            <i class="fas fa-save me-1"></i> Save Changes
-          </button>
-          <button type="button" class="btn btn-sm" data-bs-dismiss="modal" style="background-color: #00192D; color: #FFC107;">
-            <i class="fas fa-times me-1"></i> Cancel
-          </button>
-        </div>
-
-      </form>
-    </div>
-  </div>
-</div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
 
 
 

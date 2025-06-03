@@ -409,6 +409,8 @@
                   </tbody>
                 </table> 
               </div>
+
+              <!-- Pay Modal -->
             </div>
             <!--end::Row-->
           </div>
