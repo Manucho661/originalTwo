@@ -1,105 +1,26 @@
 <?php
-include '../db/connect.php'; // Make sure $pdo is available
+include '../db/connect.php';
 
-// Get filtered data for the table
-$year = $_GET['year'] ?? date('Y');
-$month = $_GET['month'] ?? date('m');
-$building_id = $_GET['building_id'] ?? null;
+// Fetch summary totals for all buildings
+$summaryQuery = $pdo->query("
+    SELECT
+        SUM(amount_collected) AS total_collected,
+        SUM(penalties) AS total_penalties,
+        SUM(arrears) AS total_arrears,
+        SUM(overpayment) AS total_overpayment
+    FROM building_rent_summary
+");
 
-$query = "SELECT * FROM building_rental_summary WHERE year = :year AND month = :month";
-$params = [':year' => $year, ':month' => $month];
+$summary = $summaryQuery->fetch(PDO::FETCH_ASSOC);
 
-if ($building_id) {
-    $query .= " AND building_id = :building_id";
-    $params[':building_id'] = $building_id;
-}
-
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$buildingData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Get summary data
-$summaryQuery = "SELECT * FROM monthly_rental_rollup WHERE year = :year AND month = :month";
-$summaryStmt = $pdo->prepare($summaryQuery);
-$summaryStmt->execute([':year' => $year, ':month' => $month]);
-$summaryData = $summaryStmt->fetch(PDO::FETCH_ASSOC);
-
-// Fetch available years from the database
-$yearsQuery = $pdo->query("SELECT DISTINCT year FROM rental_summary ORDER BY year DESC");
-$availableYears = $yearsQuery->fetchAll(PDO::FETCH_COLUMN);
-
-// Fetch available months from the database (distinct per year)
-$monthsQuery = $pdo->query("SELECT DISTINCT month FROM rental_summary ORDER BY month");
-$availableMonths = $monthsQuery->fetchAll(PDO::FETCH_COLUMN);
-
-// Fetch all buildings
-$buildingsQuery = $pdo->query("SELECT DISTINCT building_name FROM buildings ORDER BY building_name");
-$availableBuildings = $buildingsQuery->fetchAll(PDO::FETCH_COLUMN);
-
-// Get filter values (fallback to defaults if not provided)
-$yearFilter = $_GET['year'] ?? ($availableYears[0] ?? date('Y')); // Default: latest year
-$monthFilter = $_GET['month'] ?? ($availableMonths[0] ?? date('n')); // Default: earliest month
-$buildingFilter = $_GET['building'] ?? ''; // Default: all buildings
-
-// Update summary query with filters - JOIN with buildings table if building_name is needed
-$summaryQuery = "SELECT
-    SUM(r.collected) as total_collected,
-    SUM(r.penalties) as total_penalties,
-    SUM(r.arrears) as total_arrears,
-    SUM(r.overpayment) as total_overpayment
-FROM rental_summary r";
-
-// Add JOIN if we need to filter by building name
-if ($buildingFilter) {
-    $summaryQuery .= " JOIN buildings b ON r.building_id = b.building_id";
-}
-
-$summaryQuery .= " WHERE r.year = :year AND r.month = :month";
-
-if ($buildingFilter) {
-    $summaryQuery .= " AND b.building_name = :building";
-}
-
-$summaryStmt = $pdo->prepare($summaryQuery);
-$summaryStmt->bindParam(':year', $yearFilter);
-$summaryStmt->bindParam(':month', $monthFilter);
-
-if ($buildingFilter) {
-    $summaryStmt->bindParam(':building', $buildingFilter);
-}
-
-$summaryStmt->execute();
-$summaryData = $summaryStmt->fetch(PDO::FETCH_ASSOC);
-
-// Fetch building details with JOIN
-$detailsQuery = "SELECT
-    b.building_name,
-    r.collected,
-    r.penalties,
-    r.arrears,
-    r.overpayment
-FROM building_rental_summary r
-JOIN buildings b ON r.building_id = b.building_id
-WHERE r.year = :year AND r.month = :month";
-
-if ($buildingFilter) {
-    $detailsQuery .= " AND b.building_name = :building";
-}
-
-$detailsQuery .= " ORDER BY b.building_name";
-
-$detailsStmt = $pdo->prepare($detailsQuery);
-$detailsStmt->bindParam(':year', $yearFilter);
-$detailsStmt->bindParam(':month', $monthFilter);
-
-// Only bind building parameter if it's used in the query
-if ($buildingFilter) {
-    $detailsStmt->bindParam(':building', $buildingFilter);
-}
-
-$detailsStmt->execute();
-$buildingData = $detailsStmt->fetchAll(PDO::FETCH_ASSOC);
+// Format values for display
+$totalCollected = number_format($summary['total_collected'], 2);
+$totalPenalties = number_format($summary['total_penalties'], 2);
+$totalArrears = number_format($summary['total_arrears'], 2);
+$totalOverpayment = number_format($summary['total_overpayment'], 2);
 ?>
+
+
 <!doctype html>
 <html lang="en">
   <!--begin::Head-->
@@ -487,8 +408,7 @@ select:hover {
                   <div class="icon"> <i class="fas fa-coins"></i></div>
                   <div>
                     <div class="label">Collected</div>
-                    <div class="value"> $&nbsp;<?= number_format($summaryData['total_collected'] ?? 0, 2) ?></div>
-                    <!-- <div class="value"> $&nbsp;100,000</div> -->
+                    <div class="value">KSH&nbsp;<?php echo $totalCollected; ?></div>
                   </div>
                 </div>
               </div>
@@ -498,8 +418,7 @@ select:hover {
                   <div class="icon"> <i class="fas fa-coins"></i></div>
                   <div>
                     <div class="label">Penalities</div>
-                    <div class="value penalities"> $&nbsp;<?= number_format($summaryData['total_penalties'] ?? 0, 2) ?></div>
-                    <!-- <div class="value penalities"> $&nbsp;1,000</div> -->
+                    <div class="value">KSH&nbsp;<?php echo $totalPenalties; ?></div>
                   </div>
                 </div>
               </div>
@@ -508,7 +427,7 @@ select:hover {
                   <div class="icon"> <i class="fas fa-coins"></i></div>
                   <div>
                     <div class="label">Arreas</div>
-                    <div class="value"> $&nbsp;30,000</div>
+                    <div class="value">KSH&nbsp;<?php echo $totalArrears; ?></div>
                   </div>
                 </div>
               </div>
@@ -518,7 +437,7 @@ select:hover {
                   <div class="icon"> <i class="fas fa-coins"></i></div>
                   <div>
                     <div class="label">Overpayment</div>
-                    <div class="value"> $&nbsp;20,000</div>
+                    <div class="value">KSH&nbsp;<?php echo $totalOverpayment; ?></div>
                   </div>
                 </div>
               </div>
@@ -529,7 +448,7 @@ select:hover {
 
             <!-- START ROW -->
              <div class="row mt-4 details">
-                <!-- <div class="row"> -->
+                <div class="row" id="summary-row">
 
 
                     <div class="col-md-12 details">
@@ -537,69 +456,63 @@ select:hover {
                       <div class="rent-info">
                           <div class="rent-info filter ">
                             <div class="filter-boxes">
-                            <form method="get" action="">
-                            <div class="select-option-container mt-3">
-                              <select name="building" class="custom-select" onchange="this.form.submit()">
-                                <option value="">All Buildings</option>
-                                <?php
-                                $buildings = $pdo->query("SELECT DISTINCT building_name FROM buildings ORDER BY building_name")->fetchAll();
-                                foreach ($buildings as $b) {
-                                  $selected = ($_GET['building'] ?? '') == $b['building_name'] ? 'selected' : '';
-                                  echo "<option value=\"{$b['building_name']}\" $selected>{$b['building_name']}</option>";
-                                }
-                                ?>
-                              </select>
+
+                               <div class="select-option-container mt-3">
+                                <div class="custom-select">All Buildings</div>
+                                <div class="select-options mt-1">
+                                  <div class="selected" data-value="item1">All Buildings</div>
+                                 
+                                 </div>
+                              </div>
+
+
+
+
+
+                              <div class="select-option-container mt-3">
+                                <div class="custom-select">2025</div>
+                                <div class="select-options mt-1">
+                                  <div class="selected"  data-value="item1">2025</div>
+                                  <div data-value="item2">2024</div>
+                                  <div data-value="item3">2023</div>
+                                </div>
+                              </div>
+
+                              <div class="select-option-container mt-3">
+                                <div class="custom-select">April</div>
+                                <div class="select-options mt-1">
+                                  <div class="selected" data-value="item1">April</div>
+                                  <div data-value="item1">January</div>
+                                  <div data-value="item2">February</div>
+                                  <div data-value="item3">March</div>
+                                </div>
+                              </div>
                             </div>
-                            <!-- Similar for year and month dropdowns -->
-                          </form>
 
-
-                          <div class="select-option-container mt-3">
-    <select name="year" class="custom-select" onchange="this.form.submit()">
-        <option value="">-Year-</option>
-        <?php
-        // Generate years from current year going backwards
-        $currentYear = date('Y');
-        $years = range($currentYear, $currentYear - 5); // Shows current year and previous 5 years
-
-        foreach ($years as $y) {
-            $selected = (isset($_GET['year']) && $_GET['year'] == $y) ? 'selected' : '';
-            echo "<option value=\"$y\" $selected>$y</option>";
-        }
-        ?>
-    </select>
-</div>
-
-                           <div class="select-option-container mt-3">
-                            <select name="month" class="custom-select" onchange="this.form.submit()">
-                              <option value="">-Month-</option>
-                              <?php
-                              $months = [
-                                1 => 'JAN', 2 => 'FEB', 3 => 'MAR', 4 => 'APR',
-                                5 => 'MAY', 6 => 'JUN', 7 => 'JUL', 8 => 'AUG',
-                                9 => 'SEP', 10 => 'OCT', 11 => 'NOV', 12 => 'DEC'
-                              ];
-                              foreach ($months as $num => $name) {
-                                $selected = ($_GET['month'] ?? '') == $num ? 'selected' : '';
-                                echo "<option value=\"$num\" $selected>$name</option>";
-                              }
-                              ?>
-                            </select>
-                                            </div>
-                                            </div>
 
                             <div class="pdf-excel">
-                              <!-- <button class="pdf" ><i class="fas fa-file-pdf" style="color: red;"></i></button> -->
-                              <button class="pdf" onclick="window.location.href='export.php?type=pdf&building=<?= urlencode($buildingFilter) ?>&year=<?= $yearFilter ?>&month=<?= $monthFilter ?>'">
-                              <i class="fas fa-file-pdf" style="color: red;"></i>
-                              </button>
+  <form method="post" action="export-pdf.php" target="_blank">
+    <button type="submit" class="pdf">
+      <i class="fas fa-file-pdf" style="color: red;"></i>
+    </button>
+  </form>
+</div>
 
-                              <button class="excel" onclick="window.location.href='export.php?type=excel&building=<?= urlencode($buildingFilter) ?>&year=<?= $yearFilter ?>&month=<?= $monthFilter ?>'">
-                              <i class="fas fa-file-excel" style="color: green;"></i>
-                              </button>
-                              <!-- <button class="excel"><i class="fas fa-file-excel" style="color: green;"></i></button> -->
-                            </div>
+
+                            <div class="pdf-excel">
+  <form method="post" action="export-excel.php">
+    <button type="submit" class="excel">
+      <i class="fas fa-file-excel" style="color: green;"></i>
+    </button>
+  </form>
+</div>
+
+                            <!-- <div class="pdf-excel">
+                              <button class="pdf" ><i class="fas fa-file-pdf" style="color: red;"></i></button>
+                              <button class="excel"><i class="fas fa-file-excel" style="color: green;"></i></button>
+                            </div> -->
                           </div>
+                          <?php include '../db/connect.php'; ?>
                           <div class="rentTable section">
                             <table id="rent" class="tableRent" style="font-size: small;" >
                               <thead>
@@ -610,44 +523,33 @@ select:hover {
                                           <th scope="col">Arreas</th>
                                           <th scope="col">Overpayment</th>
                                           <th scope="col">Action</th>
-
                                   </tr>
-                            </thead>
-                              <tbody>
+                              </thead>
+                                 <tbody id="rent-body">
+      <?php
+      $stmt = $pdo->query("SELECT * FROM building_rent_summary");
 
-                                <th >Manucho</th>
-                                      <td class="rent paid">KSH&nbsp;80,000</td>
-
-                                      <td >
-                                        <div class="rent penalit">KSH&nbsp;2000</div>
-                                      </td>
-
-                                      <td class="rent collected">KSH&nbsp; 3,000</td>
-                                      <td class="rent overpayment">KSH&nbsp; 500</td>
-
-                                    <td>
-                                      <button class="btn view"> <a class="view-link" href="building-rent.php">View</a> </button>
-                                    </td>
-                                </tr> 
-
-                                <?php foreach ($buildingData as $building): ?>
-                              <tr>
-                                <th><?= htmlspecialchars($building['building_name']) ?></th>
-                                <td class="rent paid">$&nbsp;<?= number_format($building['collected'], 2) ?></td>
-                                <td>
-                                  <div class="rent penalit">$&nbsp;<?= number_format($building['penalties'], 2) ?></div>
-                                </td>
-                                <td class="rent collected">$&nbsp;<?= number_format($building['arrears'], 2) ?></td>
-                                <td class="rent overpayment">$&nbsp;<?= number_format($building['overpayment'], 2) ?></td>
-                                <td>
-                                  <button class="btn view">
-                                    <a class="view-link" href="building-rent.php?building=<?= urlencode($building['building_name']) ?>">View</a>
-                                  </button>
-                                </td>
-                              </tr>
-                              <?php endforeach; ?>
-                            </tbody>
-                          </tbody>
+      while ($row = $stmt->fetch()):
+          $building = htmlspecialchars($row['building_name']);
+          $collected = number_format($row['amount_collected'], 2);
+          $penalties = number_format($row['penalties'], 2);
+          $arrears = number_format($row['arrears'], 2);
+          $overpayment = number_format($row['overpayment'], 2);
+      ?>
+        <tr>
+          <th><?php echo $building;?></th>
+          <td class="rent paid">KSH&nbsp;<?php echo $collected; ?></td>
+          <td><div class="rent penalit">KSH&nbsp;<?php echo $penalties; ?></div></td>
+          <td class="rent collected">KSH&nbsp;<?php echo $arrears; ?></td>
+          <td class="rent overpayment">KSH&nbsp;<?php echo $overpayment; ?></td>
+          <td>
+            <button class="btn view">
+              <a class="view-link" href="building-rent.php?building=<?php echo urlencode($building); ?>">View</a>
+            </button>
+          </td>
+        </tr>
+      <?php endwhile; ?>
+    </tbody>
                       </table>
 
                           </div>
@@ -689,7 +591,7 @@ select:hover {
 <!-- LOADING AND OUT PROGRESS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
 <!-- EnD LOADING AND OUT PROGRESS -->
-                                           <!-- SELECT ELEMENT SCRIPT -->
+
 <!-- SELECT ELEMENT SCRIPT -->
 
 <script>
@@ -748,6 +650,10 @@ document.querySelectorAll('.select-option-container').forEach(container => {
 
 </script>
 
+
+
+
+
  <script>
   document.getElementById("generateReport").addEventListener("click", function () {
       const { jsPDF } = window.jspdf;
@@ -789,6 +695,112 @@ document.querySelectorAll('.select-option-container').forEach(container => {
   });
 </script>
 <!-- end download as pdf -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const selectBox = document.querySelector('.custom-select');
+  const optionsBox = document.getElementById('building-options');
+  const rentBody = document.getElementById('rent-body');
+  const summarySection = document.getElementById('summary-section');
+
+  // Load buildings into dropdown
+  fetch('get_buildings.php')
+    .then(res => res.json())
+    .then(data => {
+      optionsBox.innerHTML = `<div class="selected" data-value="All Buildings">All Buildings</div>`;
+      data.forEach(name => {
+        const option = document.createElement('div');
+        option.setAttribute('data-value', name);
+        option.innerText = name;
+        optionsBox.appendChild(option);
+      });
+    });
+
+  // Handle dropdown click
+  optionsBox.addEventListener('click', function (e) {
+    if (e.target && e.target.dataset.value) {
+      const selectedBuilding = e.target.dataset.value;
+      selectBox.textContent = selectedBuilding;
+      loadBuildingData(selectedBuilding);
+    }
+  });
+
+  function loadBuildingData(buildingName) {
+    const url = `fetch_building_summary.php?building=${encodeURIComponent(buildingName)}`;
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        // Render table
+        rentBody.innerHTML = '';
+        let totalCollected = 0, totalPenalties = 0, totalArrears = 0, totalOverpayment = 0;
+
+        data.forEach(row => {
+          totalCollected += parseFloat(row.amount_collected);
+          totalPenalties += parseFloat(row.penalties);
+          totalArrears += parseFloat(row.arrears);
+          totalOverpayment += parseFloat(row.overpayment);
+
+          rentBody.innerHTML += `
+            <tr>
+              <th>${row.building_name}</th>
+              <td class="rent paid">KSH&nbsp;${parseFloat(row.amount_collected).toLocaleString()}</td>
+              <td><div class="rent penalit">KSH&nbsp;${parseFloat(row.penalties).toLocaleString()}</div></td>
+              <td class="rent collected">KSH&nbsp;${parseFloat(row.arrears).toLocaleString()}</td>
+              <td class="rent overpayment">KSH&nbsp;${parseFloat(row.overpayment).toLocaleString()}</td>
+              <td>
+                <button class="btn view">
+                  <a class="view-link" href="building-rent.php?building=${encodeURIComponent(row.building_name)}">View</a>
+                </button>
+              </td>
+            </tr>`;
+        });
+
+        // Render summary
+        summarySection.innerHTML = `
+        <div class="col-sm-12 col-md-3">
+          <div class="summary-item collected d-flex align-items-center" style="gap: 10px;">
+            <div class="icon"><i class="fas fa-coins"></i></div>
+            <div>
+              <div class="label">Collected</div>
+              <div class="value">KSH&nbsp;${totalCollected.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <div class="summary-item penalties d-flex align-items-center" style="gap: 10px;">
+            <div class="icon"><i class="fas fa-coins"></i></div>
+            <div>
+              <div class="label">Penalties</div>
+              <div class="value">KSH&nbsp;${totalPenalties.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <div class="summary-item arrears d-flex align-items-center" style="gap: 10px;">
+            <div class="icon"><i class="fas fa-coins"></i></div>
+            <div>
+              <div class="label">Arrears</div>
+              <div class="value">KSH&nbsp;${totalArrears.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          <div class="summary-item overpayment d-flex align-items-center" style="gap: 10px;">
+            <div class="icon"><i class="fas fa-coins"></i></div>
+            <div>
+              <div class="label">Overpayment</div>
+              <div class="value">KSH&nbsp;${totalOverpayment.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>`;
+      });
+  }
+
+  // Initial load
+  loadBuildingData('All Buildings');
+});
+</script>
+
 
 
 <!-- create notification -->
@@ -836,6 +848,44 @@ document.querySelectorAll('.select-option-container').forEach(container => {
   }
 </script>
 
+<script>
+// Example list of buildings
+const buildings = [
+  { name: "All Buildings", value: "all" },
+  { name: "Manucho", value: "manucho" },
+  { name: "Ebenezer", value: "ebenezer" },
+  { name: "Crown Z", value: "crownz" }
+];
+
+// Function to display options
+function renderOptions(filter = "") {
+  const container = document.getElementById('buildingOptions');
+  container.innerHTML = ""; // Clear existing
+
+  buildings
+    .filter(b => b.name.toLowerCase().includes(filter.toLowerCase()))
+    .forEach(b => {
+      const div = document.createElement('div');
+      div.textContent = b.name;
+      div.setAttribute('data-value', b.value);
+      div.classList.add('option-item');
+      div.onclick = () => {
+        document.querySelector('.custom-select').textContent = b.name;
+        // Optionally store value somewhere
+      };
+      container.appendChild(div);
+    });
+}
+
+// Initial load
+renderOptions();
+
+// Add search functionality
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  renderOptions(e.target.value);
+});
+</script>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -848,12 +898,6 @@ document.querySelectorAll('.select-option-container').forEach(container => {
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.colVis.min.js"></script>
-
-
-
-
-
-
 <script>
 
   // JavaScript to handle hover and hide functionality

@@ -36,6 +36,13 @@
             }
 
 
+            // Fetch building names from the `buildings` table
+try {
+  $stmt = $pdo->query("SELECT DISTINCT building_id, building_name FROM buildings ORDER BY building_name ASC");
+  $buildings = $stmt->fetchAll();
+} catch (PDOException $e) {
+  die("Query failed: " . $e->getMessage());
+}
 
 ?>
 <!doctype html>
@@ -342,13 +349,20 @@ width: 100%;
                                                 <div class="col-md-3">
                                                     <label>Building</label> <sup class="text-danger"><b>*</b></sup>
                                                     <br>
-
-                                                    <select class="form-control" name="building_name" id="building_name" >
-                                                      <option value="Crown Z">Crown Z</option>
+                                                    <select class="form-control" name="building_name" id="building_name">
+                                                    <option value="">-- Select Building --</option>
+                                                    <?php foreach ($buildings as $building): ?>
+                                                        <option value="<?= htmlspecialchars($building['building_id']) ?>">
+                                                            <?= htmlspecialchars($building['building_name']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                    <!-- <select class="form-control" name="building_name" id="building_name" > -->
+                                                      <!-- <option value="Crown Z">Crown Z</option>
                                                       <option value="Manucho">Manucho</option>
                                                       <option value="Pink House">Pink House</option>
-                                                      <option value="White House">White House</option>
-                                                    </select>
+                                                      <option value="White House">White House</option> -->
+                                                    <!-- </select> -->
                                                     <b class="text-danger" id="building_nameError"></b>
                                                 </div>
                                                 <div class="col-md-3">
