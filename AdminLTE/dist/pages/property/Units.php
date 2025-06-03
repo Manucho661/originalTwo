@@ -467,16 +467,11 @@ function handleDelete(event, id, type) {
 
   <div class="col-md-3">
   <div class="personal-item-edit d-flex btn personal-info justify-content-between">
-  <button
-    class="btn edit-btn personal-info rounded"
-    data-bs-toggle="modal"
-    data-bs-target="#editModal"
-    data-building-id="<?php echo htmlspecialchars($building['building_id'] ?? ''); ?>"
-    data-county="<?php echo htmlspecialchars($building['county'] ?? ''); ?>"
-    data-ownership-info="<?php echo htmlspecialchars($building['ownership_info'] ?? ''); ?>"
-    data-units-number="<?php echo htmlspecialchars($building['units_number'] ?? ''); ?>"
+   <button
+  class="btn edit-btn personal-info rounded"
+  data-building-id="<?php echo htmlspecialchars($building['building_id'] ?? ''); ?>"
 >
-    <i class="fas fa-edit icon"></i> Edit
+  <i class="fas fa-edit icon"></i> Edit
 </button>
 
   </div>
@@ -690,8 +685,7 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
     <!--end::App Wrapper-->
 
 
-    <!-- Edit Modal -->
-<!-- Edit Property Modal -->
+ 
 <!-- Edit Property Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -707,19 +701,19 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
 
           <!-- Location -->
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="editLocation" name="location" placeholder="Location" required>
+            <input type="text" class="form-control" id="editLocation" name="county" placeholder="Location" required>
             <label for="editLocation"><i class="fas fa-map-marker-alt me-1"></i> Location</label>
           </div>
 
           <!-- Ownership -->
           <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="editOwnership" name="ownership" placeholder="Ownership Type" required>
+            <input type="text" class="form-control" id="editOwnership" name="ownership_info" placeholder="Ownership Type" required>
             <label for="editOwnership"><i class="fas fa-user-tag me-1"></i> Ownership Type</label>
           </div>
 
           <!-- Units -->
           <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="editUnits" name="units" placeholder="Number of Units" required>
+            <input type="number" class="form-control" id="editUnits" name="units_number" placeholder="Number of Units" required>
             <label for="editUnits"><i class="fas fa-building me-1"></i> Number of Units</label>
           </div>
         </div>
@@ -1225,6 +1219,48 @@ setInterval(() => {
     updateSlide();
 }, 3000);
 
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Attach click event to all edit buttons
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const propertyId = this.getAttribute('data-building-id');
+      openEditPropertyModal(propertyId);
+    });
+  });
+
+  // Function to fetch and populate the modal
+  function openEditPropertyModal(propertyId) {
+    console.log('Fetching property ID:', propertyId);
+
+    fetch('get_property_details.php?id=' + propertyId)
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          const data = result.data;
+
+          // Prefill modal fields using correct IDs
+          document.getElementById('buildingId').value = propertyId;
+          document.getElementById('editLocation').value = data.county;
+          document.getElementById('editOwnership').value = data.ownership_info;
+          document.getElementById('editUnits').value = data.units_number;
+
+          // Show the modal
+          const modal = new bootstrap.Modal(document.getElementById('editModal'));
+          modal.show();
+        } else {
+          alert('Failed to fetch property details: ' + result.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching property data:', error);
+        alert('An error occurred while fetching property data.');
+      });
+  }
+});
 </script>
 
 <script>

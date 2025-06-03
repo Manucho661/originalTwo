@@ -444,10 +444,14 @@ $stmt->closeCursor();
 
 
   <div class="col-md-3">
-  <div class="personal-item-edit d-flex btn personal-info justify-content-between">
-    <button class="btn edit-btn personal-info rounded" data-bs-toggle="modal" data-bs-target="#editModal">
-      <i class="fas fa-edit icon"></i> Edit
-    </button>
+  <div class="d-flex justify-content-between">
+    <button
+  class="btn edit-btn personal-info rounded"
+  data-building-id="<?php echo htmlspecialchars($building['building_id'] ?? ''); ?>"
+>
+  <i class="fas fa-edit icon"></i> Edit
+</button>
+
   </div>
 </div>
 
@@ -493,6 +497,54 @@ $stmt->closeCursor();
 </div>
 <hr>
 </div>
+
+
+<!-- Edit Property Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <form action="update_property.php" method="POST" id="editPropertyForm">
+        <div class="modal-header" style="background-color: #00192D; color: #FFC107;">
+          <h5 class="modal-title" id="editModalLabel"><i class="fas fa-edit me-1"></i> Edit Property Details</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <input type="hidden" name="building_id" id="buildingId"> <!-- Hidden input for building_id -->
+
+          <!-- Location -->
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="editLocation" name="county" placeholder="Location" required>
+            <label for="editLocation"><i class="fas fa-map-marker-alt me-1"></i> Location</label>
+          </div>
+
+          <!-- Ownership -->
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="editOwnership" name="ownership_info" placeholder="Ownership Type" required>
+            <label for="editOwnership"><i class="fas fa-user-tag me-1"></i> Ownership Type</label>
+          </div>
+
+          <!-- Units -->
+          <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="editUnits" name="units_number" placeholder="Number of Units" required>
+            <label for="editUnits"><i class="fas fa-building me-1"></i> Number of Units</label>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light d-flex justify-content-between">
+          <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Make sure all details are correct</small>
+          <button type="submit" class="btn btn-success" style="background-color: #00192D; color: #FFC107;">
+            <i class="fas fa-save me-1"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- end -->
+
+
 
 
 <div style="display: flex; gap: 25px;">
@@ -815,6 +867,50 @@ $stmt->closeCursor();
                   document.getElementById('meteringPopup').style.display = 'none'; // Hide the overlay
               }
           </script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Attach click event to all edit buttons
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const propertyId = this.getAttribute('data-building-id');
+      openEditPropertyModal(propertyId);
+    });
+  });
+
+  // Function to fetch and populate the modal
+  function openEditPropertyModal(propertyId) {
+    console.log('Fetching property ID:', propertyId);
+
+    fetch('get_property_details.php?id=' + propertyId)
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          const data = result.data;
+
+          // Prefill modal fields using correct IDs
+          document.getElementById('buildingId').value = propertyId;
+          document.getElementById('editLocation').value = data.county;
+          document.getElementById('editOwnership').value = data.ownership_info;
+          document.getElementById('editUnits').value = data.units_number;
+
+          // Show the modal
+          const modal = new bootstrap.Modal(document.getElementById('editModal'));
+          modal.show();
+        } else {
+          alert('Failed to fetch property details: ' + result.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching property data:', error);
+        alert('An error occurred while fetching property data.');
+      });
+  }
+});
+</script>
+
+
 
 
 <script>

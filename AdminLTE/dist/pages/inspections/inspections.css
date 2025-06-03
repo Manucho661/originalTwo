@@ -10,12 +10,12 @@ body {
 .element {
   width: 100%;
 }
-.perform_inspection_modal{  
+.perform_inspection_modal{
       z-index: 10000;
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      background: rgba(0, 0, 0, 0.7); /* Dark overlay */
+      background: rgba(0, 0, 0, 0.5); /* Dark overlay */
       justify-content: center;
       align-items: center;
       width: 100%;
@@ -54,7 +54,7 @@ body {
   }
 
                         /* SELECT, INPUT, TEXT_AREA */
- 
+
 /* notification popup */
 
 /* Form styles */
@@ -73,7 +73,7 @@ body {
 }
 .filter-shadow:focus{
  border-color: #FFC107 !important;
-   box-shadow: none !important; 
+   box-shadow: none !important;
 }
 
 
@@ -285,13 +285,13 @@ tr td:first-child {
  background-color: #1e6f5c !important;
   color: white;
   padding:2px 5px;
-  border-radius: 2px; 
+  border-radius: 2px;
 }
 .status.incomplete{
 background-color: #F87171;
 color: white;
   padding:2px 5px;
-  border-radius: 2px; 
+  border-radius: 2px;
 }
 .submit-btn {
 background-color: #00192D;
@@ -311,7 +311,7 @@ cursor: pointer;
 width: 100%;
 border-radius: 5px;
 }
-                                      
+
 /* SELECTION OPTION CONTAINER */
 input, textarea {
   width: 100%;
@@ -429,7 +429,7 @@ select:hover{
   display: flex;
   justify-content: space-between;
 }
- 
+
 
 /* Scheduled section */
 .inspection-details-container{

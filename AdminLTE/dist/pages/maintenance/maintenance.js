@@ -1,29 +1,25 @@
 // fetch scheduled schedules.
-  fetch('actions/fetch_records.php', { cache: 'no-store' })
-  .then(response => response.text()) // read as plain text
-  .then(rawText => {
-    console.log("🔍 Raw response from PHP:", rawText);
-
-    try {
-      const data = JSON.parse(rawText);
-      console.log("✅ Parsed JSON:", data);
-      
-      if (data.success) {
-        populateRequestsTable(data.data);
-      } else {
-        console.error("⚠️ Backend error:", data.error);
-      }
-    } catch (e) {
-      console.error("❌ JSON parsing error:", e.message);
+fetch('actions/fetch_records.php', { cache: 'no-store' })
+.then(response => response.text()) // read as plain text
+.then(rawText => {
+  console.log("🔍 Raw response from PHP:", rawText);
+  try {
+    const data = JSON.parse(rawText);
+    console.log("✅ Parsed JSON:", data);
+    
+    if (data.success) {
+      populateRequestsTable(data.data);
+    } else {
+      console.error("⚠️ Backend error:", data.error);
     }
-  })
-  .catch(error => {
-    console.error("❌ Network error:", error.message);
-  });
-
+  } catch (e) {
+    console.error("❌ JSON parsing error:", e.message);
+  }
+})
+.catch(error => {
+  console.error("❌ Network error:", error.message);
+});
 maintenanceRequests();
- 
-
 function populateRequestsTable(requests) {
   const tableBody = document.getElementById("maintenanceRequestsTableBody");
   tableBody.innerHTML = ""; // Clear any existing rows
@@ -90,8 +86,6 @@ function populateRequestsTable(requests) {
           </span>
         </td>`;
     }
-
-
     row.innerHTML = `
       <td>${requests.request_date || ''}</td>
       <td>${requests.id || ''}</td>
@@ -115,19 +109,17 @@ function populateRequestsTable(requests) {
       <div class="${requests.payment_status}"> ${requests.payment_status}</div>
        </td>
       <td style="vertical-align: middle;">
-  <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
-    <div class="d-flex gap-15px" style="align-items: center;">
-      
+      <div style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+      <div class="d-flex gap-15px" style="align-items: center;">
       <div>
-        <button class="btn btn-sm"
+        <button class="btn btn-sm pay-btn"
           data-building-name="${requests.building_name}"
           data-unit="${requests.unit || ''}"
-          data-inspection-id="${requests.id}"
+          data-request-id="${requests.id}"
           style="background-color: #00192D; color:#FFC107">
           Pay
         </button>
       </div>
-
       <div>
         <button class="btn btn-sm view-btn"
           style="background-color: #193042; margin-left:10px; color:#fff;"
@@ -137,7 +129,6 @@ function populateRequestsTable(requests) {
           <i class="fas fa-eye"></i>
         </button>
       </div>
-
       <div>
         <button class="btn btn-sm"
           style="background-color: #b02a37; margin-left: 2px; margin-right: 2px; color: #fff;"
@@ -145,34 +136,30 @@ function populateRequestsTable(requests) {
           <i class="fas fa-trash"></i>
         </button>
       </div>
-
     </div>
       </div>
     </td>
-
     `;
-
    // Add the event listener here AFTER the row is in memory
-    const tempDiv = document.createElement('div');
-    tempDiv.appendChild(row);
-    
-//     const inspectBtn = tempDiv.querySelector('.inspect_btn');
-//     inspectBtn.addEventListener('click', (e) => {
-//       const btn = e.currentTarget;
-//       const buildingName = btn.getAttribute('data-building-name');
-//       const unit = btn.getAttribute('data-unit');
-//       const inspectionId = btn.getAttribute('data-inspection-id');
+     const tempDiv = document.createElement('div');
+     tempDiv.appendChild(row);
+      const payBtn = tempDiv.querySelector('.pay_btn');
+      payBtn.addEventListener('click', (e) => {
+      const btn = e.currentTarget;
+      const buildingName = btn.getAttribute('data-building-name');
+       const unit = btn.getAttribute('data-unit');
+       const requestId = btn.getAttribute('data-request-id');
 
-//       document.getElementById('modal_building_name').textContent = buildingName;
-//       document.getElementById('modal_unit').textContent = unit;
-//       document.getElementById('modal_inspection_id').value = inspectionId;
+      document.getElementById('modal_building_name').textContent = buildingName;
+      document.getElementById('modal_unit').textContent = unit;
+      document.getElementById('modal_inspection_id').value = inspectionId;
 
-//       const prfm_Ins_mdl = document.getElementById('perform_inspection_modal');
-//       prfm_Ins_mdl.style.display =  "block";
-//     });
+      const pay_mdl = document.getElementById('pay_modal');
+      pay.style.display =  "block";
+      });
 
 //    const viewBtn = tempDiv.querySelector('.view-btn');
-//   viewBtn.addEventListener('click', () => {
+//    viewBtn.addEventListener('click', () => {
 //     const inspectionId = viewBtn.getAttribute('data-id');
 
 //     // Get the status text from the row

@@ -43,6 +43,24 @@ document.addEventListener("DOMContentLoaded", function () {
         safeSet("unit", tenant.unit);
         
 
+//populate editing tenant field
+        document.getElementById("editIncomeSource").value = tenant.income_source;
+        document.getElementById("editEmployer").value = tenant.employer_name;
+        document.getElementById("editJobTitle").value = tenant.job_title;
+        
+
+        
+        const tenantIdInput = document.getElementById("tenant_id");
+if (tenantIdInput) {
+  tenantIdInput.value = tenant.tenant_id;
+  console.log(`✅ tenant_id set to ${tenant.tenant_id}`);
+} else {
+  console.warn("❌ tenant_id input field not found.");
+}
+
+
+        
+
 
         const statusElement = document.getElementById('status');
         statusElement.textContent = tenant.status;
@@ -274,38 +292,6 @@ document.getElementById('editPenaltyForm').addEventListener('submit', function(e
   });
 });
 
-
-document.getElementById('editIncomeInfoForm').addEventListener('submit', function (e) {
-  e.preventDefault(); // Prevent normal form submission
-
-  const form = e.target;
-  const formData = new FormData(form);
-
-  fetch('update_income_info.php', {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      // Optional: Update elements on the frontend
-      document.getElementById('incomeSourceDisplay').textContent = formData.get('income_source');
-      document.getElementById('employerDisplay').textContent = formData.get('employer');
-      document.getElementById('jobTitleDisplay').textContent = formData.get('job_title');
-
-      // Close modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('editIncomeInfoModal'));
-      modal.hide();
-    } else {
-      alert('Failed to update: ' + (data.message || 'Unknown error'));
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Something went wrong while updating.');
-  });
-});
-
 window.submitEditPersonalInfoModal = function (event) {
   console.log('DoNe');
   alert('done')
@@ -348,3 +334,59 @@ window.submitEditPersonalInfoModal = function (event) {
       alert("An error occurred while updating information.");
     });
 }
+
+
+
+
+ window.submitEditIncomeInfo = function (event) {
+  console.log('DoNe');
+  alert('hi!');
+  event.preventDefault();
+
+  const incomeSource = document.getElementById('editIncomeSource').value.trim();
+  const employer = document.getElementById('editEmployer').value.trim();
+  const jobTitle = document.getElementById('editJobTitle').value.trim();
+  const userId = document.getElementById('user_id')?.value;
+  const tenantId = document.getElementById('tenant_id')?.value;
+
+  if (!incomeSource || !employer || !jobTitle || !userId || !tenantId) {
+    alert("⚠️ Please fill in all required fields.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('income_source', incomeSource);
+  formData.append('employer', employer);
+  formData.append('job_title', jobTitle);
+  formData.append('user_id', userId);
+  formData.append('tenant_id', tenantId);
+
+  fetch("../people/actions/tenant_profile/update_income_info.php", {
+    method: "POST",
+    body: formData
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Server response:', data);
+
+      if (data.success) {
+         alert("✅ Income information updated successfully.");
+        // ✅ Hide the modal
+        const modalElement = document.getElementById('editIncomeInfoModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) modalInstance.hide();
+
+        // ✅ Refresh the page to reflect changes
+        setTimeout(() => {
+          location.reload();
+        }, 300); // optional small delay to allow modal to close smoothly
+      } else {
+        alert("❌ Failed to update income info: " + (data.message || "Unknown error."));
+      }
+    })
+    .catch(error => {
+      console.error("Fetch error:", error);
+      alert("❌ An error occurred while updating income information.");
+    });
+}
+
