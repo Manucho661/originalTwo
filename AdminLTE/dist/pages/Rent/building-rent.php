@@ -31,6 +31,15 @@ if (isset($_GET['building_id'])) {
         $buildingName = htmlspecialchars($building['building_name']);
     }
 }
+
+try {
+  // Prepare and execute query
+  $stmt = $pdo->query("SELECT tenant_name, penalty_days, arrears, overpayment FROM tenant_rent_summary");
+  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  die("Database error: " . $e->getMessage());
+}
+
 ?>
 <?php
 include '../db/connect.php';
@@ -551,7 +560,7 @@ $tenants = $stmt->fetchAll();
       <tr>
         <th>
           <div class="d-flex justify-content-between">
-            <div><?= htmlspecialchars($tenant['first_name']) ?> <?= htmlspecialchars($tenant['middle_name']) ?></div>
+            <div><?= htmlspecialchars($tenant['first_name']) ?> <?= htmlspecialchars($tenant['middle_name'])?></div>
             <div class="value" style="color:#FFC107">&nbsp;<?= htmlspecialchars($tenant['unit']) ?></div>
           </div>
         </th>
@@ -562,7 +571,7 @@ $tenants = $stmt->fetchAll();
           </div>
         </td>
         <td>
-          <div class="rent penalit">KSH&nbsp;2000 (<span class="rent lateDays">-5</span>)</div>
+          <div class="rent penalit">KSH&nbsp;2000(<span class="rent lateDays">-5</span>)</div>
         </td>
         <td class="rent collected">KSH&nbsp;3,000</td>
         <td class="rent overpayment">KSH&nbsp;500</td>
