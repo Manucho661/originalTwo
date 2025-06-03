@@ -1,35 +1,24 @@
 <?php
-// get_property_details.php
+header('Content-Type: application/json');
+include '../db/connect.php'; // or adjust path
 
-if (isset($_GET['building_id'])) {
-    $building_id = intval($_GET['building_id']);
-
-    // Include database connection
-    include '../db/connect.php';  // Include your DB connection
-
-    try {
-        // Get the building details using prepared statement
-        $query = "SELECT * FROM buildings WHERE building_id = :building_id";
-        $stmt = $pdo->prepare($query);
-
-        // Bind the parameter
-        $stmt->bindParam(':building_id', $building_id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        // Fetch the result
-        $building = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($building) {
-            echo json_encode(['success' => true, 'building' => $building]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Building not found.']);
-        }
-
-    } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
-    }
-
-    // Optionally, the PDO connection will automatically close when the script ends
-    $pdo = null;
+if (!isset($_GET['id'])) {
+    echo json_encode(['success' => false, 'message' => 'No property ID provided']);
+    exit;
 }
-?>
+
+$propertyId = intval($_GET['id']);
+
+try {
+    $stmt = $pdo->prepare("SELECT county, ownership_info, units_number FROM buildings WHERE building_id = ?");
+    $stmt->execute([$propertyId]);
+    $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($data) {
+        echo json_encode(['success' => true, 'data' => $data]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Property not found']);
+    }
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}
