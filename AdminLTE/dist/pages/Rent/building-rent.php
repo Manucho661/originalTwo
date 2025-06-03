@@ -1,36 +1,77 @@
 <?php
-require_once '../db/connect.php'; // This must define $pdo (not $conn)
-require_once '../includes/functions.php';
+include '../db/connect.php';
 
-$building_id = isset($_GET['building_id']) ? (int)$_GET['building_id'] : null;
-$month = isset($_GET['month']) ? $_GET['month'] : null;
-$year = isset($_GET['year']) ? (int)$_GET['year'] : null;
+$building = $_GET['building'] ?? null;
 
-$building_name = "Selected Building";
-if ($building_id) {
-    $stmt = $conn->prepare("SELECT name FROM buildings WHERE id = ?");
-    $stmt->bind_param("i", $building_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $building_name = $row['name'];
+if ($building) {
+    $stmt = $pdo->prepare("SELECT * FROM rent_payments WHERE building_name = ?");
+    $stmt->execute([$building]);
+    $payments = $stmt->fetchAll();
+
+    // Display payments table or details...
+} else {
+    echo "Building not selected.";
+}
+?>
+<?php
+// Include your DB connection
+require_once '../db/connect.php'; // adjust path as needed
+
+$buildingName = 'Unknown';
+
+if (isset($_GET['building_id'])) {
+    $building_id = intval($_GET['building_id']);
+
+    $stmt = $pdo->prepare("SELECT building_name FROM building_rent_summary WHERE id = ?");
+    $stmt->execute([$building_id]);
+
+    $building = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($building) {
+        $buildingName = htmlspecialchars($building['building_name']);
     }
-    $stmt->close();
 }
 
-// Fetch detailed rent entries for this specific building, month, and year
-$building_rent_details = [];
-if ($building_id && $month && $year) {
-    $stmt = $conn->prepare("SELECT * FROM rent_entries WHERE building_id = ? AND month = ? AND year = ?");
-    $stmt->bind_param("isi", $building_id, $month, $year);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $building_rent_details = $row;
-    }
-    $stmt->close();
+try {
+  // Prepare and execute query
+  $stmt = $pdo->query("SELECT tenant_name, penalty_days, arrears, overpayment FROM tenant_rent_summary");
+  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  die("Database error: " . $e->getMessage());
 }
 
+?>
+<?php
+include '../db/connect.php';
+
+$buildingName = $_GET['building'] ?? '';
+
+// If nothing is selected, show all buildings
+if ($buildingName === '') {
+    $stmt = $pdo->query("SELECT * FROM tenant_rent_summary");
+} else {
+    $stmt = $pdo->prepare("SELECT * FROM tenant_rent_summary WHERE building_name = ?");
+    $stmt->execute([$buildingName]);
+}
+
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->query("
+    SELECT
+        u.first_name,
+        u.middle_name,
+        t.residence,
+        t.unit,
+        t.phone_number,
+        t.job_title,
+        t.income_source,
+        t.work_place,
+        t.status
+    FROM tenants t
+    JOIN users u ON t.user_id = u.id
+    WHERE t.status = 'active'
+");
+$tenants = $stmt->fetchAll();
 ?>
 
 
@@ -362,8 +403,11 @@ if ($building_id && $month && $year) {
             <div class="row" >
               <div class="col-sm-8">
                 <div class="d-flex">
-                  <h3 class="contact_section_header"> <i class="fas fa-coins icon"></i>
-                    Rental Roll &nbsp;/&nbsp;<span class="building">Ebenezer</span></h3>
+                <h3 class="contact_section_header">
+  <i class="fas fa-coins icon"></i>
+  Rental Roll &nbsp;/&nbsp;<span class="building"><?php echo $buildingName;?></span>
+</h3>
+
                     <h6 class="month"><i class="fas fa-calendar-alt"></i>
                       April-2025</h6>
                 </div>
@@ -504,153 +548,38 @@ if ($building_id && $month && $year) {
                                         <th scope="col">Tenant + unit</th>
                                         <th scope="col">
                                           <div>Paid</div>
-
                                         </th>
                                         <th scope="col">Penalty&nbsp;(l.days)</th>
                                         <th scope="col">Arreas</th>
                                         <th scope="col">Overpayment</th>
                                         <th scope="col">Action</th>
-
                                 </tr>
                             </thead>
                             <tbody>
-                             <tr>
-                                <th>
-                                  <div class="d-flex justify-content-between">
-                                    <div>Manucho </div>
-                                    <div class="value" style="color:#FFC107">&nbsp;EB210</div>
-
-                                  </div>
-
-
-
-
-                                </th>
-                                    <td >
-                                      <div class="rent paid">
-                                        <div>$&nbsp;80,000</div>
-                                        <div class="date late"> 25-April</div>
-                                      </div>
-
-                                    </td>
-
-                                    <td >
-                                      <div class="rent penalit">$&nbsp;2000 (<span class="rent lateDays">-5</span>)</div>
-                                    </td>
-
-                                    <td class="rent collected">$&nbsp; 3,000</td>
-                                    <td class="rent overpayment">$&nbsp; 500</td>
-
-                                  <td>
-                                    <button class="btn view"> <a class="view-link" href="../people/tenant-profile.html">View</a> </button>
-
-                                  </td>
-                              </tr>
-                              <tr >
-                              <th>
-
-                                <div class="d-flex justify-content-between">
-                                  <div>Sixtus </div>
-                                  <div class="value" style="color:#FFC107">&nbsp;EB320</div>
-
-                                </div>
-                              </th>
-                                  <td>
-                                    <div class="rent paid">
-                                      <div>$&nbsp;70,000</div>
-                                      <div class="date">27-April</div>
-                                    </div>
-
-                                  </td>
-                                  <td>
-                                    <div class="rent penalit">$&nbsp;0</div>
-                                    </td>
-                                  <td class="rent collected">$&nbsp;2,000</td>
-                                  <td class="rent overpayment">$&nbsp; 500</td>
-                                <td>
-                                  <button class="btn view"> <a class="view-link" href="../people/tenant-profile.html">View</a> </button>
-                                </td>
-                              </tr>
-                              <tr>
-                                <th>
-                                  <div class="d-flex justify-content-between">
-                                    <div>Mark </div>
-                                    <div class="value" style="color:#FFC107">&nbsp;EB222</div>
-
-                                  </div>
-                                </th>
-                                <td>
-                                  <div class="rent paid">
-                                    <div>$&nbsp;90,000</div>
-                                    <div class="date late">27-April</div>
-                                  </div>
-                                </td>
-                                <td>
-                                  <div class="rent penalit">$&nbsp;1000 (<span class="rent lateDays">-3</span>) </div>
-                                </td>
-                                <td class="rent collected">$&nbsp;5,000</td>
-                                <td class="rent overpayment">$&nbsp;300</td>
-
-                              <td>
-                                <button class="btn view"> <a class="view-link" href="../people/tenant-profile.html">View</a> </button>
-                              </td>
-                          </tr>
-
-                            <tr >
-                              <th>
-                                <div class="d-flex justify-content-between">
-                                  <div>Linet </div>
-                                  <div class="value" style="color:#FFC107">&nbsp;EB180</div>
-
-                                </div>
-
-                              </th>
-                              <td>
-
-                                <div class="rent paid">
-                                  <div>$&nbsp;80,000</div>
-                                  <div class="date late">2-May</div>
-                                </div>
-                              </td>
-                              <td  >
-
-                                <div class="rent penalit">$&nbsp;1000 (<span class="rent lateDays">-2</span>) </div>
-
-                              </td>
-                              <td class="rent collected">$&nbsp;9,000</td>
-                              <td class="rent overpayment">$&nbsp;300</td>
-
-                            <td>
-                              <button class="btn view"> <a class="view-link" href="../people/tenant-profile.html">View</a> </button>
-                            </td>
-                              </tr>
-
-
-                        <tr >
-                          <th>
-
-                            <div class="d-flex justify-content-between">
-                              <div>Caroline </div>
-                              <div class="value" style="color:#FFC107">&nbsp;EB24</div>
-
-                            </div>
-                          </th>
-                            <td>
-
-                              <div class="rent paid">
-                                <div>$&nbsp;90,000</div>
-                                <div class="date">2-May</div>
-                              </div>
-                            </td>
-                            <td>
-                              <div class="rent penalit">$&nbsp;0</div>
-                            </td>
-                            <td class="rent collected">$&nbsp;9,000</td>
-                            <td class="rent overpayment" >$&nbsp;1000</td>
-                          <td>
-                            <button class="btn view"> <a class="view-link" href="../people/tenant-profile.html">View</a> </button>
-                          </td>
-                        </tr>
+     <?php foreach ($tenants as $tenant): ?>
+      <tr>
+        <th>
+          <div class="d-flex justify-content-between">
+            <div><?= htmlspecialchars($tenant['first_name']) ?> <?= htmlspecialchars($tenant['middle_name'])?></div>
+            <div class="value" style="color:#FFC107">&nbsp;<?= htmlspecialchars($tenant['unit']) ?></div>
+          </div>
+        </th>
+        <td>
+          <div class="rent paid">
+            <div>KSH&nbsp;80,000</div>
+            <div class="date late">25-April</div>
+          </div>
+        </td>
+        <td>
+          <div class="rent penalit">KSH&nbsp;2000(<span class="rent lateDays">-5</span>)</div>
+        </td>
+        <td class="rent collected">KSH&nbsp;3,000</td>
+        <td class="rent overpayment">KSH&nbsp;500</td>
+        <td>
+          <button class="btn view"><a class="view-link" href="../people/tenant-profile.html">View</a></button>
+        </td>
+      </tr>
+    <?php endforeach; ?>
                         </tbody>
                     </table>
 
