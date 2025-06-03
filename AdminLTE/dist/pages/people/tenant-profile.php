@@ -564,8 +564,6 @@ try {
                                 <!-- <i class="fas fa-calculator"></i> -->
                                <button class="btn  btn-sm edit-btn income-info rounded" data-bs-toggle="modal" data-bs-target="#editIncomeInfoModal"><i class="fas fa-edit icon"></i> Edit</button>
                               </div>
-
-
                       </div>
                   </div>
                 </div>
