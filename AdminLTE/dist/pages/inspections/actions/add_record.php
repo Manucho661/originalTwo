@@ -7,7 +7,6 @@ error_reporting(E_ALL);
 
 
 require_once '../../db/connect.php';
-
 /**
  * Processes and inserts inspection items and their photos based on POST and FILES data.
  *
@@ -26,28 +25,22 @@ function processInspectionItems(PDO $pdo, int $inspectionId, array $items): void
             throw new Exception("Missing required field: {$statusKey}");
             exit;
         }
-
         $status = trim($_POST[$statusKey]);
         $description = isset($_POST[$descKey]) ? trim($_POST[$descKey]) : null;
-
         // Insert into inspection_items
         $stmt = $pdo->prepare("
             INSERT INTO inspection_items (inspection_id, category, status, description)
             VALUES (:inspection_id, :category, :status, :description)
         ");
-
         error_log("Inserting: $item | Status: $status | Description: $description");
-
         $stmt->execute([
             'inspection_id' => $inspectionId,
             'category'      => ucfirst($item),
             'status'        => $status,
             'description'   => $status === 'Needs Repair' ? $description : null
         ]);
-
         // Get the inserted inspection_item ID
         $inspectionItemId = $pdo->lastInsertId();
-
         // Handle file if uploaded
          if (isset($_FILES[$photoKey]) && $_FILES[$photoKey]['error'] === UPLOAD_ERR_OK) {
              $photoData = handleFileUpload($_FILES[$photoKey]);
