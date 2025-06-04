@@ -740,3 +740,12 @@ table {
     overflow-x: hidden;
   }
   }
+
+  #fileList li {
+  padding: 10px;
+  margin-bottom: 6px;
+  background-color: #f9f9f9;
+  border-left: 4px solid #00192D;
+  border-radius: 5px;
+  color: #00192D;
+}

@@ -955,6 +955,9 @@ try {
 
       <!-- Modal Body -->
       <form id="addFileForm" enctype="multipart/form-data">
+     <input type="hidden" id="tenantIdFile" name="tenant_id" value="">
+
+
         <div class="modal-body px-4">
           <!-- File Name -->
           <div class="mb-3">
@@ -972,9 +975,22 @@ try {
         <!-- Modal Footer -->
         <div class="modal-footer px-4">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #00192D; color: #FFC107;">Cancel</button>
-          <button type="submit" class="btn" style="background-color: #00192D; color: #FFC107;">Upload</button>
+          <button class="btn btn-primary add-file-btn" data-tenant-id="39011877" data-bs-toggle="modal" data-bs-target="#addFileModal">Upload</button>
         </div>
       </form>
+
+      <!-- Add File Modal -->
+<div class="modal fade" id="addFileModal" tabindex="-1" aria-labelledby="addFileModalLabel" aria-hidden="true">
+  <!-- (modal content stays the same) -->
+</div>
+
+<!-- Uploaded Files List (place this after modal) -->
+<div class="mt-4">
+ 
+  <ul id="fileList" class="mt-3" style="list-style-type: none; padding-left: 0;">
+    <!-- Newly uploaded files will appear here -->
+  </ul>
+</div>
 
     </div>
   </div>
@@ -1098,7 +1114,6 @@ try {
             console.log("UsersID:", user_id);
           </script>
         <?php endif; ?>
-
 
 
 

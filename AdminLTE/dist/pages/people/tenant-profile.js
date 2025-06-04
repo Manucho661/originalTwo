@@ -47,6 +47,10 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("editIncomeSource").value = tenant.income_source;
         document.getElementById("editEmployer").value = tenant.employer_name;
         document.getElementById("editJobTitle").value = tenant.job_title;
+
+        //populate tenant id on files modal
+         document.getElementById("tenantIdFile").value = tenant.tenant_id;
+         console.log(tenant.tenant_id);
         
 
         
@@ -175,44 +179,6 @@ document.getElementById("addPetForm").addEventListener("submit", function (e) {
   });
 });
 
-
-document.getElementById("addFileForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const formData = new FormData(this);
-
-  fetch("add_file.php", {
-    method: "POST",
-    body: formData
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert("File uploaded successfully!");
-
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById("addFileModal"));
-        modal.hide();
-
-        // Add new row to files table
-        const table = document.querySelector("#files-table tbody");
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-          <td>${formData.get("file_name")}</td>
-          <td><a href="${data.file_url}" target="_blank" class="btn btn-sm btn-outline-primary">View</a></td>
-        `;
-        table.appendChild(newRow);
-
-        this.reset();
-      } else {
-        alert("Error: " + data.message);
-      }
-    })
-    .catch(error => {
-      console.error("Error uploading file:", error);
-      alert("An error occurred while uploading the file.");
-    });
-});
 
 
 document.getElementById("shiftTenantForm").addEventListener("submit", function(e) {
@@ -390,3 +356,75 @@ window.submitEditPersonalInfoModal = function (event) {
     });
 }
 
+
+// Set tenant_id when modal opens
+document.querySelectorAll('.open-add-file-modal, .add-file-btn').forEach(button => {
+  button.addEventListener('click', function () {
+    const tenantId = this.getAttribute('data-tenant-id');
+    document.getElementById('tenantId').value = tenantId;
+  });
+});
+
+// Submit form
+document.getElementById("addFileForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const form = document.getElementById("addFileForm");
+  const formData = new FormData(form);
+  const tenantId = formData.get("tenant_id");
+
+  // Optional: Log fields
+  for (const [key, value] of formData.entries()) {
+    console.log(`${key}:`, value);
+  }
+
+  fetch("../people/actions/tenant_profile/add_records.php", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert("File uploaded successfully!");
+
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('addFileModal'));
+      modal.hide();
+
+      // Clear form
+      form.reset();
+
+      // Refresh file list
+      refreshFileList(tenantId);
+    } else {
+      alert("Error uploading file: " + data.message);
+    }
+  })
+  .catch(error => {
+    console.error("Upload error:", error);
+    alert("Something went wrong while uploading.");
+  });
+});
+
+// Load updated file list for a tenant
+function refreshFileList(tenantId) {
+  fetch(`../people/actions/tenant_profile/get_files.php?tenant_id=${tenantId}`)
+    .then(response => response.json())
+    .then(data => {
+      const fileList = document.getElementById("fileList");
+      fileList.innerHTML = ""; // Clear old list
+
+      if (data.success && Array.isArray(data.files)) {
+        data.files.forEach(file => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${file.file_name}</strong> - <a href="${file.file_path}" target="_blank">View File</a>`;
+          fileList.appendChild(li);
+        });
+      } else {
+        fileList.innerHTML = "<li>No files found.</li>";
+      }
+    })
+    .catch(error => {
+      console.error("Failed to fetch file list:", error);
+    });
+}
