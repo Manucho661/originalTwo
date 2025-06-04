@@ -38,7 +38,8 @@
 
             // Fetch building names from the `buildings` table
 try {
-  
+  $stmt = $pdo->query("SELECT DISTINCT building_id, building_name FROM buildings ORDER BY building_name ASC");
+  $buildings = $stmt->fetchAll();
 } catch (PDOException $e) {
   die("Query failed: " . $e->getMessage());
 }
