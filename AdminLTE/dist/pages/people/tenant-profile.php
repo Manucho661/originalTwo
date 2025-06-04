@@ -1,51 +1,5 @@
 <?php
-// header('Content-Type: application/json');
-include '../db/connect.php';
 
-if (!isset($_GET['id'])) {
-  echo json_encode(['success' => false, 'message' => 'Tenant ID not provided']);
-  exit;
-}
-else{
-
-}
-
-$user_id = intval($_GET['id']);
-
-try {
-  // ✅ Must be a string
-  $sql = "SELECT 
-          tenants.id AS tenant_id,
-          tenants.status,
-          tenants.phone_number,
-          tenants.id_no,
-          tenants.income_source,
-          tenants.work_place,
-          tenants.job_title,
-          users.id AS user_id,
-          users.email
-        FROM tenants 
-        INNER JOIN users ON tenants.user_id = users.id
-        WHERE users.id = ?";
-
-
-  // ✅ Prepare query
-  $stmt = $pdo->prepare($sql);
-
-  // ✅ Execute with an array of values
-  $stmt->execute([$user_id]);
-
-  $data = $stmt->fetch(PDO::FETCH_ASSOC);
-  
-  if (!$data) {
-    echo json_encode(['success' => false, 'message' => 'No matching tenant found']);
-  } else {
-   // echo json_encode(['success' => true, 'data' => $data]);
-  }
-
-} catch (PDOException $e) {
-  echo json_encode(['success' => false, 'message' => 'Query failed', 'error' => $e->getMessage()]);
-}
 ?>
 
 
