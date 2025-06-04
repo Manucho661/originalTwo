@@ -685,7 +685,7 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
     <!--end::App Wrapper-->
 
 
- 
+
 <!-- Edit Property Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">

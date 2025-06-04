@@ -12,6 +12,8 @@ if ($building) {
 } else {
     echo "Building not selected.";
 }
+
+
 ?>
 <?php
 // Include your DB connection
@@ -33,14 +35,30 @@ if (isset($_GET['building_id'])) {
 }
 
 try {
-  // Prepare and execute query
-  $stmt = $pdo->query("SELECT tenant_name, penalty_days, arrears, overpayment FROM tenant_rent_summary");
-  $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Existing query: fetch tenant details (you might want to filter by building here, if needed)
+    $stmt = $pdo->query("SELECT tenant_name, penalty_days, arrears, overpayment FROM tenant_rent_summary");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // New query: fetch summary totals grouped by building
+    $summaryQuery = $pdo->query("
+        SELECT
+          building_name AS Building,
+          CONCAT('KSH ', FORMAT(SUM(amount_paid), 2)) AS Collected,
+          CONCAT('KSH ', FORMAT(SUM(penalty), 2)) AS Penalties,
+          CONCAT('KSH ', FORMAT(SUM(arrears), 2)) AS Arrears,
+          CONCAT('KSH ', FORMAT(SUM(overpayment), 2)) AS Overpayment
+        FROM tenant_rent_summary
+        GROUP BY building_name
+        ORDER BY building_name
+    ");
+    $buildingSummaries = $summaryQuery->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
-  die("Database error: " . $e->getMessage());
+    die("Database error: " . $e->getMessage());
 }
 
 ?>
+
 <?php
 include '../db/connect.php';
 
@@ -80,7 +98,30 @@ try {
   die("Error fetching tenants: " . $e->getMessage());
 }
 ?>
+<?php
+include '../db/connect.php';
 
+// Get the building name from the URL parameter
+$buildingName = isset($_GET['building']) ? urldecode($_GET['building']) : '';
+
+// Fetch data for the specific building
+$stmt = $pdo->prepare("SELECT * FROM tenant_rent_summary WHERE building_name = ?");
+$stmt->execute([$buildingName]);
+$tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Calculate totals
+$totalCollected = 0;
+$totalPenalties = 0;
+$totalArrears = 0;
+$totalOverpayment = 0;
+
+foreach ($tenants as $tenant) {
+    $totalCollected += floatval($tenant['amount_paid']);
+    $totalPenalties += floatval($tenant['penalty']);
+    $totalArrears += floatval($tenant['arrears']);
+    $totalOverpayment += floatval($tenant['overpayment']);
+}
+?>
 
 <!doctype html>
 <html lang="en">
@@ -431,6 +472,42 @@ try {
             </div>
             <!-- End first Row -->
 
+            <?php
+            $totalCollected = 0;
+            $totalPenalties = 0;
+            $totalArrears = 0;
+            $totalOverpayment = 0;
+            ?>
+
+<?php foreach ($tenants as $tenant): ?>
+    <?php
+        $amountPaid = floatval($tenant['amount_paid']);
+        $penalty = floatval($tenant['penalty']);
+        $arrears = floatval($tenant['arrears']);
+        $overpayment = floatval($tenant['overpayment']);
+
+        // Add to totals
+        $totalCollected += $amountPaid;
+        $totalPenalties += $penalty;
+        $totalArrears += $arrears;
+        $totalOverpayment += $overpayment;
+
+        // Formatting values for display
+        $nameParts = explode(" ", $tenant['tenant_name']);
+        $firstName = $nameParts[0] ?? '';
+        $middleName = $nameParts[1] ?? '';
+        $unit = $tenant['unit_code'];
+        $amount = number_format($amountPaid, 2);
+        $penaltyFormatted = number_format($penalty, 2);
+        $arrearsFormatted = number_format($arrears, 2);
+        $overpaymentFormatted = number_format($overpayment, 2);
+        $penaltyDays = (int)$tenant['penalty_days'];
+        $paymentDate = date("d-F", strtotime($tenant['payment_date']));
+    ?>
+    <!-- existing <tr> rendering here -->
+<?php endforeach; ?>
+
+
             <!-- START ROW -->
                                            <!-- SUMMARY -->
                                            <div class="row">
@@ -461,7 +538,7 @@ try {
                                                 <div class="icon"> <i class="fas fa-coins"></i></div>
                                                 <div>
                                                   <div class="label">Collected</div>
-                                                  <div class="value"> $&nbsp;100,000</div>
+                                                  <div class="value"> KSH&nbsp;<?= number_format($totalCollected, 2) ?></div>
                                                 </div>
                                               </div>
                                             </div>
@@ -471,7 +548,7 @@ try {
                                                 <div class="icon"> <i class="fas fa-coins"></i></div>
                                                 <div>
                                                   <div class="label">Penalities</div>
-                                                  <div class="value penalities"> $&nbsp;1,000</div>
+                                                  <div class="value penalities"> KSH&nbsp;<?= number_format($totalPenalties, 2) ?></div>
                                                 </div>
                                               </div>
                                             </div>
@@ -480,7 +557,7 @@ try {
                                                 <div class="icon"> <i class="fas fa-coins"></i></div>
                                                 <div>
                                                   <div class="label">Arreas</div>
-                                                  <div class="value"> $&nbsp;30,000</div>
+                                                  <div class="value"> KSH&nbsp;<?= number_format($totalArrears, 2) ?></div>
                                                 </div>
                                               </div>
                                             </div>
@@ -490,19 +567,15 @@ try {
                                                 <div class="icon"> <i class="fas fa-coins"></i></div>
                                                 <div>
                                                   <div class="label">Overpayment</div>
-                                                  <div class="value"> $&nbsp;20,000</div>
+                                                  <div class="value"> KSH&nbsp;<?= number_format($totalOverpayment, 2) ?></div>
                                                 </div>
                                               </div>
                                             </div>
-
-
                                           </div>
                                           <!-- END ROW -->
 
                                           <!-- START ROW -->
              <div class="row mt-4">
-
-
               <!-- <div class="row"> -->
                 <h6 class="mb-0 contact_section_header summary mb-2 mt-2" style="color: #00192D;"> </i> Details</h6>
 
@@ -563,46 +636,64 @@ try {
                                 </tr>
                             </thead>
                             <tbody>
-        <?php foreach ($tenants as $tenant): ?>
-            <?php
-                // Split name into parts for styling (optional)
-                $nameParts = explode(" ", $tenant['tenant_name']);
-                $firstName = $nameParts[0] ?? '';
-                $middleName = $nameParts[1] ?? '';
-                $unit = $tenant['unit_code'];
-                $amount = number_format($tenant['amount_paid'], 2);
-                $penalty = number_format($tenant['penalty'], 2);
-                $arrears = number_format($tenant['arrears'], 2);
-                $overpayment = number_format($tenant['overpayment'], 2);
-                $penaltyDays = (int)$tenant['penalty_days'];
-                $paymentDate = date("d-F", strtotime($tenant['payment_date']));
-            ?>
-            <tr>
-                <th>
-                    <div class="d-flex justify-content-between">
-                        <div><?= htmlspecialchars($firstName . ' ' . $middleName) ?></div>
-                        <div class="value" style="color:#FFC107">&nbsp;<?= htmlspecialchars($unit) ?></div>
-                    </div>
-                </th>
-                <td>
-                    <div class="rent paid">
-                        <div>KSH&nbsp;<?= $amount ?></div>
-                        <div class="date late"><?= $paymentDate ?></div>
-                    </div>
-                </td>
-                <td>
-                    <div class="rent penalit">KSH&nbsp;<?= $penalty ? $penalty : '0.00' ?> (<span class="rent lateDays">-<?= $penaltyDays ?></span>)</div>
-                </td>
-                <td class="rent collected">KSH&nbsp;<?= $arrears ?></td>
-                <td class="rent overpayment">KSH&nbsp;<?= $overpayment ?></td>
-                <td>
-                    <button class="btn view">
-                        <a class="view-link" href="../people/tenant-profile.html">View</a>
-                    </button>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
+    <?php
+    $currentBuilding = '';
+    foreach ($tenants as $tenant):
+        $building = $tenant['building_name'] ?? '';
+
+        // Show building name as a header row if it has changed
+        if ($building !== $currentBuilding):
+            $currentBuilding = $building;
+    ?>
+        <tr class="table-group-header bg-light">
+            <td colspan="6" style="font-weight: bold; color: #007bff;">
+                <?= htmlspecialchars($currentBuilding) ?>
+            </td>
+        </tr>
+    <?php
+        endif;
+
+        $nameParts = explode(" ", $tenant['tenant_name'] ?? '');
+        $firstName = $nameParts[0] ?? '';
+        $middleName = $nameParts[1] ?? '';
+        $unit = htmlspecialchars($tenant['unit_code'] ?? '');
+        $amount = number_format((float)($tenant['amount_paid'] ?? 0), 2);
+        $penalty = number_format((float)($tenant['penalty'] ?? 0), 2);
+        $arrears = number_format((float)($tenant['arrears'] ?? 0), 2);
+        $overpayment = number_format((float)($tenant['overpayment'] ?? 0), 2);
+        $penaltyDays = (int)($tenant['penalty_days'] ?? 0);
+        $paymentDate = !empty($tenant['payment_date']) ? date("d-F", strtotime($tenant['payment_date'])) : '';
+    ?>
+        <tr>
+            <th>
+                <div class="d-flex justify-content-between">
+                    <div><?= htmlspecialchars("$firstName $middleName") ?></div>
+                    <div class="value" style="color:#FFC107">&nbsp;<?= $unit ?></div>
+                </div>
+            </th>
+            <td>
+                <div class="rent paid">
+                    <div>KSH&nbsp;<?= $amount ?></div>
+                    <div class="date late"><?= $paymentDate ?></div>
+                </div>
+            </td>
+            <td>
+                <div class="rent penalit">
+                    KSH&nbsp;<?= $penalty ?>
+                    (<span class="rent lateDays">-<?= $penaltyDays ?></span>)
+                </div>
+            </td>
+            <td class="rent collected">KSH&nbsp;<?= $arrears ?></td>
+            <td class="rent overpayment">KSH&nbsp;<?= $overpayment ?></td>
+            <td>
+                <button class="btn view">
+                    <a class="view-link" href="../people/tenant-profile.html">View</a>
+                </button>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+</tbody>
+
                     </table>
 
                         </div>
