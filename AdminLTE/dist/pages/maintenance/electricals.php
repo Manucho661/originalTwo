@@ -420,19 +420,19 @@
                       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
-                    <form id="recordPaymentForm">
+                    <form id="recordPaymentForm" onsubmit="addRequestPayment(event)" enctype="multipart/form-data" >
                       <div class="modal-body">
                         <div class="row g-3">
 
                           <!-- Amount Paid -->
                           <div class="col-md-6 form-floating">
-                            <input type="number" class="form-control" id="amountPaid" placeholder="Amount Paid" required>
+                            <input type="number" class="form-control" id="amountPaid" name="amountPaid" placeholder="Amount Paid" required>
                             <label for="amountPaid"><i class="fas fa-coins me-2 text-primary"></i>Amount Paid</label>
                           </div>
 
                           <!-- Payment Method -->
                           <div class="col-md-6 form-floating">
-                            <select class="form-select" id="paymentMethod" required>
+                            <select class="form-select" name="paymentMethod" id="paymentMethod" required>
                               <option value="" selected disabled>Select Method</option>
                               <option>Cash</option>
                               <option>M-Pesa</option>
@@ -444,44 +444,46 @@
 
                           <!-- Date Paid -->
                           <div class="col-md-6 form-floating">
-                            <input type="date" class="form-control" id="datePaid" placeholder="Date Paid" required>
+                            <input type="date" class="form-control" id="datePaid" name="datePaid" placeholder="Date Paid" required>
                             <label for="datePaid"><i class="fas fa-calendar-day me-2 text-primary"></i>Date Paid</label>
                           </div>
 
                           <!-- Service Provider -->
                           <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="serviceProvider" placeholder="Service Provider" required>
+                            <input type="text" class="form-control" id="serviceProvider" name="serviceProvider" placeholder="Service Provider" required>
                             <label for="serviceProvider"><i class="fas fa-user-tie me-2 text-primary"></i>Service Provider</label>
                           </div>
 
                           <!-- Cheque Number -->
                           <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="chequeNumber" placeholder="Cheque Number">
+                            <input type="text" class="form-control" name="chequeNumber" id="chequeNumber" placeholder="Cheque Number">
                             <label for="chequeNumber"><i class="fas fa-receipt me-2 text-primary"></i>Cheque Number</label>
                           </div>
 
                           <!-- Invoice Number -->
                           <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="invoiceNumber" placeholder="Invoice Number">
+                            <input type="text" class="form-control" name="invoiceNumber" id="invoiceNumber" placeholder="Invoice Number">
                             <label for="invoiceNumber"><i class="fas fa-file-invoice me-2 text-primary"></i>Invoice Number</label>
                           </div>
 
                           <!-- Notes -->
                           <div class="col-12 form-floating">
-                            <textarea class="form-control" id="paymentNotes" placeholder="Notes" style="height: 100px;"></textarea>
+                            <textarea class="form-control" id="paymentNotes" name="paymentNotes" placeholder="Notes" style="height: 100px;"></textarea>
                             <label for="paymentNotes"><i class="fas fa-comment-dots me-2 text-primary"></i>Payment Notes</label>
                           </div>
 
                           <!-- Upload Receipt (Optional) -->
                           <div class="col-12">
                             <label for="uploadReceipt" class="form-label text-primary fw-bold"><i class="fas fa-upload me-2"></i>Upload Receipt (optional)</label>
-                            <input class="form-control" type="file" id="uploadReceipt" accept="image/*,application/pdf">
+                            <input class="form-control" type="file" name="uploadReceipt" id="uploadReceipt" accept="image/*,application/pdf">
                           </div>
 
                         </div>
                       </div>
                       
                       <div class="modal-footer">
+                        <input type="hidden" name="request_id" id="modal_request_id">
+                        <input type="hidden" name="form_type" value="addPaymentForm">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Payment</button>
                       </div>
@@ -521,141 +523,6 @@
 
 
 <!-- Overlay Cards -->
-
-<!-- create Announcement -->
-
-
-
-
-
- <!-- Start View announcement -->
- <div class="view_announcement" id="view_announcement">
-  <div class="card content">
-   <div class="card-header view_announcement bg-secondary text-white">
-       <h5 class="mb-0">Rent Payments</h5>
-       <div id="close-overlay-btn" class="close-btn" > <b> &times;</b> </div>
-
-   </div>
-   <div class="card-body">
-       <p class="card-text">
-           All Rent Payments should be made before 24/01/17. Anyone who feels that they might not
-           be able to complete their dues on 24/01/17 should communicate to management before the due date.
-           Else, you face an eviction risk if you fail to pay your dues before the said date without a reasonable reason</p>
-
-           <p class="timestamp" id="timestamp"></p> <!-- Timestamp -->
-
-
-       <div class="Recipients border-top border-gray "> <p><strong>Recipients|</strong> All Employees</p>  </div>
-
-   </div>
-   <div class="card-footer view_announcement d-flex">
-       <button class="btn btn-danger btn-sm">Delete</button>
-       <button class="btn btn-secondary btn-sm">Resend</button>
-   </div>
- </div>
- </div>
-
-  <!-- Lease Modal -->
-<div class="modal fadey" id="leaseyModal" tabindex="-1" aria-labelledby="leaseyModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="leaseyModalLabel"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="container">
-          <div class="form-wrapper">
-              <h1 class="text-warning">Assign Task</h1>
-              <form id="taskForm">
-                <div class="input-group">
-                  <label for="taskName">Task About To Be Assigned:</label>
-                  <input type="text" id="taskName" name="taskName" placeholder="Enter task name" style="border-radius: 10px; width: 100%;"   required>
-              </div>
-
-                  <div class="input-group">
-                      <label for="serviceProvider">Select A Category For The Task</label>
-                  <label for="taskName"></label>
-                      <select id="serviceProvider" name="serviceProvider" style="border-radius: 10px;"  required>
-                          <option value="" id="taskName" disabled selected>Select A Category </option>
-                          <option value="John">Electrical</option>
-                          <option value="Jane">Plumbing</option>
-                          <option value="Mike">Cleaning</option>
-                      </select>
-                  </div>
-                  <div class="input-group">
-                    <label for="serviceProvider">Select Service Provider:</label>
-                    <select id="serviceProvider" name="serviceProvider" style="border-radius: 10px;" required>
-                        <option value="" id="taskName"  disabled selected>Select Provider</option>
-                        <option value="John">John </option>
-                        <option value="Jane">Jane </option>
-                        <option value="Mike">Mike </option>
-                    </select>
-                </div>
-
-
-                  <button type="submit" class="submit-btn" style="border-radius: 10px; background-color: #00192D; width: 50%; margin-left: 6rem;" >Assign</button>
-              </form>
-          </div>
-
-          <!-- <div id="assignedTasks">
-              <h2>Assigned Tasks</h2>
-              <ul id="taskList"></ul>
-          </div> -->
-      </div>
-
-
-      </div>
-    </div>
-  </div>
-</div>
-
-  <!-- Lease Modal -->
-  <div class="modal fade" id="leaseModal" tabindex="-1" aria-labelledby="leaseModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="leaseModalLabel"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form class="beasy">
-             <!-- Landlord Information Section -->
-      <!-- Service Provider Information Section -->
-      <div class="form-section">
-        <h3 class="text-warning">Landlord Information</h3>
-         <a href="#"><p>Martin White</p></a>
-        <!-- <label for="landlordName">Landlord Name(Martin White)</label> -->
-        <!-- <input type="text" id="landlordName" name="landlordName" placeholder="Enter your full name" required> -->
-
-        <h3 class="text-warning">Select Service Providers Information</h3>
-        <label for="paymentMethod">Choose:</label>
-        <select id="paymentMethod" name="paymentMethod" required>
-          <option value="bank_transfer">ABX Electricals</option>
-          <option value="bank_transfer">Sunsine Plumbers</option>
-          <option value="bank_transfer">Favored Technologies</option>
-        </select>
-        <h3 class="text-warning">Payment Details</h3>
-        <label for="amount">Payment Amount (KSH)</label>
-        <input type="text" id="landlordName" name="landlordName" placeholder="Enter Amount" required>
-
-        <label for="paymentMethod">Payment Method</label>
-        <select id="paymentMethod" name="paymentMethod" required>
-          <option value="mpesa_transfer" class="bossy">MPESA</option>
-          <option value="mpesa_transfer" class="bossy">Bank</option>
-          <option value="mpesa_transfer" class="bossy">Global Pay</option>
-          <option value="mpesa_transfer" class="bossy">Cash</option>
-
-        </select>
-         <!-- Submit Button -->
-         <button type="submit" class="bossy"> MAKE PAYMENT</button>
-      </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-<!-- End view announcement -->
 <!-- Overlay scripts -->
 <!-- main js file -->
 <script src="maintenance.js"></script>

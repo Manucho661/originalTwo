@@ -155,10 +155,11 @@
 
     // Insert income source
     function insertIncomeSource($pdo, $tenantId, $data) {
-        $stmt = $pdo->prepare("INSERT INTO income_source (tenant_id, income_type, employer_name, employer_contact, place_of_work, business_type, kra_pin, business_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO income_source (tenant_id, income_type, job_title, employer_name, employer_contact, place_of_work, business_type, kra_pin, business_location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $tenantId,
             $data['income_source'] ?? null,
+            $data['job_title'] ?? null,
             $data['employer_name'] ?? null,
             $data['employer_contact'] ?? null,
             $data['tenant_workplace'] ?? null,

@@ -2,7 +2,7 @@
 fetch('actions/fetch_records.php', { cache: 'no-store' })
 .then(response => response.text()) // read as plain text
 .then(rawText => {
-  console.log("🔍 Raw response from PHP:", rawText);
+  // console.log("🔍 Raw response from PHP:", rawText);
   try {
     const data = JSON.parse(rawText);
     console.log("✅ Parsed JSON:", data);
@@ -149,11 +149,11 @@ function populateRequestsTable(requests) {
       const btn = e.currentTarget;
       // const buildingName = btn.getAttribute('data-building-name');
       //  const unit = btn.getAttribute('data-unit');
-      //  const requestId = btn.getAttribute('data-request-id');
+      const requestId = btn.getAttribute('data-request-id');
 
       // document.getElementById('modal_building_name').textContent = buildingName;
       // document.getElementById('modal_unit').textContent = unit;
-      // document.getElementById('modal_inspection_id').value = inspectionId;
+      document.getElementById('modal_request_id').value = requestId;
       const modal = new bootstrap.Modal(document.getElementById('recordPaymentModal'));
       modal.show();
       });
@@ -162,6 +162,23 @@ function populateRequestsTable(requests) {
 }
 
 // Add a payment
-document.addEventListener("DOMContentLoaded", function() {
-      fetch(`actions/add_records.php?user_id=${user_id}`)
-});
+function addRequestPayment(event){
+  event.preventDefault(); // Prevent the form from submitting immediately
+  const form = document.getElementById("recordPaymentForm");
+  const formData = new FormData(form);
+
+  // 🔍 Log actual contents of the FormData
+   for (let [key, value] of formData.entries()) {
+     console.log(`${key}: ${value}`);
+   }
+     fetch("actions/add_records.php", {
+            method: "POST",
+            body: formData
+          })
+          .then(res => res.text())
+          .then(data => {
+            alert(data); // Display success message or error from server
+            location.reload(); // Reload the page to reflect changes (optional)
+          })
+          .catch(err => console.error(err));
+};

@@ -49,19 +49,19 @@ function processInspectionItems(PDO $pdo, int $inspectionId, array $items): void
         $inspectionItemId = $pdo->lastInsertId();
 
         // Handle file if uploaded
-        // if (isset($_FILES[$photoKey]) && $_FILES[$photoKey]['error'] === UPLOAD_ERR_OK) {
-        //     $photoData = handleFileUpload($_FILES[$photoKey]);
+         if (isset($_FILES[$photoKey]) && $_FILES[$photoKey]['error'] === UPLOAD_ERR_OK) {
+             $photoData = handleFileUpload($_FILES[$photoKey]);
 
         //     // Insert photo path into inspection_photos table
-        //     $photoStmt = $pdo->prepare("
-        //         INSERT INTO inspection_photos (inspection_item_id, photo_path)
-        //         VALUES (:inspection_item_id, :photo_path)
-        //     ");
-        //     $photoStmt->execute([
-        //         'inspection_item_id' => $inspectionItemId,
-        //         'photo_path'         => $photoData['path']
-        //     ]);
-        // }
+         $photoStmt = $pdo->prepare("
+                 INSERT INTO inspection_photos (inspection_item_id, photo_path)
+                 VALUES (:inspection_item_id, :photo_path)
+             ");
+             $photoStmt->execute([
+                'inspection_item_id' => $inspectionItemId,
+                 'photo_path'         => $photoData['path']
+             ]);
+         }
 
         // Update Inspection Status to Completed.
         $sql = "UPDATE inspections SET status = :status WHERE id = :id";
