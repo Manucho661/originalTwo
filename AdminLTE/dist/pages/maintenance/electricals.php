@@ -413,8 +413,8 @@
               <div class="modal fade" id="recordPaymentModal" tabindex="-1" aria-labelledby="recordPaymentModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                   <div class="modal-content rounded-4 shadow-sm">
-                    <div class="modal-header bg-primary text-white rounded-top">
-                      <h5 class="modal-title" id="recordPaymentModalLabel">
+                    <div class="modal-header bg-primary text-white rounded-top" style="background-color: #00192D !important;" >
+                      <h5 class="modal-title" id="recordPaymentModalLabel" style="color:#FFA000 !important; margin-left:5px;" id="inspectionModalLabel" >
                         <i class="fas fa-money-check-alt me-2"></i> Record Payment
                       </h5>
                       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -439,42 +439,42 @@
                               <option>Bank Transfer</option>
                               <option>Cheque</option>
                             </select>
-                            <label for="paymentMethod"><i class="fas fa-wallet me-2 text-primary"></i>Payment Method</label>
+                            <label for="paymentMethod"><i class="fas fa-wallet me-2" style="color:#FFA000 ! important"></i>Payment Method</label>
                           </div>
 
                           <!-- Date Paid -->
                           <div class="col-md-6 form-floating">
                             <input type="date" class="form-control" id="datePaid" name="datePaid" placeholder="Date Paid" required>
-                            <label for="datePaid"><i class="fas fa-calendar-day me-2 text-primary"></i>Date Paid</label>
+                            <label for="datePaid"><i class="fas fa-calendar-day me-2" style="color:#FFA000 ! important"></i>Date Paid</label>
                           </div>
 
                           <!-- Service Provider -->
                           <div class="col-md-6 form-floating">
                             <input type="text" class="form-control" id="serviceProvider" name="serviceProvider" placeholder="Service Provider" required>
-                            <label for="serviceProvider"><i class="fas fa-user-tie me-2 text-primary"></i>Service Provider</label>
+                            <label for="serviceProvider"><i class="fas fa-user-tie me-2"></i>Service Provider</label>
                           </div>
 
                           <!-- Cheque Number -->
                           <div class="col-md-6 form-floating">
                             <input type="text" class="form-control" name="chequeNumber" id="chequeNumber" placeholder="Cheque Number">
-                            <label for="chequeNumber"><i class="fas fa-receipt me-2 text-primary"></i>Cheque Number</label>
+                            <label for="chequeNumber"><i class="fas fa-receipt me-2" style="color:#FFA000 ! important" ></i>Cheque Number</label>
                           </div>
 
                           <!-- Invoice Number -->
                           <div class="col-md-6 form-floating">
                             <input type="text" class="form-control" name="invoiceNumber" id="invoiceNumber" placeholder="Invoice Number">
-                            <label for="invoiceNumber"><i class="fas fa-file-invoice me-2 text-primary"></i>Invoice Number</label>
+                            <label for="invoiceNumber"><i class="fas fa-file-invoice me-2"style="color:#FFA000 ! important" ></i>Invoice Number</label>
                           </div>
 
                           <!-- Notes -->
                           <div class="col-12 form-floating">
                             <textarea class="form-control" id="paymentNotes" name="paymentNotes" placeholder="Notes" style="height: 100px;"></textarea>
-                            <label for="paymentNotes"><i class="fas fa-comment-dots me-2 text-primary"></i>Payment Notes</label>
+                            <label for="paymentNotes"><i class="fas fa-comment-dots me-2" style="color:#FFA000 ! important"></i>Payment Notes</label>
                           </div>
 
                           <!-- Upload Receipt (Optional) -->
                           <div class="col-12">
-                            <label for="uploadReceipt" class="form-label text-primary fw-bold"><i class="fas fa-upload me-2"></i>Upload Receipt (optional)</label>
+                            <label for="uploadReceipt" class="form-label fw-bold" style="color:#FFA000 ! important"><i class="fas fa-upload me-2"></i>Upload Receipt (optional)</label>
                             <input class="form-control" type="file" name="uploadReceipt" id="uploadReceipt" accept="image/*,application/pdf">
                           </div>
 
