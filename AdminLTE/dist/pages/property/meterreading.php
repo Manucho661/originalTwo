@@ -784,6 +784,72 @@ $stmt->closeCursor();
 
 
     <!-- begin -->
+    <script>
+ document.addEventListener("DOMContentLoaded", function () {
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    const editPropertyForm = document.getElementById('editPropertyForm');
+
+    // Open modal and populate fields with property data
+    document.querySelectorAll('.editPropertyBtn').forEach(button => {
+        button.addEventListener('click', function () {
+            const buildingId = this.getAttribute('data-building-id');
+            document.getElementById('buildingId').value = buildingId;
+
+            // Fetch property details
+            fetch(`get_property_details.php?building_id=${buildingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Populate modal with data
+                        document.getElementById('editLocation').value = data.building.county;
+                        document.getElementById('editOwnership').value = data.building.ownership_info;
+                        document.getElementById('editUnits').value = data.building.units_number;
+                    } else {
+                        alert('Failed to load property details.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+            // Open the modal
+            editModal.show();
+        });
+    });
+
+    // Handle the form submission via AJAX
+    editPropertyForm.addEventListener('submit', function (event) {
+        event.preventDefault();  // Prevent the default form submission
+
+        const formData = new FormData(editPropertyForm);
+
+        fetch('update_property.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);  // Success message
+                editModal.hide();  // Close the modal
+                // Reload the page (or update the page dynamically)
+                location.reload();  // You can replace this with a more targeted update if needed
+            } else {
+                alert('Error: ' + data.message);  // Error message
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving changes.');
+        });
+    });
+
+    // Optional: Reset form when modal is hidden (to clear any stale data)
+    editModal._element.addEventListener('hidden.bs.modal', function () {
+        editPropertyForm.reset();  // Reset the form when the modal closes
+    });
+});
+
+
+</script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {

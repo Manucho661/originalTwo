@@ -3,22 +3,26 @@
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate the required fields
-    if (isset($_POST['building_id'], $_POST['location'], $_POST['ownership'], $_POST['units'])) {
+    if (isset($_POST['building_id'], $_POST['county'], $_POST['ownership_info'], $_POST['units_number'])) {
         // Sanitize and assign POST data
         $building_id = intval($_POST['building_id']);
-        $location = htmlspecialchars($_POST['location']);
-        $ownership = htmlspecialchars($_POST['ownership']);
-        $units = intval($_POST['units']);
+        $location = htmlspecialchars($_POST['county']);
+        $ownership = htmlspecialchars($_POST['ownership_info']);
+        $units = intval($_POST['units_number']);
 
-        // Database connection
-        include '../db/connect.php';  // Make sure to include the DB connection file
+        // Database connection using PDO
+        include '../db/connect.php'; // This file must set up a $pdo object
 
-        // Prepare the update query
-        $query = "UPDATE buildings SET county = ?, ownership_info = ?, units_number = ? WHERE building_id = ?";
+        try {
+            // Prepare the update query
+            $query = "UPDATE buildings SET county = :county, ownership_info = :ownership, units_number = :units WHERE building_id = :building_id";
+            $stmt = $pdo->prepare($query);
 
-        if ($stmt = $conn->prepare($query)) {
-            // Bind the parameters
-            $stmt->bind_param("ssii", $location, $ownership, $units, $building_id);
+            // Bind parameters
+            $stmt->bindParam(':county', $location, PDO::PARAM_STR);
+            $stmt->bindParam(':ownership', $ownership, PDO::PARAM_STR);
+            $stmt->bindParam(':units', $units, PDO::PARAM_INT);
+            $stmt->bindParam(':building_id', $building_id, PDO::PARAM_INT);
 
             // Execute the query
             if ($stmt->execute()) {
@@ -26,15 +30,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to update property details.']);
             }
-
-            // Close the statement
-            $stmt->close();
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to prepare the query.']);
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
         }
-
-        // Close the database connection
-        $conn->close();
     } else {
         echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
     }

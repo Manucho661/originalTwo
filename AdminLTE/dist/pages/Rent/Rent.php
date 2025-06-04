@@ -1,6 +1,7 @@
 <?php
 include '../db/connect.php';
 
+
 // Fetch summary totals for all buildings
 $summaryQuery = $pdo->query("
     SELECT
@@ -18,6 +19,32 @@ $totalCollected = number_format($summary['total_collected'], 2);
 $totalPenalties = number_format($summary['total_penalties'], 2);
 $totalArrears = number_format($summary['total_arrears'], 2);
 $totalOverpayment = number_format($summary['total_overpayment'], 2);
+
+
+try {
+  // Fetch tenant data
+  $stmt = $pdo->query("SELECT tenant_name, unit_code, building_name, amount_paid, penalty, arrears, overpayment, penalty_days, payment_date FROM tenant_rent_summary");
+  $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  // Fetch total sums
+  $totalsQuery = $pdo->query("
+      SELECT
+          SUM(amount_paid) AS total_paid,
+          SUM(penalty) AS total_penalty,
+          SUM(arrears) AS total_arrears,
+          SUM(overpayment) AS total_overpayment
+      FROM tenant_rent_summary
+  ");
+  $totals = $totalsQuery->fetch(PDO::FETCH_ASSOC);
+
+  $totalPaid = number_format((float)$totals['total_paid'], 2);
+  $totalPenalty = number_format((float)$totals['total_penalty'], 2);
+  $totalArrears = number_format((float)$totals['total_arrears'], 2);
+  $totalOverpayment = number_format((float)$totals['total_overpayment'], 2);
+
+} catch (PDOException $e) {
+  die("Database error: " . $e->getMessage());
+}
 ?>
 
 
@@ -461,7 +488,7 @@ select:hover {
                                 <div class="custom-select">All Buildings</div>
                                 <div class="select-options mt-1">
                                   <div class="selected" data-value="item1">All Buildings</div>
-                                 
+
                                  </div>
                               </div>
 
@@ -514,44 +541,65 @@ select:hover {
                           </div>
                           <?php include '../db/connect.php'; ?>
                           <div class="rentTable section">
-                            <table id="rent" class="tableRent" style="font-size: small;" >
-                              <thead>
-                                  <tr>
-                                          <th scope="col">Building</th>
-                                          <th scope="col">Collected</th>
-                                          <th scope="col">Penalities</th>
-                                          <th scope="col">Arreas</th>
-                                          <th scope="col">Overpayment</th>
-                                          <th scope="col">Action</th>
-                                  </tr>
-                              </thead>
-                                 <tbody id="rent-body">
-      <?php
-      $stmt = $pdo->query("SELECT * FROM building_rent_summary");
-
-      while ($row = $stmt->fetch()):
-          $building = htmlspecialchars($row['building_name']);
-          $collected = number_format($row['amount_collected'], 2);
-          $penalties = number_format($row['penalties'], 2);
-          $arrears = number_format($row['arrears'], 2);
-          $overpayment = number_format($row['overpayment'], 2);
-      ?>
+                          <table id="rent" class="tableRent" style="font-size: small;">
+    <thead>
         <tr>
-          <th><?php echo $building;?></th>
-          <td class="rent paid">KSH&nbsp;<?php echo $collected; ?></td>
-          <td><div class="rent penalit">KSH&nbsp;<?php echo $penalties; ?></div></td>
-          <td class="rent collected">KSH&nbsp;<?php echo $arrears; ?></td>
-          <td class="rent overpayment">KSH&nbsp;<?php echo $overpayment; ?></td>
-          <td>
-            <button class="btn view">
-              <a class="view-link" href="building-rent.php?building=<?php echo urlencode($building); ?>">View</a>
-            </button>
-          </td>
+            <th scope="col">Building</th>
+            <th scope="col">Collected</th>
+            <th scope="col">Penalities</th>
+            <th scope="col">Arreas</th>
+            <th scope="col">Overpayment</th>
+            <th scope="col">Action</th>
         </tr>
-      <?php endwhile; ?>
-    </tbody>
-                      </table>
+    </thead>
+    <tbody id="rent-body">
+    <?php
+    $stmt = $pdo->query("SELECT * FROM building_rent_summary");
 
+    $totalCollected = 0;
+    $totalPenalties = 0;
+    $totalArrears = 0;
+    $totalOverpayment = 0;
+
+    while ($row = $stmt->fetch()):
+        $building = htmlspecialchars($row['building_name']);
+        $collected = (float)$row['amount_collected'];
+        $penalties = (float)$row['penalties'];
+        $arrears = (float)$row['arrears'];
+        $overpayment = (float)$row['overpayment'];
+
+        // Accumulate totals
+        $totalCollected += $collected;
+        $totalPenalties += $penalties;
+        $totalArrears += $arrears;
+        $totalOverpayment += $overpayment;
+    ?>
+        <tr>
+            <th><?= $building ?></th>
+            <td class="rent paid">KSH&nbsp;<?= number_format($collected, 2) ?></td>
+            <td><div class="rent penalit">KSH&nbsp;<?= number_format($penalties, 2) ?></div></td>
+            <td class="rent collected">KSH&nbsp;<?= number_format($arrears, 2) ?></td>
+            <td class="rent overpayment">KSH&nbsp;<?= number_format($overpayment, 2) ?></td>
+            <td>
+                <button class="btn view">
+                    <a class="view-link" href="building-rent.php?building=<?= urlencode($building); ?>">View</a>
+                </button>
+            </td>
+        </tr>
+    <?php endwhile; ?>
+
+    <!-- Totals Row -->
+    <tr style="font-weight: bold; background-color: #f0f0f0;">
+        <td>Total</td>
+        <td class="rent paid">KSH&nbsp;<?= number_format($totalCollected, 2) ?></td>
+        <td><div class="rent penalit">KSH&nbsp;<?= number_format($totalPenalties, 2) ?></div></td>
+        <td class="rent collected">KSH&nbsp;<?= number_format($totalArrears, 2) ?></td>
+        <td class="rent overpayment">KSH&nbsp;<?= number_format($totalOverpayment, 2) ?></td>
+        <td></td>
+    </tr>
+</tbody>
+
+</table>
                           </div>
                       </div>
                     </div>
