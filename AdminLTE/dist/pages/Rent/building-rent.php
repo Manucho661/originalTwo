@@ -72,6 +72,13 @@ $stmt = $pdo->query("
     WHERE t.status = 'active'
 ");
 $tenants = $stmt->fetchAll();
+
+try {
+  $stmt = $pdo->query("SELECT tenant_name, unit_code, amount_paid, payment_date, penalty, penalty_days, arrears, overpayment FROM tenant_rent_summary");
+  $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  die("Error fetching tenants: " . $e->getMessage());
+}
 ?>
 
 
@@ -556,31 +563,46 @@ $tenants = $stmt->fetchAll();
                                 </tr>
                             </thead>
                             <tbody>
-     <?php foreach ($tenants as $tenant): ?>
-      <tr>
-        <th>
-          <div class="d-flex justify-content-between">
-            <div><?= htmlspecialchars($tenant['first_name']) ?> <?= htmlspecialchars($tenant['middle_name'])?></div>
-            <div class="value" style="color:#FFC107">&nbsp;<?= htmlspecialchars($tenant['unit']) ?></div>
-          </div>
-        </th>
-        <td>
-          <div class="rent paid">
-            <div>KSH&nbsp;80,000</div>
-            <div class="date late">25-April</div>
-          </div>
-        </td>
-        <td>
-          <div class="rent penalit">KSH&nbsp;2000(<span class="rent lateDays">-5</span>)</div>
-        </td>
-        <td class="rent collected">KSH&nbsp;3,000</td>
-        <td class="rent overpayment">KSH&nbsp;500</td>
-        <td>
-          <button class="btn view"><a class="view-link" href="../people/tenant-profile.html">View</a></button>
-        </td>
-      </tr>
-    <?php endforeach; ?>
-                        </tbody>
+        <?php foreach ($tenants as $tenant): ?>
+            <?php
+                // Split name into parts for styling (optional)
+                $nameParts = explode(" ", $tenant['tenant_name']);
+                $firstName = $nameParts[0] ?? '';
+                $middleName = $nameParts[1] ?? '';
+                $unit = $tenant['unit_code'];
+                $amount = number_format($tenant['amount_paid'], 2);
+                $penalty = number_format($tenant['penalty'], 2);
+                $arrears = number_format($tenant['arrears'], 2);
+                $overpayment = number_format($tenant['overpayment'], 2);
+                $penaltyDays = (int)$tenant['penalty_days'];
+                $paymentDate = date("d-F", strtotime($tenant['payment_date']));
+            ?>
+            <tr>
+                <th>
+                    <div class="d-flex justify-content-between">
+                        <div><?= htmlspecialchars($firstName . ' ' . $middleName) ?></div>
+                        <div class="value" style="color:#FFC107">&nbsp;<?= htmlspecialchars($unit) ?></div>
+                    </div>
+                </th>
+                <td>
+                    <div class="rent paid">
+                        <div>KSH&nbsp;<?= $amount ?></div>
+                        <div class="date late"><?= $paymentDate ?></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="rent penalit">KSH&nbsp;<?= $penalty ? $penalty : '0.00' ?> (<span class="rent lateDays">-<?= $penaltyDays ?></span>)</div>
+                </td>
+                <td class="rent collected">KSH&nbsp;<?= $arrears ?></td>
+                <td class="rent overpayment">KSH&nbsp;<?= $overpayment ?></td>
+                <td>
+                    <button class="btn view">
+                        <a class="view-link" href="../people/tenant-profile.html">View</a>
+                    </button>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
                     </table>
 
                         </div>
@@ -814,6 +836,32 @@ $tenants = $stmt->fetchAll();
         });
       });
     </script>
+
+<script>
+document.querySelector('.pdf').addEventListener('click', function () {
+    import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(jsPDFModule => {
+        const { jsPDF } = jsPDFModule;
+        const doc = new jsPDF();
+        let content = document.querySelector("#rent").outerHTML;
+        doc.html(content, {
+            callback: function (doc) {
+                doc.save("rent_summary.pdf");
+            },
+            x: 10,
+            y: 10
+        });
+    });
+});
+
+document.querySelector('.excel').addEventListener('click', function () {
+    const table = document.getElementById("rent");
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.table_to_sheet(table);
+    XLSX.utils.book_append_sheet(wb, ws, "Rent Summary");
+    XLSX.writeFile(wb, "rent_summary.xlsx");
+});
+</script>
+
 
     <!-- End Loading out and in script -->
   </body>
