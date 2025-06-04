@@ -163,5 +163,5 @@ function populateRequestsTable(requests) {
 
 // Add a payment
 document.addEventListener("DOMContentLoaded", function() {
-      fetch(`actions/tenant_profile/fetch_records.php?user_id=${user_id}`)
+      fetch(`actions/add_records.php?user_id=${user_id}`)
 });
