@@ -1,5 +1,23 @@
 <?php
+// header('Content-Type: application/json');
+include '../db/connect.php';
 
+if (!isset($_GET['id'])) {
+  echo json_encode(['success' => false, 'message' => 'Tenant ID not provided']);
+  exit;
+}
+else{
+  
+}
+
+$user_id = intval($_GET['id']);
+
+try {
+ 
+
+} catch (PDOException $e) {
+  echo json_encode(['success' => false, 'message' => 'Query failed', 'error' => $e->getMessage()]);
+}
 ?>
 
 
