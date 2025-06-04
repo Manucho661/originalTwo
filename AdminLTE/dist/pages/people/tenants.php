@@ -700,13 +700,13 @@ width: 100%;
 
                       </div>
 
-                      <div class="d-flex">
-
-                        <button id="add_provider_btn"  class="btn shift-tenant rounded" style="height: fit-content;" onclick="openPopup()" > Shift Tenant</button>
-
-
-                            <div id="custom-buttons"></div>
-                      </div>
+                      <!-- Shift Tenant Button -->
+<div class="d-flex">
+  <button id="add_provider_btn" class="btn shift-tenant rounded" style="height: fit-content;" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
+    Shift Tenant
+  </button>
+  <div id="custom-buttons"></div>
+</div>
 
                     </div>
 
@@ -760,93 +760,69 @@ width: 100%;
 
 
                                               <!-- OVERLAYS -->
-<!-- Add Tenant Popup -->
-<div class="popup-overlay" id="addTenantModal">
-  <div class="popup-content shift-tenant-popup">
-    <button class="close-btn text-secondary" onclick="closePopup()">×</button>
 
-    <form id="shiftTenantForm" class="shift-tenant-form" onsubmit="submitShiftTenantForm(event)">
-      <h2 class="form-title mb-4"><<>> Shift Tenant</h2>
+<!-- Shift Tenant Modal -->
+<div class="modal fade" id="shiftTenantModal" tabindex="-1" aria-labelledby="shiftTenantModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color:white; color: #00192D; border-radius: 16px; border: 3px solid #00192D; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);">
 
-      <!-- Tenant Selection -->
-      <div class="form-group mb-3">
-        <label for="tenantSelect" class="form-label">👤 Select Tenant:</label>
-        <select id="tenantSelect" name="tenant" class="form-select" required>
-          <option value="" disabled selected>Select Tenant</option>
-          <option value="tenant1">John Doe</option>
-          <option value="tenant2">Jane Smith</option>
-        </select>
+      <!-- Header with Biccount Colors -->
+      <div class="modal-header" style="background-color: #00192D;">
+        <h5 class="modal-title" id="shiftTenantModalLabel" style="color: #FFC107; font-weight: bold;">🚚 Shift Tenant</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Building Selection -->
-      <div class="form-group mb-3">
-        <label for="buildingSelect" class="form-label">🏢 Select Building:</label>
-        <select id="buildingSelect" name="building" class="form-select" required>
-          <option value="" disabled selected>Select Building</option>
-          <option value="Manucho">Manucho</option>
-          <option value="White House">White House</option>
-          <option value="Pink House">Pink House</option>
-          <option value="Silver">Silver</option>
-        </select>
+      <!-- Body -->
+      <div class="modal-body pt-4 pb-2 px-4">
+        <form id="shiftTenantForm">
+
+          <div class="mb-3">
+            <label for="tenantSelect" class="form-label" style="color: #00192D; font-weight: 500;">Select Tenant</label>
+            <select class="form-select" id="tenantSelect" name="tenant" style="background-color: #f9f9f9; color: #00192D; border-radius: 8px;">
+              <option selected disabled>Choose a tenant</option>
+              <!-- Populate dynamically -->
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="buildingSelect" class="form-label" style="color: #00192D; font-weight: 500;">Select Building</label>
+            <select class="form-select" id="buildingSelect" name="building" style="background-color: #f9f9f9; color: #00192D; border-radius: 8px;">
+              <option selected disabled>Choose a building</option>
+              <!-- Populate dynamically -->
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="unitSelect" class="form-label" style="color: #00192D; font-weight: 500;">Select Unit</label>
+            <select class="form-select" id="unitSelect" name="unit" style="background-color: #f9f9f9; color: #00192D; border-radius: 8px;">
+              <option selected disabled>Choose a unit</option>
+              <!-- Populate dynamically -->
+            </select>
+          </div>
+
+        </form>
       </div>
 
-      <!-- Unit Selection -->
-      <div class="form-group mb-4">
-        <label for="unitSelect" class="form-label">🔑 Select Unit:</label>
-        <select id="unitSelect" name="unit" class="form-select" required>
-          <option value="" disabled selected>Select Unit</option>
-          <option value="Unit 101">Unit 101</option>
-          <option value="Unit 102">Unit 102</option>
-          <option value="Unit 201">Unit 201</option>
-          <option value="Unit 301">Unit 301</option>
-        </select>
+      <!-- Footer -->
+      <div class="modal-footer" style="border-top: 1px solid #FFC107; padding: 1rem 1.5rem;">
+        <button type="button" class="btn" data-bs-dismiss="modal"
+          style="background-color: #00192D; color: white; border-radius: 20px; padding: 8px 20px; font-weight: 500;">
+          Cancel
+        </button>
+        <button type="submit" form="shiftTenantForm" class="btn"
+          style="background-color: #FFC107; color: #00192D; border-radius: 20px; padding: 8px 20px; font-weight: 500;">
+          Confirm Shift
+        </button>
       </div>
 
-      <!-- Submit Button -->
-      <div class="d-grid">
-        <button type="submit" class="btn btn-primary" style="background-color: #00192D; color: #FFC107;">SHIFT</button>
-      </div>
-    </form>
+    </div>
   </div>
 </div>
 
 
-        <!--End Add Tenant -->
+  
 
-        <!-- Shift Tenant -->
-          <div class="shiftpopup-overlay" id="shiftPopup">
-            <div class="shiftpopup-content">
-              <button class="close-btn text-secondary" onclick="closeshiftPopup()">×</button>
-              <div class="shift">
-              <h2 style="color: #00192D;">Shift Tenant</h2>
-              <label for="tenant">Select Tenant:</label>
-
-              <select id="tenant"  style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
-                  <option value="John Doe">John Doe</option>
-                  <option value="Jane Smith">Jane Smith</option>
-                  <option value="Mike Johnson">Mike Johnson</option>
-              </select>
-
-              <label for="property" >Select New Property:</label>
-              <select id="property" style="padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 4px; font-size: 16px;">
-                  <option value="Apartment 101">Apartment 101</option>
-                  <option value="House B3">House B3</option>
-                  <option value="Condo 23A">Condo 23A</option>
-              </select>
-              <label for="property">Select Unit:</label>
-              <select id="property" style="width: 100%;padding: 10px;margin-bottom: 15px;border-radius: 5px;border: 1px solid #ccc;">
-                  <option value="Apartment 101">A55</option>
-                  <option value="House B3">B3</option>
-                  <option value="Condo 23A">CA</option>
-              </select>
-              <br>
-
-              <button  type="submit" class="submit-btn" onclick="shiftTenant()"  style="background-color: #00192D; color: #f1f1f1;">Confirm Shift</button>
-
-            </div>
-            </div>
-          </div>
-
+       
 
     <!--Begin Jquery plugin-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
