@@ -70,6 +70,28 @@
       .app-wrapper{
         background-color: rgba(128,128,128, 0.1);
       }
+
+      
+    .dropdown-menu {
+      min-width: 120px;
+      background-color: #132E45	;
+      color: #FFA000 !important;
+    }
+    .dropdown-menu li{
+     color: #FFA000 !important;
+    }
+    .more-btn {
+      background-color: #132E45;
+      color: white;
+      margin-left: 2px;
+      margin-right: 2px;
+      border: none;
+    }
+    .more-btn:hover {
+      background-color: #00192D;
+      color: white;
+    }
+  </style>
     </style>
   </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">

@@ -134,14 +134,15 @@ function populateRequestsTable(requests) {
           <i class="fas fa-eye"></i>
         </button>
       </div>
-      
-      <div>
-      <button class="btn btn-sm more-btn"
-      style="background-color: #b02a37; margin-left: 2px; margin-right: 2px; color: #fff;"
-      > More
-      
-      </button>
-      </div>
+      <div class="dropdown">
+            <button class="btn btn-sm more-btn d-flex" data-bs-toggle="dropdown" aria-expanded="false">⋮</button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" style="color: #FFA000 !important;"> <i class="fas fa-tasks"></i> Assign Provider</a></li>
+              <li><a class="dropdown-item" href="#" style="color: #FFA000 !important;"> <i class="fas fa-tasks"></i> Mark Complete</a></li>
+              <li><a class="dropdown-item" href="#" style="color: #FFA000 !important;" ><i class="fas fa-eye"></i> View Payment</a></li>
+              <li><a class="dropdown-item" href="#" style="color: #F87171 !important;"  ><i class="fas fa-trash"></i>     Delete Request</a></li>
+            </ul>
+          </div>
     </div>
       </div>
     </td>
