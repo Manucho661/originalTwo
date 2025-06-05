@@ -696,7 +696,7 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
           <h5 class="modal-title fw-bold" id="viewUnitModalLabel" style="color:#FFC107;">
             <i class="fas fa-info-circle me-2"></i>Unit Details
           </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          <!--<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>-->
         </div>
 
         <div class="modal-body px-4 pt-4 pb-2">
@@ -988,6 +988,8 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
                   document.getElementById('meteringPopup').style.display = 'none'; // Hide the overlay
               }
           </script>
+
+          <!--View unit js-->
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
