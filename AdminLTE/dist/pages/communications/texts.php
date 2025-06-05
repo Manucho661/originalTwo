@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['title']) && !empty($
         $now = (new DateTime('now', new DateTimeZone('Africa/Nairobi')))->format('Y-m-d H:i:s');
 
         // Insert communication thread
-        $stmt = $pdo->prepare("INSERT INTO communication (title, message, files, unit_id, tenant, building_name, building_id, created_at, updated_at) VALUES (?, ?,  ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$title, $message, $files_json, $unit_id, $tenant, $building_name, $building_id, $now, $now]);
+        $stmt = $pdo->prepare("INSERT INTO communication (title, message, files, unit_id, tenant, building_name, created_at, updated_at) VALUES (?, ?,  ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $message, $files_json, $unit_id, $tenant, $building_name, $now, $now]);
 
         $thread_id = $pdo->lastInsertId();
         $message_id = $pdo->lastInsertId(); // Get the message ID for attachments
@@ -849,7 +849,7 @@ display: flex;
                                   <div class="col-md-4 col-12 RecentChatNewText-btns" style="align-items: center;">
                                       <div class="date d-flex date">
                                           <label class="form-label startDate">Start Date</label>
-                                          <input type="date" class="form-control" id="endDate" placeholder="end">
+                                          <input type="date" class="form-control" id="startDate" placeholder="end">
                                       </div>
                                       <div class="date d-flex date">
                                           <label class="form-label endDate">End Date</label>
