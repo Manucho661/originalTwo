@@ -387,27 +387,42 @@
             </div>
             <!--begin::Row-->
             <div class="row">
-
+              
+              <h6 class="mb-0 contact_section_header summary mb-2"></i> Requests</h6>
+              
               <div class="col-md-12">
-                <h6 class="mb-0 contact_section_header summary mb-2"></i> Requests</h6>
-                <table id="maintanance" class=" display summary-table" >
-                  <thead class="mb-2">
-                    <tr>
-                        <th>REQUEST Date</th>
-                        <th>Request ID</th>
-                        <th>PROPERTY + UNIT</th>
-                        <th>CATEGORY + DESCRIPTION </th>
-                        <th>PROVIDER</th>
-                        <th>PRIORITY</th>             
-                        <th>STATUS</th>
-                        <th>PAYMENT</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                  </thead>
-                  <tbody id="maintenanceRequestsTableBody">
-                    
-                  </tbody>
-                </table> 
+                <div class="Table-section bg-white p-2 rounded-2">
+                  <div class="table-section-header">
+                    <div class="entries">
+                      <h6 class="mb-0 contact_section_header summary mb-2 p-2 rounded-top" style="background-color: #00192D; color:#FFA000;"> <span class="text-white">Manucho |</span>  5 entries</h6>
+                    </div>
+                    <div class="search-pdf-excel d-flex justify-content-between">
+                      <div id="custom-search">
+                          <input type="text" id="searchInput" placeholder="Search request...">
+                      </div>
+                      <div id="custom-buttons"></div>
+                    </div>
+                  </div>
+                  
+                  <table id="requests-table" class=" display summary-table" >
+                    <thead class="mb-2">
+                      <tr>
+                          <th>REQUEST Date</th>
+                          <th>Request ID</th>
+                          <th>PROPERTY + UNIT</th>
+                          <th>CATEGORY + DESCRIPTION </th>
+                          <th>PROVIDER</th>
+                          <th>PRIORITY</th>             
+                          <th>STATUS</th>
+                          <th>PAYMENT</th>
+                          <th>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody id="maintenanceRequestsTableBody">
+                      
+                    </tbody>
+                  </table>
+                </div> 
               </div>
                <!-- Record Payment Modal -->
               <div class="modal fade" id="recordPaymentModal" tabindex="-1" aria-labelledby="recordPaymentModalLabel" aria-hidden="true">
@@ -427,7 +442,7 @@
                           <!-- Amount Paid -->
                           <div class="col-md-6 form-floating">
                             <input type="number" class="form-control" id="amountPaid" name="amountPaid" placeholder="Amount Paid" required>
-                            <label for="amountPaid"><i class="fas fa-coins me-2 text-primary"></i>Amount Paid</label>
+                            <label for="amountPaid"><i class="fas fa-coins me-2" style="color:#FFA000 ! important" ></i>Amount Paid</label>
                           </div>
 
                           <!-- Payment Method -->
@@ -451,7 +466,7 @@
                           <!-- Service Provider -->
                           <div class="col-md-6 form-floating">
                             <input type="text" class="form-control" id="serviceProvider" name="serviceProvider" placeholder="Service Provider" required>
-                            <label for="serviceProvider"><i class="fas fa-user-tie me-2"></i>Service Provider</label>
+                            <label for="serviceProvider"><i class="fas fa-user-tie me-2" style="color:#FFA000 ! important"></i>Service Provider</label>
                           </div>
 
                           <!-- Cheque Number -->
@@ -485,7 +500,7 @@
                         <input type="hidden" name="request_id" id="modal_request_id">
                         <input type="hidden" name="form_type" value="addPaymentForm">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Payment</button>
+                        <button type="submit" class="btn" style="background-color:#00192D; color:#FFA000;"><i class="fas fa-save me-1"></i> Save Payment</button>
                       </div>
                     </form>
                   </div>
@@ -596,7 +611,7 @@
         });
     </script>
 
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
@@ -681,7 +696,8 @@ $(document).ready(function() {
     </script>
     <!--end::OverlayScrollbars Configure-->
     
-    
+    <!-- DataTable Script -->
+     
 
     <!--end::Script-->
   </body>
