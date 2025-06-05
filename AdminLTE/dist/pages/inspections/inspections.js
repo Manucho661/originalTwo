@@ -178,7 +178,6 @@ function handleFormSubmit_inspect(formId, url, extraFields = {}) {
           data-building-name="${inspection.building_name}"
           data-unit="${inspection.unit || ''}"
           data-inspection-id="${inspection.id}"
-
          style="background-color: #00192D; color:#FFC107">
          Inspect</button>
 

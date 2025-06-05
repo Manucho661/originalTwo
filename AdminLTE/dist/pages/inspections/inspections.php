@@ -765,7 +765,6 @@ $inspectionsCount = is_array($inspections) ? count($inspections) : 0;
           </div>
         </div>                                          
       </section>
-
       <!-- Inspection(inspected) Modal -->
       <div class="modal fade" id="inspectionModal" tabindex="-1" aria-labelledby="inspectionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">

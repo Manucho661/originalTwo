@@ -614,9 +614,12 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
 </button>
 
 
-                <button class="btn btn-sm" style="background-color: #193042; color:#FFC107; margin-right: 2px;" data-toggle="modal" data-target="#viewUnitModal" title="View">
-                    <i class="fas fa-eye"> View</i>
-                </button>
+
+<button class="btn btn-sm view-unit-btn"
+        style="background-color: #193042; color:#FFC107; margin-right: 2px;"
+        data-unit-id="<?= $unit['unit_id']; ?>">
+  <i class="fas fa-eye"> View</i>
+</button>
 
 
 
@@ -683,6 +686,75 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
       <!--end::Footer-->
     </div>
     <!--end::App Wrapper-->
+
+    <!--View Unit Modal-->
+<div class="modal fade" id="viewUnitModal" tabindex="-1" aria-labelledby="viewUnitModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content shadow-lg rounded-4 border-0">
+      <form>
+        <div class="modal-header py-3" style="background-color: #00192D;">
+          <h5 class="modal-title fw-bold" id="viewUnitModalLabel" style="color:#FFC107;">
+            <i class="fas fa-info-circle me-2"></i>Unit Details
+          </h5>
+          <!--<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>-->
+        </div>
+
+        <div class="modal-body px-4 pt-4 pb-2">
+          <div class="table-responsive">
+            <table class="table table-hover table-borderless align-middle">
+              <tbody class="fs-6">
+                <tr>
+                  <th class="text-end text-nowrap  fw-semibold" style="width: 35%; color: #00192D;">
+                    <i class="fas fa-door-open me-2 text-warning"></i>Unit Name:
+                  </th>
+                  <td id="viewUnitName" class="text-dark fw-medium"></td>
+                </tr>
+                <tr>
+                  <th class="text-end text-nowrap  fw-semibold" style="color: #00192D;">
+                    <i class="fas fa-user me-2 text-warning"></i>Tenant Name:
+                  </th>
+                  <td id="viewTenantName" class="text-dark fw-medium"></td>
+                </tr>
+                <tr>
+                  <th class="text-end text-nowrap  fw-semibold" style="color: #00192D;">
+                    <i class="fas fa-bed me-2 text-warning"></i>Room:
+                  </th>
+                  <td id="viewRoom" class="text-dark fw-medium"></td>
+                </tr>
+                <tr>
+                  <th class="text-end text-nowrap  fw-semibold" style="color: #00192D;">
+                    <i class="fas fa-building me-2 text-warning"></i>Unit Type:
+                  </th>
+                  <td id="viewUnitType" class="text-dark fw-medium"></td>
+                </tr>
+                <tr>
+                  <th class="text-end text-nowrap  fw-semibold" style="color: #00192D;">
+                    <i class="fas fa-door-closed me-2 text-warning"></i>Room Type:
+                  </th>
+                  <td id="viewRoomType" class="text-dark fw-medium"></td>
+                </tr>
+                <tr>
+                  <th class="text-end text-nowrap  fw-semibold " style="color: #00192D;">
+                    <i class="fas fa-layer-group me-2 text-warning" ></i>Floor Number:
+                  </th>
+                  <td id="viewFloorNumber" class="text-dark fw-medium"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-footer justify-content-center pb-4">
+          <button type="button" class="btn px-4 py-2 fw-semibold" data-bs-dismiss="modal" style="background-color:#00192D; color:#FFC107; border-radius: 30px;">
+            <i class="fas fa-times-circle me-1"></i> Close
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
 
 
 
@@ -916,6 +988,8 @@ echo '<a style="color:#193042;" href="../property/meterreading.php?building_id='
                   document.getElementById('meteringPopup').style.display = 'none'; // Hide the overlay
               }
           </script>
+
+          <!--View unit js-->
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -1262,6 +1336,43 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const viewButtons = document.querySelectorAll(".view-unit-btn");
+
+  viewButtons.forEach(button => {
+    button.addEventListener("click", function () {
+      const unitId = button.getAttribute("data-unit-id");
+
+      fetch(`get_unit_basic_details.php?unit_id=${unitId}`)
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            const data = result.data;
+            document.getElementById("viewUnitName").textContent = data.unit_number || '-';
+            document.getElementById("viewTenantName").textContent = 'N/A'; // You can change this if you have tenant info
+            document.getElementById("viewRoom").textContent = data.rooms || '-';
+            document.getElementById("viewUnitType").textContent = data.unit_type || '-';
+            document.getElementById("viewRoomType").textContent = data.room_type || '-';
+            document.getElementById("viewFloorNumber").textContent = data.floor_number || '-';
+
+            const viewModal = new bootstrap.Modal(document.getElementById("viewUnitModal"));
+            viewModal.show();
+          } else {
+            alert(result.message || "Failed to fetch unit data.");
+          }
+        })
+        .catch(error => {
+          console.error("Fetch error:", error);
+          alert("Something went wrong while fetching unit details.");
+        });
+    });
+  });
+});
+</script>
+
+
 
 <script>
   const cty = document.getElementById('rentalTrends').getContext('2d');

@@ -701,12 +701,12 @@ width: 100%;
                       </div>
 
                       <!-- Shift Tenant Button -->
-<div class="d-flex">
-  <button id="add_provider_btn" class="btn shift-tenant rounded" style="height: fit-content;" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
-    Shift Tenant
-  </button>
-  <div id="custom-buttons"></div>
-</div>
+                    <div class="d-flex">
+                      <button id="add_provider_btn" class="btn shift-tenant rounded" style="height: fit-content;" data-bs-toggle="modal" data-bs-target="#shiftTenantModal">
+                        Shift Tenant
+                      </button>
+                      <div id="custom-buttons"></div>
+                    </div>
 
                     </div>
 

@@ -70,6 +70,28 @@
       .app-wrapper{
         background-color: rgba(128,128,128, 0.1);
       }
+
+      
+    .dropdown-menu {
+      min-width: 120px;
+      background-color: #132E45	;
+      color: #FFA000 !important;
+    }
+    .dropdown-menu li{
+     color: #FFA000 !important;
+    }
+    .more-btn {
+      background-color: #132E45;
+      color: white;
+      margin-left: 2px;
+      margin-right: 2px;
+      border: none;
+    }
+    .more-btn:hover {
+      background-color: #00192D;
+      color: white;
+    }
+  </style>
     </style>
   </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
@@ -387,103 +409,120 @@
             </div>
             <!--begin::Row-->
             <div class="row">
-
+              
+              <h6 class="mb-0 contact_section_header summary mb-2"></i> Requests</h6>
+              
               <div class="col-md-12">
-                <h6 class="mb-0 contact_section_header summary mb-2"></i> Requests</h6>
-                <table id="maintanance" class=" display summary-table" >
-                  <thead class="mb-2">
-                    <tr>
-                        <th>REQUEST Date</th>
-                        <th>Request ID</th>
-                        <th>PROPERTY + UNIT</th>
-                        <th>CATEGORY + DESCRIPTION </th>
-                        <th>PROVIDER</th>
-                        <th>PRIORITY</th>             
-                        <th>STATUS</th>
-                        <th>PAYMENT</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                  </thead>
-                  <tbody id="maintenanceRequestsTableBody">
-                    
-                  </tbody>
-                </table> 
+                <div class="Table-section bg-white p-2 rounded-2">
+                  <div class="table-section-header">
+                    <div class="entries">
+                      <h6 class="mb-0 contact_section_header summary mb-2 p-2 rounded-top" style="background-color: #00192D; color:#FFA000;"> <span class="text-white">Manucho |</span>  5 entries</h6>
+                    </div>
+                    <div class="search-pdf-excel d-flex justify-content-between">
+                      <div id="custom-search">
+                          <input type="text" id="searchInput" placeholder="Search request...">
+                      </div>
+                      <div id="custom-buttons"></div>
+                    </div>
+                  </div>
+                  
+                  <table id="requests-table" class=" display summary-table" >
+                    <thead class="mb-2">
+                      <tr>
+                          <th>REQUEST Date</th>
+                          <th>Request ID</th>
+                          <th>PROPERTY + UNIT</th>
+                          <th>CATEGORY + DESCRIPTION </th>
+                          <th>PROVIDER</th>
+                          <th>PRIORITY</th>             
+                          <th>STATUS</th>
+                          <th>PAYMENT</th>
+                          <th>ACTIONS</th>
+                      </tr>
+                    </thead>
+                    <tbody id="maintenanceRequestsTableBody">
+                      
+                    </tbody>
+                  </table>
+                </div> 
               </div>
                <!-- Record Payment Modal -->
               <div class="modal fade" id="recordPaymentModal" tabindex="-1" aria-labelledby="recordPaymentModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                   <div class="modal-content rounded-4 shadow-sm">
-                    <div class="modal-header bg-primary text-white rounded-top">
-                      <h5 class="modal-title" id="recordPaymentModalLabel">
+                    <div class="modal-header bg-primary text-white rounded-top" style="background-color: #00192D !important;" >
+                      <h5 class="modal-title" id="recordPaymentModalLabel" style="color:#FFA000 !important; margin-left:5px;" id="inspectionModalLabel" >
                         <i class="fas fa-money-check-alt me-2"></i> Record Payment
                       </h5>
                       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
-                    <form id="recordPaymentForm">
+                    <form id="recordPaymentForm" onsubmit="addRequestPayment(event)" enctype="multipart/form-data" >
                       <div class="modal-body">
                         <div class="row g-3">
 
                           <!-- Amount Paid -->
                           <div class="col-md-6 form-floating">
-                            <input type="number" class="form-control" id="amountPaid" placeholder="Amount Paid" required>
-                            <label for="amountPaid"><i class="fas fa-coins me-2 text-primary"></i>Amount Paid</label>
+                            <input type="number" class="form-control" id="amountPaid" name="amountPaid" placeholder="Amount Paid" required>
+                            <label for="amountPaid"><i class="fas fa-coins me-2" style="color:#FFA000 ! important" ></i>Amount Paid</label>
                           </div>
 
                           <!-- Payment Method -->
                           <div class="col-md-6 form-floating">
-                            <select class="form-select" id="paymentMethod" required>
+                            <select class="form-select" name="paymentMethod" id="paymentMethod" required>
                               <option value="" selected disabled>Select Method</option>
                               <option>Cash</option>
                               <option>M-Pesa</option>
                               <option>Bank Transfer</option>
                               <option>Cheque</option>
                             </select>
-                            <label for="paymentMethod"><i class="fas fa-wallet me-2 text-primary"></i>Payment Method</label>
+                            <label for="paymentMethod"><i class="fas fa-wallet me-2" style="color:#FFA000 ! important"></i>Payment Method</label>
                           </div>
 
                           <!-- Date Paid -->
                           <div class="col-md-6 form-floating">
-                            <input type="date" class="form-control" id="datePaid" placeholder="Date Paid" required>
-                            <label for="datePaid"><i class="fas fa-calendar-day me-2 text-primary"></i>Date Paid</label>
+                            <input type="date" class="form-control" id="datePaid" name="datePaid" placeholder="Date Paid" required>
+                            <label for="datePaid"><i class="fas fa-calendar-day me-2" style="color:#FFA000 ! important"></i>Date Paid</label>
                           </div>
 
                           <!-- Service Provider -->
                           <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="serviceProvider" placeholder="Service Provider" required>
-                            <label for="serviceProvider"><i class="fas fa-user-tie me-2 text-primary"></i>Service Provider</label>
+                            <input type="text" class="form-control" id="serviceProvider" name="serviceProvider" placeholder="Service Provider" required>
+                            <label for="serviceProvider"><i class="fas fa-user-tie me-2" style="color:#FFA000 ! important"></i>Service Provider</label>
                           </div>
 
                           <!-- Cheque Number -->
                           <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="chequeNumber" placeholder="Cheque Number">
-                            <label for="chequeNumber"><i class="fas fa-receipt me-2 text-primary"></i>Cheque Number</label>
+                            <input type="text" class="form-control" name="chequeNumber" id="chequeNumber" placeholder="Cheque Number">
+                            <label for="chequeNumber"><i class="fas fa-receipt me-2" style="color:#FFA000 ! important" ></i>Cheque Number</label>
                           </div>
 
                           <!-- Invoice Number -->
                           <div class="col-md-6 form-floating">
-                            <input type="text" class="form-control" id="invoiceNumber" placeholder="Invoice Number">
-                            <label for="invoiceNumber"><i class="fas fa-file-invoice me-2 text-primary"></i>Invoice Number</label>
+                            <input type="text" class="form-control" name="invoiceNumber" id="invoiceNumber" placeholder="Invoice Number">
+                            <label for="invoiceNumber"><i class="fas fa-file-invoice me-2"style="color:#FFA000 ! important" ></i>Invoice Number</label>
                           </div>
 
                           <!-- Notes -->
                           <div class="col-12 form-floating">
-                            <textarea class="form-control" id="paymentNotes" placeholder="Notes" style="height: 100px;"></textarea>
-                            <label for="paymentNotes"><i class="fas fa-comment-dots me-2 text-primary"></i>Payment Notes</label>
+                            <textarea class="form-control" id="paymentNotes" name="paymentNotes" placeholder="Notes" style="height: 100px;"></textarea>
+                            <label for="paymentNotes"><i class="fas fa-comment-dots me-2" style="color:#FFA000 ! important"></i>Payment Notes</label>
                           </div>
 
                           <!-- Upload Receipt (Optional) -->
                           <div class="col-12">
-                            <label for="uploadReceipt" class="form-label text-primary fw-bold"><i class="fas fa-upload me-2"></i>Upload Receipt (optional)</label>
-                            <input class="form-control" type="file" id="uploadReceipt" accept="image/*,application/pdf">
+                            <label for="uploadReceipt" class="form-label fw-bold" style="color:#FFA000 ! important"><i class="fas fa-upload me-2"></i>Upload Receipt (optional)</label>
+                            <input class="form-control" type="file" name="uploadReceipt" id="uploadReceipt" accept="image/*,application/pdf">
                           </div>
 
                         </div>
                       </div>
                       
                       <div class="modal-footer">
+                        <input type="hidden" name="request_id" id="modal_request_id">
+                        <input type="hidden" name="form_type" value="addPaymentForm">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Save Payment</button>
+                        <button type="submit" class="btn" style="background-color:#00192D; color:#FFA000;"><i class="fas fa-save me-1"></i> Save Payment</button>
                       </div>
                     </form>
                   </div>
@@ -521,141 +560,6 @@
 
 
 <!-- Overlay Cards -->
-
-<!-- create Announcement -->
-
-
-
-
-
- <!-- Start View announcement -->
- <div class="view_announcement" id="view_announcement">
-  <div class="card content">
-   <div class="card-header view_announcement bg-secondary text-white">
-       <h5 class="mb-0">Rent Payments</h5>
-       <div id="close-overlay-btn" class="close-btn" > <b> &times;</b> </div>
-
-   </div>
-   <div class="card-body">
-       <p class="card-text">
-           All Rent Payments should be made before 24/01/17. Anyone who feels that they might not
-           be able to complete their dues on 24/01/17 should communicate to management before the due date.
-           Else, you face an eviction risk if you fail to pay your dues before the said date without a reasonable reason</p>
-
-           <p class="timestamp" id="timestamp"></p> <!-- Timestamp -->
-
-
-       <div class="Recipients border-top border-gray "> <p><strong>Recipients|</strong> All Employees</p>  </div>
-
-   </div>
-   <div class="card-footer view_announcement d-flex">
-       <button class="btn btn-danger btn-sm">Delete</button>
-       <button class="btn btn-secondary btn-sm">Resend</button>
-   </div>
- </div>
- </div>
-
-  <!-- Lease Modal -->
-<div class="modal fadey" id="leaseyModal" tabindex="-1" aria-labelledby="leaseyModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="leaseyModalLabel"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="container">
-          <div class="form-wrapper">
-              <h1 class="text-warning">Assign Task</h1>
-              <form id="taskForm">
-                <div class="input-group">
-                  <label for="taskName">Task About To Be Assigned:</label>
-                  <input type="text" id="taskName" name="taskName" placeholder="Enter task name" style="border-radius: 10px; width: 100%;"   required>
-              </div>
-
-                  <div class="input-group">
-                      <label for="serviceProvider">Select A Category For The Task</label>
-                  <label for="taskName"></label>
-                      <select id="serviceProvider" name="serviceProvider" style="border-radius: 10px;"  required>
-                          <option value="" id="taskName" disabled selected>Select A Category </option>
-                          <option value="John">Electrical</option>
-                          <option value="Jane">Plumbing</option>
-                          <option value="Mike">Cleaning</option>
-                      </select>
-                  </div>
-                  <div class="input-group">
-                    <label for="serviceProvider">Select Service Provider:</label>
-                    <select id="serviceProvider" name="serviceProvider" style="border-radius: 10px;" required>
-                        <option value="" id="taskName"  disabled selected>Select Provider</option>
-                        <option value="John">John </option>
-                        <option value="Jane">Jane </option>
-                        <option value="Mike">Mike </option>
-                    </select>
-                </div>
-
-
-                  <button type="submit" class="submit-btn" style="border-radius: 10px; background-color: #00192D; width: 50%; margin-left: 6rem;" >Assign</button>
-              </form>
-          </div>
-
-          <!-- <div id="assignedTasks">
-              <h2>Assigned Tasks</h2>
-              <ul id="taskList"></ul>
-          </div> -->
-      </div>
-
-
-      </div>
-    </div>
-  </div>
-</div>
-
-  <!-- Lease Modal -->
-  <div class="modal fade" id="leaseModal" tabindex="-1" aria-labelledby="leaseModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="leaseModalLabel"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form class="beasy">
-             <!-- Landlord Information Section -->
-      <!-- Service Provider Information Section -->
-      <div class="form-section">
-        <h3 class="text-warning">Landlord Information</h3>
-         <a href="#"><p>Martin White</p></a>
-        <!-- <label for="landlordName">Landlord Name(Martin White)</label> -->
-        <!-- <input type="text" id="landlordName" name="landlordName" placeholder="Enter your full name" required> -->
-
-        <h3 class="text-warning">Select Service Providers Information</h3>
-        <label for="paymentMethod">Choose:</label>
-        <select id="paymentMethod" name="paymentMethod" required>
-          <option value="bank_transfer">ABX Electricals</option>
-          <option value="bank_transfer">Sunsine Plumbers</option>
-          <option value="bank_transfer">Favored Technologies</option>
-        </select>
-        <h3 class="text-warning">Payment Details</h3>
-        <label for="amount">Payment Amount (KSH)</label>
-        <input type="text" id="landlordName" name="landlordName" placeholder="Enter Amount" required>
-
-        <label for="paymentMethod">Payment Method</label>
-        <select id="paymentMethod" name="paymentMethod" required>
-          <option value="mpesa_transfer" class="bossy">MPESA</option>
-          <option value="mpesa_transfer" class="bossy">Bank</option>
-          <option value="mpesa_transfer" class="bossy">Global Pay</option>
-          <option value="mpesa_transfer" class="bossy">Cash</option>
-
-        </select>
-         <!-- Submit Button -->
-         <button type="submit" class="bossy"> MAKE PAYMENT</button>
-      </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-<!-- End view announcement -->
 <!-- Overlay scripts -->
 <!-- main js file -->
 <script src="maintenance.js"></script>
@@ -729,7 +633,7 @@
         });
     </script>
 
-     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
@@ -814,7 +718,8 @@ $(document).ready(function() {
     </script>
     <!--end::OverlayScrollbars Configure-->
     
-    
+    <!-- DataTable Script -->
+     
 
     <!--end::Script-->
   </body>

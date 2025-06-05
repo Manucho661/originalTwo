@@ -1185,9 +1185,6 @@ display: flex;
 
 <!-- PopUp Scripts -->
 
-
-
-
 <!-- new text popup -->
                 <div class="newtextpopup-overlay" id="newtextPopup">
                     <div  class="card" style="margin-top: 20px;">
@@ -1206,12 +1203,11 @@ display: flex;
                               <option value="">-- Select Building --</option>
                               <?php foreach ($buildings as $b): ?>
                               <option value="<?= htmlspecialchars($b['building_id']) ?>">
-                                  <?= htmlspecialchars($b['building_name']) ?>
+                              <?= htmlspecialchars($b['building_name']) ?>
                               </option>
-                              <?php endforeach; ?>
+                              <?php endforeach;?>
                               </select>
                               </div>
-
                             <div id="field-group-second" class="field-group second" style="display:block">
                             <label for="recipient-units">Unit</label>
                             <select name="unit_id" id="unit-select">
