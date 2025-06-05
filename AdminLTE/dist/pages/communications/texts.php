@@ -119,7 +119,7 @@ if ($building_id) {
 
 // === FETCH COMMUNICATION THREADS ===
 $stmt = $pdo->prepare("
-    SELECT
+     SELECT
         c.thread_id,
         c.title,
         c.tenant,
@@ -127,9 +127,9 @@ $stmt = $pdo->prepare("
         c.building_name,
         c.message,
         (SELECT content FROM messages WHERE thread_id = c.thread_id ORDER BY timestamp DESC LIMIT 1) AS last_message,
+        (SELECT file_path FROM messages WHERE thread_id = c.thread_id ORDER BY timestamp DESC LIMIT 1) AS last_file,
         (SELECT timestamp FROM messages WHERE thread_id = c.thread_id ORDER BY timestamp DESC LIMIT 1) AS last_time,
-        (SELECT COUNT(*) FROM messages WHERE thread_id = c.thread_id AND is_read = 0) AS unread_count,
-        (SELECT file_path FROM message_files WHERE thread_id = c.thread_id LIMIT 1) AS preview_file
+        (SELECT COUNT(*) FROM messages WHERE thread_id = c.thread_id AND is_read = 0) AS unread_count
     FROM communication c
     ORDER BY last_time DESC
 ");
@@ -555,11 +555,73 @@ display: flex;
     z-index: 999;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
+.alert-box {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 300px;
+  font-size: 16px;
+  animation: fadeInSlideDown 0.5s ease;
+}
 
+.close-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 15px;
+}
 
+@keyframes fadeInSlideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.file-preview {
+  color: #666;
+  font-size: 0.9em;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-preview i {
+  margin-right: 5px;
+  color: #6c757d;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-style: italic;
+}
 </style>
 </head>
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+
+
+  <div id="welcomeNotification" class="alert-box">
+  <span>👋 Welcome! Glad Your Here!</span>
+  <button onclick="dismissWelcome()" class="close-btn">&times;</button>
+</div>
+
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
       <!--begin::Header-->
@@ -810,7 +872,7 @@ display: flex;
               </div>
 
               <div class="col-sm-4 d-flex justify-content-end">
-                <button   class="btn automated_message">    Automated Messages</button>
+                <button   class="btn automated_message">Automated Messages</button>
 
               </div>
 
@@ -843,7 +905,7 @@ display: flex;
                                         </option>
                                       <?php endforeach; ?>
                                       </select>
-                                      <input type="text" class="search-input" placeholder="Search Tenant...">
+                                      <input type="text" class="search-input" id="searchInput" placeholder="Search Tenant...">
                                   </div>
                                   </div>
                                   <div class="col-md-4 col-12 RecentChatNewText-btns" style="align-items: center;">
@@ -908,7 +970,7 @@ display: flex;
         $title = htmlspecialchars($comm['title']);
         $threadId = $comm['thread_id'];
       ?>
-        <tr class="table-row">
+        <tr class="table-row" data-date="<?= $datetime->format('Y-m-d') ?>">
           <td class="timestamp">
             <div class="date"><?= $date ?></div>
             <div class="time"><?= $time ?></div>
@@ -929,11 +991,16 @@ display: flex;
           </td>
         </tr>
       <?php endforeach; ?>
+      <tr id="noResultsRow" style="display: none;">
+  <td colspan="5" class="text-center text-danger">No matching results found.</td>
+</tr>
+
     <?php else: ?>
       <tr>
         <td colspan="5" class="text-center">No message available</td>
       </tr>
     <?php endif; ?>
+
   </tbody>
 </table>
 
@@ -979,7 +1046,22 @@ display: flex;
       <div class="individual-topic-profile-container">
         <div class="individual-topic"><?= htmlspecialchars($comm['title']) ?></div>
         <div class="individual-message mt-2">
-          <?= htmlspecialchars(mb_strimwidth($comm['last_message'], 0, 60, '...'))?>
+        <?php if (!empty($comm['last_file'])): ?>
+            <!-- Show file preview if last message is a file -->
+            <span class="file-preview">
+              <i class="fas fa-paperclip"></i>
+              <?php
+                $filename = basename($comm['last_file']);
+                echo htmlspecialchars(mb_strimwidth($filename, 0, 30, '...'));
+              ?>
+            </span>
+          <?php elseif (!empty($comm['last_message'])): ?>
+            <!-- Show message preview if last message is text -->
+            <?= htmlspecialchars(mb_strimwidth($comm['last_message'], 0, 60, '...')) ?>
+          <?php else: ?>
+            <!-- Fallback if neither exists (shouldn't happen but good practice) -->
+            <span class="text-muted">No messages yet</span>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -1896,23 +1978,30 @@ function editMessage(btn, messageId) {
 }
 </script>
 
-
 <script>
-let pressTimer;
+document.getElementById('searchInput').addEventListener('keyup', function () {
+    let input = this.value.toLowerCase();
+    let rows = document.querySelectorAll('#conversationTableBody .table-row');
+    let noResultsRow = document.getElementById('noResultsRow');
+    let found = false;
 
-document.querySelectorAll('.message.outgoing').forEach(msg => {
-    msg.addEventListener('mousedown', e => {
-        pressTimer = setTimeout(() => {
-            const menu = msg.querySelector('.attachment-menu');
-            if (menu) menu.style.display = 'block';
-        }, 600); // long press threshold (600ms)
+    rows.forEach(function (row) {
+        let title = row.querySelector('.title').textContent.toLowerCase();
+        let recipient = row.querySelector('.recipient').textContent.toLowerCase();
+        let sender = row.querySelector('.sender').textContent.toLowerCase();
+
+        if (title.includes(input) || recipient.includes(input) || sender.includes(input)) {
+            row.style.display = '';
+            found = true;
+        } else {
+            row.style.display = 'none';
+        }
     });
 
-    msg.addEventListener('mouseup', () => clearTimeout(pressTimer));
-    msg.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+    // Show or hide the "No results" row
+    noResultsRow.style.display = found ? 'none' : '';
 });
 </script>
-
 
 
 
@@ -1948,6 +2037,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+<script>
+function filterByDate() {
+  const startDate = document.getElementById("startDate").value;
+  const endDate = document.getElementById("endDate").value;
+  const rows = document.querySelectorAll("#conversationTableBody .table-row");
+  const noResultsRow = document.getElementById("noResultsRow");
+
+  let found = false;
+
+  rows.forEach(row => {
+    const rowDate = row.getAttribute("data-date");
+
+    if (
+      (!startDate || rowDate >= startDate) &&
+      (!endDate || rowDate <= endDate)
+    ) {
+      row.style.display = "";
+      found = true;
+    } else {
+      row.style.display = "none";
+    }
+  });
+
+  noResultsRow.style.display = found ? "none" : "";
+}
+
+// Trigger filtering when either date is changed
+document.getElementById("startDate").addEventListener("change", filterByDate);
+document.getElementById("endDate").addEventListener("change", filterByDate);
+</script>
+
 
   <!-- End  -->
 
@@ -2098,6 +2219,19 @@ function escapeHtml(text) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
   });
 }
+</script>
+
+<script>
+function dismissWelcome() {
+  const box = document.getElementById('welcomeNotification');
+  box.style.display = 'none';
+}
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    dismissWelcome();
+  }, 5000); // 5000ms = 5 seconds
+});
+
 </script>
 
 

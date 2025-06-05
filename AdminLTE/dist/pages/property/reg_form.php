@@ -5,6 +5,7 @@ $dbname = "bt_jengopay";
 $username = "root";
 $password = "";
 
+
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -228,6 +229,7 @@ try {
     }
 </script>
 <?php endif; ?>
+
 
 
 
@@ -825,21 +827,21 @@ try {
           <label>Select Water Unit Price</label>
             <select name="water_price" id="water_price" class="form-control">
               <option value="" selected hidden>--Select Water Unit Price--</option>
-              <option value="Residential">Ksh 200</option>
-              <option value="Commercial">Ksh 150</option>
-              <option value="Commercial">Ksh 100</option>
-              <option value="Industrial">Ksh 50</option>
+              <option value="200">Ksh 200</option>
+              <option value="150">Ksh 150</option>
+              <option value="100">Ksh 100</option>
+              <option value="50">Ksh 50</option>
             </select>
           </div>
           <div class="col-md-8">
           <label>Select Electricity Unit Price</label>
             <select name="electricity_price" id="electricity_price" class="form-control">
               <option value="" selected hidden>--Select Water Unit Price--</option>
-              <option value="Residential">Ksh 1000</option>
-              <option value="Commercial">Ksh 500</option>
-              <option value="Commercial">Ksh 200</option>
-              <option value="Industrial">Ksh 100</option>
-              <option value="Industrial">Ksh 50</option>
+              <option value="1000">Ksh 1000</option>
+              <option value="500">Ksh 500</option>
+              <option value="200">Ksh 200</option>
+              <option value="100">Ksh 100</option>
+              <option value="50">Ksh 50</option>
             </select>
           </div>
           </div>
